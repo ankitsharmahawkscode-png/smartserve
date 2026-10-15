@@ -1,14 +1,16 @@
+
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
       fontFamily: { sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'] },
       colors: {
-        brand: { DEFAULT: '#0F766E', dark: '#0B5A54', tint: '#E3F2EF' },
-        accent: '#B45309',
-        ink: { DEFAULT: '#14211F', muted: '#4A5B58' },
-        ground: '#F6F7F5',
-        line: '#DDE3E1',
+        // Technical Workers brand: navy, blue and orange taken from the logo
+        brand: { DEFAULT: '#1D4ED8', dark: '#0B1F3A', tint: '#E8EEFC' },
+        accent: { DEFAULT: '#FF6B2C', text: '#C2410C' }, // use DEFAULT for fills and icons, text for orange words
+        ink: { DEFAULT: '#0B1F3A', muted: '#5B6B88' },
+        ground: '#F6F8FB',
+        line: { DEFAULT: '#DCE3EF', strong: '#7A89A8' }, // strong = form borders (3:1 contrast)
       },
       borderRadius: { card: '16px' },
     },

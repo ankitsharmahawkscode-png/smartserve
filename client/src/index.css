@@ -2,3 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 body { @apply bg-ground text-ink font-sans; }
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #1a1b1b #F6F8FB;
+  
+}
+
+html::-webkit-scrollbar {
+  width: 8px;
+}
+
+html::-webkit-scrollbar-track {
+  background: #F6F8FB;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: #222324;
+  border-radius: 9999px;
+  border: 2px solid #F6F8FB;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: #FF6B2C;
+}
+.container::-webkit-scrollbar {
+   display: none; /* Chrome, Safari, Opera */
+}
+.container {
+   -ms-overflow-style: none;  /* IE and Edge */
+   scrollbar-width: none;  /* Firefox */
+}
