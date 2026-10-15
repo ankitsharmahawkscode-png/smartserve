@@ -1,12 +1,14 @@
 const router = require('express').Router();
 const { protect, authorize } = require('../middleware/auth');
+const seoRoutes = require('../utils/seo.routes');
+
 
 router.get('/health', (req, res) =>
   res.json({ success: true, data: { status: 'ok', uptime: process.uptime() }, message: 'SmartServe API is running' })
 );
 
 router.use(require('./public.routes'));
-router.use('/seo', require('./seo.routes'));
+router.use('/seo', seoRoutes);
 router.use('/auth', require('./auth.routes'));
 router.use('/me', protect, require('./me.routes'));
 router.use('/bookings', protect, authorize('customer'), require('./booking.routes'));
