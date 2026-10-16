@@ -27,6 +27,16 @@ exports.categorySchema = z.object({
   description: z.string().trim().max(300).optional(),
   icon: z.string().trim().max(60).optional(),
   isActive: z.boolean().optional(),
+  seo: z
+    .object({
+      title: z.string().trim().max(70, 'Keep the SEO title under 70 characters').optional(),
+      description: z
+        .string()
+        .trim()
+        .max(160, 'Keep the meta description under 160 characters')
+        .optional(),
+      keywords: z.string().trim().max(300, 'Keep keywords under 300 characters').optional(),
+    })
 });
 exports.serviceSchema = z.object({
   category: objectId,
