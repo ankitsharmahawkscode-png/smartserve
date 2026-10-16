@@ -37,6 +37,7 @@ export default function Home() {
   const cats = useFetch('/categories');
   const list = useFetch('/services', { limit: 6 });
   const origin = window.location.origin;
+
   useSeo({
     path: '/',
     jsonLd: {
@@ -53,6 +54,7 @@ export default function Home() {
       ...(company.serviceArea && { areaServed: company.serviceArea }),
     },
   });
+
   return (
     <MotionConfig reducedMotion="user">
       <main className="w-full overflow-hidden">
@@ -66,17 +68,17 @@ export default function Home() {
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.75, ease: 'easeOut' }}
-                className="text-center md:text-left"
+                className="text-center md:text-left order-2 md:order-1"
               >
                 <p className="font-extrabold text-accent-text tracking-wider uppercase text-xs sm:text-sm">
                   {company.tagline}
                 </p>
 
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight tracking-tight mt-3">
+                <h1 className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight tracking-tight mt-3">
                   Home services, booked online in minutes.
                 </h1>
 
-                <p className="text-base sm:text-lg text-ink-muted mt-4 max-w-xl mx-auto md:mx-0 leading-relaxed">
+                <p className="text-sm sm:text-lg text-ink-muted mt-4 max-w-xl mx-auto md:mx-0 leading-relaxed">
                   AC repair, plumbing, electrical work, cleaning and appliance
                   repair. Choose a time, track your technician and pay your way.
                 </p>
@@ -87,16 +89,15 @@ export default function Home() {
                   transition={{ duration: 0.6, delay: 0.25 }}
                   className="flex flex-col sm:flex-row justify-center md:justify-start gap-3 mt-6 sm:mt-8"
                 >
-                  <LinkButton to="/services">
-                    Book a service
-                  </LinkButton>
-
-                  <LinkButton to="/about" variant="secondary">
-                    About us
-                  </LinkButton>
+                  <div className="w-full sm:w-auto">
+                    <LinkButton to="/services">Book a service</LinkButton>
+                  </div>
+                  <div className="w-full sm:w-auto">
+                    <LinkButton to="/about" variant="secondary">About us</LinkButton>
+                  </div>
                 </motion.div>
 
-                <div className="flex flex-wrap justify-center md:justify-start gap-x-5 gap-y-2 mt-6 text-sm text-ink-muted">
+                <div className="flex flex-wrap justify-center md:justify-start gap-x-5 gap-y-2 mt-6 text-xs sm:text-sm text-ink-muted">
                   {['Easy online booking', 'Track your booking'].map((item) => (
                     <span key={item} className="inline-flex items-center gap-2">
                       <svg
@@ -121,14 +122,14 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.85, x: 25 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.15 }}
-                className="flex justify-center items-center mt-2 md:mt-0"
+                className="flex justify-center items-center mt-2 md:mt-0 order-1 md:order-2"
               >
                 <motion.img
                   src="/logo-icon.png"
                   alt=""
                   aria-hidden="true"
                   fetchPriority="high"
-                  className="w-36 sm:w-48 md:w-56 lg:w-72 xl:w-80 h-auto object-contain"
+                  className="w-28 xs:w-36 sm:w-48 md:w-56 lg:w-72 xl:w-80 h-auto object-contain"
                   animate={{ y: [0, -9, 0] }}
                   transition={{
                     duration: 3,
@@ -152,7 +153,7 @@ export default function Home() {
             className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6"
           >
             <div>
-              <p className="text-sm font-semibold text-ink-muted mb-1">
+              <p className="text-xs sm:text-sm font-semibold text-ink-muted mb-1">
                 WHAT WE OFFER
               </p>
               <h2
@@ -165,7 +166,7 @@ export default function Home() {
 
             <Link
               to="/services"
-              className="inline-flex items-center gap-2 self-start sm:self-auto font-semibold text-brand underline underline-offset-4 hover:text-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
+              className="inline-flex items-center gap-2 self-start sm:self-auto text-sm sm:text-base font-semibold text-brand underline underline-offset-4 hover:text-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
             >
               See all services <span aria-hidden="true">→</span>
             </Link>
@@ -175,7 +176,7 @@ export default function Home() {
           {cats.data?.items?.length > 0 && (
             <motion.ul
               {...sectionMotion}
-              className="flex gap-2 overflow-x-auto pb-3 mb-5 sm:mb-6"
+              className="flex gap-2 overflow-x-auto pb-3 mb-5 sm:mb-6 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide"
             >
               {cats.data.items.map((c) => (
                 <li key={c._id} className="shrink-0">
@@ -210,7 +211,7 @@ export default function Home() {
           {list.error && (
             <div
               role="alert"
-              className="p-4 rounded-xl border border-red-200 bg-red-50 text-red-800"
+              className="p-4 rounded-xl border border-red-200 bg-red-50 text-red-800 text-sm sm:text-base"
             >
               We could not load services right now. Please try again shortly.
             </div>
@@ -221,7 +222,7 @@ export default function Home() {
             !list.error &&
             list.data &&
             list.data.items.length === 0 && (
-              <p className="text-ink-muted py-6">
+              <p className="text-ink-muted py-6 text-sm sm:text-base">
                 Services will appear here soon.
               </p>
             )}
@@ -279,12 +280,12 @@ export default function Home() {
                           {s.category?.name || 'Home service'}
                         </p>
 
-                        <h3 className="text-lg sm:text-xl font-extrabold break-words">
+                        <h3 className="text-base sm:text-xl font-extrabold break-words">
                           {s.name}
                         </h3>
 
-                        <p className="text-ink-muted mt-2 mb-5">
-                          <span className="text-sm">
+                        <p className="text-ink-muted mt-2 mb-5 text-sm sm:text-base">
+                          <span className="text-xs sm:text-sm">
                             {s.pricingType === 'fixed' ? 'Fixed price' : 'From'}
                           </span>{' '}
                           <span className="font-bold text-brand-dark">
@@ -306,14 +307,15 @@ export default function Home() {
               </div>
             )}
         </section>
-         {/* HOW IT WORKS */}
+
+        {/* HOW IT WORKS */}
         <section className="bg-brand-dark text-white">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
             <motion.div
               {...sectionMotion}
               className="max-w-2xl mb-8 sm:mb-10"
             >
-              <p className="text-sm font-semibold uppercase tracking-wider text-white/70 mb-2">
+              <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-white/70 mb-2">
                 SIMPLE AND CONVENIENT
               </p>
 
@@ -327,7 +329,7 @@ export default function Home() {
               </p>
             </motion.div>
 
-            <ol className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <ol className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {STEPS.map(([n, title, text], index) => (
                 <motion.li
                   key={n}
@@ -336,17 +338,17 @@ export default function Home() {
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ duration: 0.5, delay: index * 0.15 }}
                   whileHover={{ y: -5 }}
-                  className="flex gap-4 p-4 sm:p-5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition-colors"
+                  className="flex gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition-colors"
                 >
                   <span
-                    className="shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-accent text-brand-dark font-extrabold text-lg flex items-center justify-center"
+                    className="shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-accent text-brand-dark font-extrabold text-base sm:text-lg flex items-center justify-center"
                     aria-hidden="true"
                   >
                     {n}
                   </span>
 
                   <div className="min-w-0">
-                    <h3 className="font-extrabold text-lg sm:text-xl mb-2">
+                    <h3 className="font-extrabold text-base sm:text-xl mb-2">
                       {title}
                     </h3>
 
@@ -369,7 +371,7 @@ export default function Home() {
             {...sectionMotion}
             className="text-center max-w-2xl mx-auto mb-8 sm:mb-10"
           >
-            <p className="text-sm font-semibold uppercase tracking-wider text-ink-muted mb-2">
+            <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-ink-muted mb-2">
               THE BETTER WAY TO BOOK
             </p>
 
@@ -422,9 +424,9 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6 }}
-            className="mt-10 sm:mt-12 rounded-2xl bg-brand-tint px-5 py-8 sm:px-8 sm:py-10 text-center"
+            className="mt-10 sm:mt-12 rounded-2xl bg-brand-tint px-4 sm:px-8 py-8 sm:py-10 text-center"
           >
-            <h3 className="text-xl sm:text-2xl font-extrabold">
+            <h3 className="text-lg sm:text-2xl font-extrabold">
               Ready to get started?
             </h3>
 
