@@ -4,7 +4,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const { buildSitemap, buildRobots } = require('../utils/seo');
 const { clientUrl, nodeEnv } = require('../config/env');
 
-const TTL = nodeEnv === 'test' ? 0 : 10 * 60 * 1000; // rebuilt at most every 10 minutes
+const TTL = nodeEnv === 'test' ? 0 : 10 * 60 * 1000;// rebuilt at most every 10 minutes
 let cache = { at: 0, xml: '' };
 const day = (d) => new Date(d).toISOString().slice(0, 10);
 
