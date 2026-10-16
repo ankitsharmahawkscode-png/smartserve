@@ -10,7 +10,7 @@ const contact = require('../controllers/contact.controller');
 router.param('id', validId);
 
 router.get('/categories', c.categories);
-router.get('/categories/:slug', c.categoryBySlug); // 👈 NEW (uses `c` not `catalog`)
+router.get('/categories/:slug', c.getCategoryBySlug);
 router.get('/services', c.services);
 router.get('/services/:id', c.service);
 router.get('/services/:id/slots', c.slots);
