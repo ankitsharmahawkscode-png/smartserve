@@ -31,6 +31,19 @@ const schema = new Schema(
     holdsSlot: { type: Boolean, default: false },
     cancellation: { by: { type: Schema.Types.ObjectId, ref: 'User' }, role: String, reason: String, fee: Number, at: Date },
     statusHistory: [historySchema],
+    liveLocation: {
+  lat: { type: Number },
+  lng: { type: Number },
+  updatedAt: { type: Date },
+  isSharing: { type: Boolean, default: false },
+},
+locationHistory: [
+  {
+    lat: Number,
+    lng: Number,
+    at: { type: Date, default: Date.now },
+  },
+],
   },
   { timestamps: true }
 );

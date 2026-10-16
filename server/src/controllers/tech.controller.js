@@ -54,3 +54,48 @@ exports.setAvailability = asyncHandler(async (req, res) => {
   const user = await User.findByIdAndUpdate(req.user._id, { $set: { 'technician.isAvailable': req.body.isAvailable } }, { new: true });
   ok(res, { user }, 'Availability updated');
 });
+
+// ----- live location sharing -----
+
+// POST /api/v1/tech/jobs/:id/location/start
+exports.startSharing = asyncHandler(async (req, res) => {
+  const job = await findMine(req);
+
+  if (!['ASSIGNED', 'ACCEPTED', 'IN_PROGRESS'].includes(job.status)) {
+    throw new ApiError(400, 'Can only share location for active jobs');
+  }
+
+  job.liveLocation = { isSharing: true, updatedAt: new Date() };
+  await job.save();
+
+  ok(res, { booking: job }, 'Location sharing started');
+});
+
+// POST /api/v1/tech/jobs/:id/location/stop
+exports.stopSharing = asyncHandler(async (req, res) => {
+  const job = await findMine(req);
+
+  job.liveLocation = { isSharing: false };
+  await job.save();
+
+  const io = req.app.get('io');
+  if (io) {
+    io.to(`booking:${req.params.id}`).emit('tech:stopped', {
+      bookingId: req.params.id,
+    });
+  }
+
+  ok(res, { booking: job }, 'Location sharing stopped');
+});
+// GET /api/v1/tech/jobs/:id/location
+exports.getLocation = asyncHandler(async (req, res) => {
+  const job = await findMine(req);
+
+  ok(
+    res,
+    {
+      liveLocation: job.liveLocation || { isSharing: false },
+    },
+    'Location fetched'
+  );
+});

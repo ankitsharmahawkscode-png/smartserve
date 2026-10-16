@@ -11,12 +11,16 @@
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "axios": "^1.7.7",
+    "leaflet": "^1.9.4",
     "motion": "^11.11.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
+    "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.26.2",
     "recharts": "^2.12.7",
+    "socket.io": "^4.8.4",
+    "socket.io-client": "^4.8.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
