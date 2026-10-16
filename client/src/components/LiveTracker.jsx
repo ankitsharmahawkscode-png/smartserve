@@ -32,7 +32,8 @@ function RecenterMap({ center }) {
 function InvalidateOnMount() {
   const map = useMap();
   useEffect(() => {
-    setTimeout(() => map.invalidateSize(), 100);
+    const t = setTimeout(() => map.invalidateSize(), 150);
+    return () => clearTimeout(t);
   }, [map]);
   return null;
 }
@@ -86,12 +87,28 @@ export default function LiveTracker({ bookingId, initialCenter }) {
         )}
       </div>
 
-      {/* Map */}
-      <div className="w-full" style={{ height: '360px' }}>
+      {/* Map — full width, fixed height */}
+      <div
+        className="w-full relative"
+        style={{
+          height: '400px',
+          minHeight: '400px',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
         <MapContainer
           center={center}
           zoom={15}
-          style={{ height: '100%', width: '100%' }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: '100%',
+            width: '100%',
+          }}
           scrollWheelZoom={false}
         >
           <TileLayer
