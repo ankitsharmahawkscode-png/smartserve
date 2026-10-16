@@ -15,5 +15,7 @@ router.get('/services/:id/slots', c.slots);
 router.get('/services/:id/reviews', reviews.forService);
 router.get('/settings/public', c.publicSettings);
 router.post('/contact', contactLimiter, validate(S.contactSchema), contact.create);
+router.get('/categories/:slug', catalog.getCategoryBySlug);
+
 
 module.exports = router;

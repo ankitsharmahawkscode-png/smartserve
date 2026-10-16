@@ -35,6 +35,8 @@ import JobList from './pages/technician/JobList.jsx';
 import JobDetail from './pages/technician/JobDetail.jsx';
 import Earnings from './pages/technician/Earnings.jsx';
 import TechProfile from './pages/technician/TechProfile.jsx';
+import CategoryPage from './pages/public/CategoryPage.jsx';
+
 
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
@@ -52,6 +54,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<Services />} />
         <Route path="/services/:id" element={<ServiceDetail />} />
+          <Route path="/category/:slug" element={<CategoryPage />} /> 
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
@@ -87,6 +90,7 @@ export default function App() {
         ['audit', <AdminAudit />],
         ['settings', <AdminSettings />],
       ], <AdminOverview />)}
+     
     </Routes>
   );
 }

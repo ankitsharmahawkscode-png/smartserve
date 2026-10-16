@@ -47,3 +47,21 @@ exports.publicSettings = asyncHandler(async (req, res) => {
   const s = await getSettings();
   ok(res, { settings: { slots: s.slots, codEnabled: s.codEnabled, onlineEnabled: razorpay.isEnabled(), cancellation: s.cancellation, maxAdvanceDays: s.maxAdvanceDays } });
 });
+exports.getCategoryBySlug = asyncHandler(async (req, res) => {
+  const category = await Category.findOne({
+    slug: req.params.slug,
+    isActive: true,
+  }).lean();
+
+  if (!category) throw new ApiError(404, 'Category not found');
+
+  const services = await Service.find({
+    category: category._id,
+    isAvailable: true,
+  })
+    .sort('name')
+    .limit(50)
+    .lean();
+
+  ok(res, { category, services });
+});
