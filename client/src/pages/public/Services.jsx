@@ -36,14 +36,15 @@ export default function Services() {
     if (page === 1) setStatus('loading');
     else setLoadingMore(true);
 
-    api.get('/services', {
-      params: {
-        category: category || undefined,
-        q: term || undefined,
-        page,
-        limit: PAGE_SIZE,
-      },
-    })
+    api
+      .get('/services', {
+        params: {
+          category: category || undefined,
+          q: term || undefined,
+          page,
+          limit: PAGE_SIZE,
+        },
+      })
       .then((res) => {
         if (id !== latest.current) return;
         const d = res.data.data;
@@ -69,7 +70,9 @@ export default function Services() {
 
   useSeo({
     title: catName
-      ? (/services$/i.test(catName) ? catName : `${catName} services`)
+      ? /services$/i.test(catName)
+        ? catName
+        : `${catName} services`
       : 'Home services: AC repair, plumbing, electrical and more',
     description: catName
       ? `Book ${catName} online with ${company.name}. Choose a time slot, track your technician and pay in cash or online.`
@@ -106,10 +109,10 @@ export default function Services() {
     error ? setAttempt((a) => a + 1) : setPageState({ key, page: page + 1 });
 
   const chip = (on) =>
-    `shrink-0 min-h-[44px] px-3 sm:px-4 rounded-[10px] border font-semibold text-sm sm:text-base whitespace-nowrap transition-colors ${
+    `shrink-0 min-h-[44px] px-4 rounded-full border font-semibold text-sm sm:text-base whitespace-nowrap transition-colors ${
       on
         ? 'bg-brand text-white border-brand'
-        : 'bg-white border-line-strong hover:border-brand hover:bg-brand-tint'
+        : 'bg-white text-brand-dark border-line-strong hover:border-brand hover:bg-brand-tint'
     }`;
 
   const filtered = Boolean(category || term);
@@ -120,75 +123,60 @@ export default function Services() {
         Services
       </h1>
 
-      <div className="flex flex-col gap-4 mb-5 sm:mb-6">
-        {/* Search */}
-        <div className="w-full md:max-w-md">
-          <label
-            htmlFor="svc-search"
-            className="block text-xs sm:text-sm font-semibold text-ink-muted mb-1"
+      {/* Search */}
+      <div className="w-full md:max-w-md mb-4 sm:mb-5">
+        <label
+          htmlFor="svc-search"
+          className="block text-xs sm:text-sm font-semibold text-ink-muted mb-1"
+        >
+          Search
+        </label>
+        <input
+          id="svc-search"
+          type="search"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search services"
+          className="w-full min-h-[44px] px-4 rounded-full border border-line-strong bg-white text-sm sm:text-base focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+        />
+      </div>
+
+      {/* Category chips — single row, horizontally scrollable */}
+      <div className="relative mb-5 sm:mb-6">
+        <div
+          className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 scrollbar-hide"
+          role="group"
+          aria-label="Filter by category"
+        >
+          <button
+            type="button"
+            className={chip(!category)}
+            aria-pressed={!category}
+            onClick={() => setCategory('')}
           >
-            Search
-          </label>
-          <input
-            id="svc-search"
-            type="search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search services"
-            className="w-full min-h-[44px] px-3 rounded-[10px] border border-line-strong bg-white text-sm sm:text-base focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-          />
+            All
+          </button>
+          {cats.data?.items.map((c) => (
+            <button
+              key={c._id}
+              type="button"
+              className={chip(category === c.slug)}
+              aria-pressed={category === c.slug}
+              onClick={() => setCategory(c.slug)}
+            >
+              {c.name}
+            </button>
+          ))}
         </div>
 
-        {/* Phones: dropdown. Tablets+: chips row (scrollable) */}
-        <div className="md:hidden">
-          <label
-            htmlFor="svc-category"
-            className="block text-xs sm:text-sm font-semibold text-ink-muted mb-1"
-          >
-            Category
-          </label>
-          <select
-            id="svc-category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full min-h-[44px] px-3 rounded-[10px] border border-line-strong bg-white text-sm sm:text-base focus:outline-none focus:border-brand"
-          >
-            <option value="">All categories</option>
-            {cats.data?.items.map((c) => (
-              <option key={c._id} value={c.slug}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Right fade — hints that there are more chips to scroll */}
+        <div
+          className="pointer-events-none absolute right-0 top-0 bottom-3 w-12 bg-gradient-to-l from-ground to-transparent"
+          aria-hidden="true"
+        />
+      </div>
 
-       <div
-  className="hidden md:flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide"
-  role="group"
-  aria-label="Filter by category"
->
-  <button
-    type="button"
-    className={chip(!category)}
-    aria-pressed={!category}
-    onClick={() => setCategory('')}
-  >
-    All
-  </button>
-  {cats.data?.items.map((c) => (
-    <button
-      key={c._id}
-      type="button"
-      className={chip(category === c.slug)}
-      aria-pressed={category === c.slug}
-      onClick={() => setCategory(c.slug)}
-    >
-      {c.name}
-    </button>
-  ))}
-</div>
-</div>
-
+      {/* Results count + Clear filters */}
       <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 min-h-[44px]">
         <p aria-live="polite" className="text-xs sm:text-sm text-ink-muted">
           {status === 'idle' && total > 0
@@ -206,18 +194,22 @@ export default function Services() {
         )}
       </div>
 
+      {/* Loading */}
       {status === 'loading' && <SkeletonCards n={6} />}
 
+      {/* Error */}
       {status === 'error' && (
         <ErrorState message={error} onRetry={() => setAttempt((a) => a + 1)} />
       )}
 
+      {/* Empty */}
       {status === 'idle' && items.length === 0 && (
         <EmptyState title="No services found">
           Try a different search or category.
         </EmptyState>
       )}
 
+      {/* Grid */}
       {status === 'idle' && items.length > 0 && (
         <>
           <div className="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -274,10 +266,12 @@ export default function Services() {
 
                 <Link
                   to={`/services/${s._id}`}
-                  className="mt-auto inline-flex items-center justify-center min-h-[44px] px-5 rounded-[10px] border border-brand bg-white text-brand-dark font-semibold text-sm sm:text-base hover:bg-brand hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                  className="mt-auto inline-flex items-center justify-center min-h-[44px] px-5 rounded-full border border-brand bg-white text-brand-dark font-semibold text-sm sm:text-base hover:bg-brand hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 >
                   View details
-                  <span className="ml-2" aria-hidden="true">→</span>
+                  <span className="ml-2" aria-hidden="true">
+                    →
+                  </span>
                 </Link>
               </Card>
             ))}
@@ -286,7 +280,10 @@ export default function Services() {
           {items.length < total && (
             <div className="text-center mt-6 sm:mt-8">
               {error && (
-                <p role="alert" className="text-red-800 mb-3 text-sm sm:text-base">
+                <p
+                  role="alert"
+                  className="text-red-800 mb-3 text-sm sm:text-base"
+                >
                   {error}
                 </p>
               )}
@@ -296,7 +293,11 @@ export default function Services() {
                 disabled={loadingMore}
                 className="w-full sm:w-auto min-h-[44px]"
               >
-                {loadingMore ? 'Loading...' : error ? 'Try again' : 'Load more services'}
+                {loadingMore
+                  ? 'Loading...'
+                  : error
+                  ? 'Try again'
+                  : 'Load more services'}
               </Button>
             </div>
           )}
