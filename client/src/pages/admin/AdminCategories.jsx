@@ -346,9 +346,17 @@ export default function AdminCategories() {
             <tbody>
               {data.items.map((c) => (
                 <tr key={c._id} className="border-t border-line">
-                  <td className="p-3 font-semibold">
-                    {c.name}
-                    {c.description && (
+                 <td className="p-3 font-semibold">
+  <a
+    href={`/category/${encodeURIComponent(c.slug)}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-brand-dark hover:text-brand underline underline-offset-2 font-bold"
+    title={`Open ${c.name} page`}
+  >
+    {c.name}
+  </a>
+  {c.description && (
                       <>
                         <br />
                         <span className="text-sm font-normal text-ink-muted">
