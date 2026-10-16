@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { socket, connectSocket } from '../lib/socket.js';
@@ -29,6 +29,14 @@ function RecenterMap({ center }) {
   return null;
 }
 
+function InvalidateOnMount() {
+  const map = useMap();
+  useEffect(() => {
+    setTimeout(() => map.invalidateSize(), 100);
+  }, [map]);
+  return null;
+}
+
 export default function LiveTracker({ bookingId, initialCenter }) {
   const [location, setLocation] = useState(null);
   const [stopped, setStopped] = useState(false);
@@ -36,7 +44,6 @@ export default function LiveTracker({ bookingId, initialCenter }) {
 
   useEffect(() => {
     connectSocket();
-
     socket.emit('customer:join', { bookingId });
 
     const onLocation = (data) => {
@@ -62,6 +69,7 @@ export default function LiveTracker({ bookingId, initialCenter }) {
 
   return (
     <div className="rounded-xl overflow-hidden border border-line">
+      {/* Status bar */}
       <div className="bg-brand-tint p-3 flex items-center justify-between text-sm">
         <span className="font-semibold text-brand-dark">
           {stopped
@@ -78,23 +86,27 @@ export default function LiveTracker({ bookingId, initialCenter }) {
         )}
       </div>
 
-      <MapContainer
-        center={center}
-        zoom={14}
-        style={{ height: '320px', width: '100%' }}
-        scrollWheelZoom={false}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {location && (
-          <Marker position={[location.lat, location.lng]} icon={techIcon}>
-            <Popup>Your technician</Popup>
-          </Marker>
-        )}
-        <RecenterMap center={center} />
-      </MapContainer>
+      {/* Map */}
+      <div className="w-full" style={{ height: '360px' }}>
+        <MapContainer
+          center={center}
+          zoom={15}
+          style={{ height: '100%', width: '100%' }}
+          scrollWheelZoom={false}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {location && (
+            <Marker position={[location.lat, location.lng]} icon={techIcon}>
+              <Popup>Your technician</Popup>
+            </Marker>
+          )}
+          <RecenterMap center={center} />
+          <InvalidateOnMount />
+        </MapContainer>
+      </div>
     </div>
   );
 }
