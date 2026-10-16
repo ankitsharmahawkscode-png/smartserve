@@ -30,6 +30,12 @@ export default function Services() {
   const [attempt, setAttempt] = useState(0);
   const latest = useRef(0);
 
+  // Refs for the chips carousel
+  const chipsRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // ---- Data fetching ----
   useEffect(() => {
     const id = ++latest.current;
     setError('');
@@ -65,6 +71,36 @@ export default function Services() {
         if (id === latest.current) setLoadingMore(false);
       });
   }, [category, term, page, attempt]);
+
+  // ---- Chips carousel: track scroll state ----
+  const updateArrows = () => {
+    const el = chipsRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+
+  useEffect(() => {
+    updateArrows();
+    const el = chipsRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', updateArrows, { passive: true });
+    window.addEventListener('resize', updateArrows);
+    return () => {
+      el.removeEventListener('scroll', updateArrows);
+      window.removeEventListener('resize', updateArrows);
+    };
+  }, [cats.data]);
+
+  const scrollChips = (direction) => {
+    const el = chipsRef.current;
+    if (!el) return;
+    const amount = el.clientWidth * 0.7;
+    el.scrollBy({
+      left: direction === 'left' ? -amount : amount,
+      behavior: 'smooth',
+    });
+  };
 
   const catName = cats.data?.items.find((c) => c.slug === category)?.name;
 
@@ -109,11 +145,14 @@ export default function Services() {
     error ? setAttempt((a) => a + 1) : setPageState({ key, page: page + 1 });
 
   const chip = (on) =>
-    `shrink-0 min-h-[44px] px-4 rounded-full border font-semibold text-sm sm:text-base whitespace-nowrap transition-colors ${
+    `shrink-0 min-h-[40px] sm:min-h-[44px] px-4 rounded-full border font-semibold text-sm sm:text-base whitespace-nowrap transition-colors ${
       on
         ? 'bg-brand text-white border-brand'
         : 'bg-white text-brand-dark border-line-strong hover:border-brand hover:bg-brand-tint'
     }`;
+
+  const arrowBtn =
+    'hidden md:flex items-center justify-center w-10 h-10 rounded-full border border-line-strong bg-white text-brand-dark hover:bg-brand hover:text-white hover:border-brand transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-brand-dark disabled:hover:border-line-strong shrink-0';
 
   const filtered = Boolean(category || term);
 
@@ -141,69 +180,104 @@ export default function Services() {
         />
       </div>
 
-      {/* Category chips — single row, horizontally scrollable */}
-     {/* Category chips — scroll on mobile, wrap on desktop */}
-<div className="relative mb-5 sm:mb-6">
-  {/* Mobile: horizontal scroll */}
-  <div
-    className="flex md:hidden gap-2 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-hide"
-    role="group"
-    aria-label="Filter by category"
-  >
-    <button
-      type="button"
-      className={chip(!category)}
-      aria-pressed={!category}
-      onClick={() => setCategory('')}
-    >
-      All
-    </button>
-    {cats.data?.items.map((c) => (
-      <button
-        key={c._id}
-        type="button"
-        className={chip(category === c.slug)}
-        aria-pressed={category === c.slug}
-        onClick={() => setCategory(c.slug)}
-      >
-        {c.name}
-      </button>
-    ))}
-  </div>
+      {/* Category chips — carousel with arrows (desktop) + swipe (mobile) */}
+      <div className="mb-5 sm:mb-6">
+        <div className="flex items-center gap-2">
+          {/* Left arrow */}
+          <button
+            type="button"
+            aria-label="Scroll categories left"
+            className={arrowBtn}
+            onClick={() => scrollChips('left')}
+            disabled={!canScrollLeft}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
 
-  {/* Desktop: wrap into multiple rows, all visible */}
-  <div
-    className="hidden md:flex flex-wrap gap-2"
-    role="group"
-    aria-label="Filter by category"
-  >
-    <button
-      type="button"
-      className={chip(!category)}
-      aria-pressed={!category}
-      onClick={() => setCategory('')}
-    >
-      All
-    </button>
-    {cats.data?.items.map((c) => (
-      <button
-        key={c._id}
-        type="button"
-        className={chip(category === c.slug)}
-        aria-pressed={category === c.slug}
-        onClick={() => setCategory(c.slug)}
-      >
-        {c.name}
-      </button>
-    ))}
-  </div>
+          {/* Scrollable chips row */}
+          <div className="relative flex-1 min-w-0">
+            <div
+              ref={chipsRef}
+              className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x"
+              role="group"
+              aria-label="Filter by category"
+            >
+              <button
+                type="button"
+                className={chip(!category)}
+                aria-pressed={!category}
+                onClick={() => setCategory('')}
+              >
+                All
+              </button>
+              {cats.data?.items.map((c) => (
+                <button
+                  key={c._id}
+                  type="button"
+                  className={chip(category === c.slug)}
+                  aria-pressed={category === c.slug}
+                  onClick={() => setCategory(c.slug)}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
 
-  {/* Mobile-only fade hint */}
-  <div
-    className="pointer-events-none absolute right-0 top-0 bottom-3 w-12 bg-gradient-to-l from-ground to-transparent md:hidden"
-    aria-hidden="true"
-  />
-</div>
+            {/* Right fade (only while more content exists) */}
+            {canScrollRight && (
+              <div
+                className="pointer-events-none absolute right-0 top-0 bottom-1 w-10 bg-gradient-to-l from-ground to-transparent"
+                aria-hidden="true"
+              />
+            )}
+
+            {/* Left fade (only while scrolled) */}
+            {canScrollLeft && (
+              <div
+                className="pointer-events-none absolute left-0 top-0 bottom-1 w-10 bg-gradient-to-r from-ground to-transparent"
+                aria-hidden="true"
+              />
+            )}
+          </div>
+
+          {/* Right arrow */}
+          <button
+            type="button"
+            aria-label="Scroll categories right"
+            className={arrowBtn}
+            onClick={() => scrollChips('right')}
+            disabled={!canScrollRight}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
 
       {/* Results count + Clear filters */}
       <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 min-h-[44px]">
