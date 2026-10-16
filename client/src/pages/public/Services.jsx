@@ -142,39 +142,68 @@ export default function Services() {
       </div>
 
       {/* Category chips — single row, horizontally scrollable */}
-      <div className="relative mb-5 sm:mb-6">
-        <div
-          className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 scrollbar-hide"
-          role="group"
-          aria-label="Filter by category"
-        >
-          <button
-            type="button"
-            className={chip(!category)}
-            aria-pressed={!category}
-            onClick={() => setCategory('')}
-          >
-            All
-          </button>
-          {cats.data?.items.map((c) => (
-            <button
-              key={c._id}
-              type="button"
-              className={chip(category === c.slug)}
-              aria-pressed={category === c.slug}
-              onClick={() => setCategory(c.slug)}
-            >
-              {c.name}
-            </button>
-          ))}
-        </div>
+     {/* Category chips — scroll on mobile, wrap on desktop */}
+<div className="relative mb-5 sm:mb-6">
+  {/* Mobile: horizontal scroll */}
+  <div
+    className="flex md:hidden gap-2 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-hide"
+    role="group"
+    aria-label="Filter by category"
+  >
+    <button
+      type="button"
+      className={chip(!category)}
+      aria-pressed={!category}
+      onClick={() => setCategory('')}
+    >
+      All
+    </button>
+    {cats.data?.items.map((c) => (
+      <button
+        key={c._id}
+        type="button"
+        className={chip(category === c.slug)}
+        aria-pressed={category === c.slug}
+        onClick={() => setCategory(c.slug)}
+      >
+        {c.name}
+      </button>
+    ))}
+  </div>
 
-        {/* Right fade — hints that there are more chips to scroll */}
-        <div
-          className="pointer-events-none absolute right-0 top-0 bottom-3 w-12 bg-gradient-to-l from-ground to-transparent"
-          aria-hidden="true"
-        />
-      </div>
+  {/* Desktop: wrap into multiple rows, all visible */}
+  <div
+    className="hidden md:flex flex-wrap gap-2"
+    role="group"
+    aria-label="Filter by category"
+  >
+    <button
+      type="button"
+      className={chip(!category)}
+      aria-pressed={!category}
+      onClick={() => setCategory('')}
+    >
+      All
+    </button>
+    {cats.data?.items.map((c) => (
+      <button
+        key={c._id}
+        type="button"
+        className={chip(category === c.slug)}
+        aria-pressed={category === c.slug}
+        onClick={() => setCategory(c.slug)}
+      >
+        {c.name}
+      </button>
+    ))}
+  </div>
+
+  {/* Mobile-only fade hint */}
+  <div
+    className="pointer-events-none absolute right-0 top-0 bottom-3 w-12 bg-gradient-to-l from-ground to-transparent md:hidden"
+    aria-hidden="true"
+  />
+</div>
 
       {/* Results count + Clear filters */}
       <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 min-h-[44px]">
