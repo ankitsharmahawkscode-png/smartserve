@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'leaflet/dist/leaflet.css';
 body { @apply bg-ground text-ink font-sans; }
 html {
   scrollbar-width: thin;
