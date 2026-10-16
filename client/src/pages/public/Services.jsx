@@ -162,32 +162,32 @@ export default function Services() {
           </select>
         </div>
 
-        <div
-          className="hidden md:flex flex-wrap gap-2"
-          role="group"
-          aria-label="Filter by category"
-        >
-          <button
-            type="button"
-            className={chip(!category)}
-            aria-pressed={!category}
-            onClick={() => setCategory('')}
-          >
-            All
-          </button>
-          {cats.data?.items.map((c) => (
-            <button
-              key={c._id}
-              type="button"
-              className={chip(category === c.slug)}
-              aria-pressed={category === c.slug}
-              onClick={() => setCategory(c.slug)}
-            >
-              {c.name}
-            </button>
-          ))}
-        </div>
-      </div>
+       <div
+  className="hidden md:flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide"
+  role="group"
+  aria-label="Filter by category"
+>
+  <button
+    type="button"
+    className={chip(!category)}
+    aria-pressed={!category}
+    onClick={() => setCategory('')}
+  >
+    All
+  </button>
+  {cats.data?.items.map((c) => (
+    <button
+      key={c._id}
+      type="button"
+      className={chip(category === c.slug)}
+      aria-pressed={category === c.slug}
+      onClick={() => setCategory(c.slug)}
+    >
+      {c.name}
+    </button>
+  ))}
+</div>
+</div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 min-h-[44px]">
         <p aria-live="polite" className="text-xs sm:text-sm text-ink-muted">
