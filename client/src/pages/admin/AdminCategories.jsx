@@ -343,66 +343,135 @@ export default function AdminCategories() {
         </EmptyState>
       )}
 
-      {data && data.items.length > 0 && (
-        <div className="overflow-x-auto bg-white border border-line rounded-card">
-          <table className="w-full min-w-[520px] text-left">
-            <thead className="text-xs sm:text-sm text-ink-muted">
-              <tr>
-                <th scope="col" className="p-3">Name</th>
-                <th scope="col" className="p-3">Status</th>
-                <th scope="col" className="p-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((c) => (
-                <tr key={c._id} className="border-t border-line">
-                  <td className="p-3 font-semibold">
-                    <a
-                      href={`/category/${encodeURIComponent(c.slug)}`}
-                      className="text-brand-dark hover:text-brand underline underline-offset-2 font-bold"
-                      title={`Open ${c.name} page`}
-                    >
-                      {c.name}
-                    </a>
-                    {c.description && (
-                      <>
-                        <br />
-                        <span className="text-sm font-normal text-ink-muted">
-                          {c.description}
-                        </span>
-                      </>
-                    )}
-                  </td>
-                  <td className="p-3 text-sm sm:text-base">
-                    {c.isActive ? 'Active' : 'Hidden'}
-                  </td>
-                  <td className="p-3">
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant="secondary"
-                        onClick={() => setForm(c)}
-                        className="min-h-[36px]"
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          action.setError('');
-                          setDel(c);
-                        }}
-                        className="min-h-[36px]"
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    
+             {data && data.items.length > 0 && (
+  <>
+    {/* ─── DESKTOP: table ─── */}
+    <div className="hidden md:block overflow-x-auto bg-white border border-line rounded-card">
+      <table className="w-full text-left">
+        <thead className="text-xs sm:text-sm text-ink-muted">
+          <tr>
+            <th scope="col" className="p-3">Name</th>
+            <th scope="col" className="p-3">Status</th>
+            <th scope="col" className="p-3 w-[180px]">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.items.map((c) => (
+            <tr key={c._id} className="border-t border-line">
+              <td className="p-3 font-semibold">
+                <a
+                  href={`/category/${encodeURIComponent(c.slug)}`}
+                  className="text-brand-dark hover:text-brand underline underline-offset-2 font-bold"
+                  title={`Open ${c.name} page`}
+                >
+                  {c.name}
+                </a>
+                {c.description && (
+                  <>
+                    <br />
+                    <span className="text-sm font-normal text-ink-muted">
+                      {c.description}
+                    </span>
+                  </>
+                )}
+              </td>
+              <td className="p-3 text-sm">
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                    c.isActive
+                      ? 'bg-green-50 text-green-800'
+                      : 'bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  {c.isActive ? 'Active' : 'Hidden'}
+                </span>
+              </td>
+              <td className="p-3">
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setForm(c)}
+                    className="min-h-[36px]"
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      action.setError('');
+                      setDel(c);
+                    }}
+                    className="min-h-[36px]"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {/* ─── MOBILE: cards ─── */}
+    <div className="md:hidden flex flex-col gap-3">
+      {data.items.map((c) => (
+        <div
+          key={c._id}
+          className="bg-white border border-line rounded-card p-4"
+        >
+          {/* Header row — name + status */}
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <a
+              href={`/category/${encodeURIComponent(c.slug)}`}
+              className="text-brand-dark hover:text-brand underline underline-offset-2 font-bold text-base min-w-0 break-words"
+            >
+              {c.name}
+            </a>
+            <span
+              className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                c.isActive
+                  ? 'bg-green-50 text-green-800'
+                  : 'bg-gray-100 text-gray-600'
+              }`}
+            >
+              {c.isActive ? 'Active' : 'Hidden'}
+            </span>
+          </div>
+
+          {/* Description */}
+          {c.description && (
+            <p className="text-sm text-ink-muted mb-3 line-clamp-2">
+              {c.description}
+            </p>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-2 pt-2 border-t border-line">
+            <Button
+              variant="secondary"
+              onClick={() => setForm(c)}
+              className="flex-1 min-h-[40px]"
+            >
+              Edit
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                action.setError('');
+                setDel(c);
+              }}
+              className="flex-1 min-h-[40px]"
+            >
+              Delete
+            </Button>
+          </div>
         </div>
-      )}
+      ))}
+    </div>
+  </>
+)}
 
       {form && (
         <CategoryForm
