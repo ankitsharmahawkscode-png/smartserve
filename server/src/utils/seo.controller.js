@@ -18,7 +18,12 @@ exports.sitemap = asyncHandler(async (req, res) => {
       { loc: `${clientUrl}/services`, changefreq: 'daily', priority: '0.9' },
       { loc: `${clientUrl}/about`, changefreq: 'monthly', priority: '0.5' },
       { loc: `${clientUrl}/contact`, changefreq: 'monthly', priority: '0.5' },
-      ...categories.map((c) => ({ loc: `${clientUrl}/services?category=${encodeURIComponent(c.slug)}`, lastmod: day(c.updatedAt), changefreq: 'weekly', priority: '0.8' })),
+    ...categories.map((c) => ({ 
+  loc: `${clientUrl}/category/${encodeURIComponent(c.slug)}`, 
+  lastmod: day(c.updatedAt), 
+  changefreq: 'weekly', 
+  priority: '0.8' 
+})),
       ...services.map((s) => ({ loc: `${clientUrl}/services/${s._id}`, lastmod: day(s.updatedAt), changefreq: 'weekly', priority: '0.7' })),
     ];
     cache = { at: Date.now(), xml: buildSitemap(entries) };
