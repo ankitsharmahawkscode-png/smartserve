@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
 import { motion, MotionConfig } from 'motion/react';
 import useFetch from '../../hooks/useFetch.js';
 import { Card } from '../../components/ui.jsx';
@@ -38,6 +39,40 @@ export default function Home() {
   const list = useFetch('/services', { limit: 6 });
   const origin = window.location.origin;
 
+  // Refs for the category chips carousel
+  const chipsRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateArrows = () => {
+    const el = chipsRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+
+  useEffect(() => {
+    updateArrows();
+    const el = chipsRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', updateArrows, { passive: true });
+    window.addEventListener('resize', updateArrows);
+    return () => {
+      el.removeEventListener('scroll', updateArrows);
+      window.removeEventListener('resize', updateArrows);
+    };
+  }, [cats.data]);
+
+  const scrollChips = (direction) => {
+    const el = chipsRef.current;
+    if (!el) return;
+    const amount = el.clientWidth * 0.7;
+    el.scrollBy({
+      left: direction === 'left' ? -amount : amount,
+      behavior: 'smooth',
+    });
+  };
+
   useSeo({
     path: '/',
     jsonLd: {
@@ -54,6 +89,9 @@ export default function Home() {
       ...(company.serviceArea && { areaServed: company.serviceArea }),
     },
   });
+
+  const arrowBtn =
+    'hidden md:flex items-center justify-center w-10 h-10 rounded-full border border-line-strong bg-white text-brand-dark hover:bg-brand hover:text-white hover:border-brand transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-brand-dark disabled:hover:border-line-strong shrink-0';
 
   return (
     <MotionConfig reducedMotion="user">
@@ -172,23 +210,94 @@ export default function Home() {
             </Link>
           </motion.div>
 
-          {/* CATEGORIES */}
+          {/* CATEGORIES — carousel with arrows */}
           {cats.data?.items?.length > 0 && (
-            <motion.ul
-              {...sectionMotion}
-              className="flex gap-2 overflow-x-auto pb-3 mb-5 sm:mb-6 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide"
-            >
-              {cats.data.items.map((c) => (
-                <li key={c._id} className="shrink-0">
-                  <Link
-                    to={`/services?category=${encodeURIComponent(c.slug)}`}
-                    className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 rounded-full border border-line-strong bg-white font-semibold text-sm sm:text-base hover:border-brand hover:bg-brand-tint transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            <motion.div {...sectionMotion} className="mb-5 sm:mb-6">
+              <div className="flex items-center gap-2">
+                {/* Left arrow */}
+                <button
+                  type="button"
+                  aria-label="Scroll categories left"
+                  className={arrowBtn}
+                  onClick={() => scrollChips('left')}
+                  disabled={!canScrollLeft}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.2}
                   >
-                    {c.name}
-                  </Link>
-                </li>
-              ))}
-            </motion.ul>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </button>
+
+                {/* Scrollable chips row */}
+                <div className="relative flex-1 min-w-0">
+                  <ul
+                    ref={chipsRef}
+                    className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x"
+                  >
+                    {cats.data.items.map((c) => (
+                      <li key={c._id} className="shrink-0 snap-start">
+                        <Link
+                          to={`/services?category=${encodeURIComponent(c.slug)}`}
+                          className="inline-flex items-center justify-center min-h-[44px] px-4 py-2 rounded-full border border-line-strong bg-white font-semibold text-sm sm:text-base hover:border-brand hover:bg-brand-tint transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                        >
+                          {c.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Right fade */}
+                  {canScrollRight && (
+                    <div
+                      className="pointer-events-none absolute right-0 top-0 bottom-1 w-10 bg-gradient-to-l from-ground to-transparent"
+                      aria-hidden="true"
+                    />
+                  )}
+
+                  {/* Left fade */}
+                  {canScrollLeft && (
+                    <div
+                      className="pointer-events-none absolute left-0 top-0 bottom-1 w-10 bg-gradient-to-r from-ground to-transparent"
+                      aria-hidden="true"
+                    />
+                  )}
+                </div>
+
+                {/* Right arrow */}
+                <button
+                  type="button"
+                  aria-label="Scroll categories right"
+                  className={arrowBtn}
+                  onClick={() => scrollChips('right')}
+                  disabled={!canScrollRight}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </motion.div>
           )}
 
           {/* LOADING STATE */}
@@ -295,7 +404,7 @@ export default function Home() {
 
                         <Link
                           to={`/services/${s._id}`}
-                          className="mt-auto inline-flex items-center justify-center w-full min-h-[44px] px-4 py-3 rounded-xl border border-brand bg-white text-brand-dark font-semibold text-sm sm:text-base hover:bg-brand hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                          className="mt-auto inline-flex items-center justify-center w-full min-h-[44px] px-4 py-3 rounded-full border border-brand bg-white text-brand-dark font-semibold text-sm sm:text-base hover:bg-brand hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                         >
                           View details
                           <span className="ml-2" aria-hidden="true">→</span>
