@@ -1,19 +1,24 @@
-const mongoose = require('mongoose');
-
-const schema = new mongoose.Schema(
+const categorySchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true, unique: true, maxlength: 60 },
+    name: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, lowercase: true },
-    description: { type: String, trim: true, maxlength: 300 },
+    description: { type: String, trim: true },
     icon: { type: String, trim: true },
     isActive: { type: Boolean, default: true },
-     seo: {
-      title: { type: String, default: '' },
-      description: { type: String, default: '' },
-      keywords: { type: String, default: '' }, // comma-separated
+
+    seo: {
+      title: { type: String, default: '', trim: true },
+      description: { type: String, default: '', trim: true },
+      keywords: { type: String, default: '', trim: true },
     },
+
+    // 👇 NEW
+    faqs: [
+      {
+        question: { type: String, trim: true, maxlength: 200 },
+        answer: { type: String, trim: true, maxlength: 1000 },
+      },
+    ],
   },
   { timestamps: true }
 );
-
-module.exports = mongoose.model('Category', schema);

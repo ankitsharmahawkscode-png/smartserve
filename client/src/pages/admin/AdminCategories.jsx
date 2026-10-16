@@ -11,13 +11,16 @@ import { EmptyState, ErrorState, Spinner } from '../../components/States.jsx';
 
 function CategoryForm({ category, onClose, onDone }) {
   const [f, setF] = useState({
-    name: category?.name || '',
-    description: category?.description || '',
-    isActive: category?.isActive ?? true,
-    seoTitle: category?.seo?.title || '',
-    seoDescription: category?.seo?.description || '',
-    seoKeywords: category?.seo?.keywords || '',
-  });
+  name: category?.name || '',
+  description: category?.description || '',
+  isActive: category?.isActive ?? true,
+  seoTitle: category?.seo?.title || '',
+  seoDescription: category?.seo?.description || '',
+  seoKeywords: category?.seo?.keywords || '',
+  faqs: category?.faqs?.length
+    ? category.faqs.map((x) => ({ question: x.question || '', answer: x.answer || '' }))
+    : [{ question: '', answer: '' }],
+});
   const [err, setErr] = useState('');
   const { busy, error, run } = useAction();
 
@@ -26,16 +29,23 @@ function CategoryForm({ category, onClose, onDone }) {
     if (f.name.trim().length < 2) return setErr('Enter a category name');
     setErr('');
 
-    const body = {
-      name: f.name.trim(),
-      isActive: f.isActive,
-      ...(f.description.trim() && { description: f.description.trim() }),
-      seo: {
-        title: f.seoTitle.trim(),
-        description: f.seoDescription.trim(),
-        keywords: f.seoKeywords.trim(),
-      },
-    };
+  const body = {
+  name: f.name.trim(),
+  isActive: f.isActive,
+  ...(f.description.trim() && { description: f.description.trim() }),
+  seo: {
+    title: f.seoTitle.trim(),
+    description: f.seoDescription.trim(),
+    keywords: f.seoKeywords.trim(),
+  },
+  // Filter out empty FAQ rows before sending
+  faqs: f.faqs
+    .filter((x) => x.question.trim() && x.answer.trim())
+    .map((x) => ({
+      question: x.question.trim(),
+      answer: x.answer.trim(),
+    })),
+};
 
     const ok = await run(() =>
       category
@@ -174,7 +184,80 @@ function CategoryForm({ category, onClose, onDone }) {
             </div>
           </div>
         </div>
+{/* FAQs section */}
+<div className="border-t border-line pt-4 mt-2">
+  <div className="flex items-center justify-between mb-3">
+    <h3 className="text-sm font-extrabold uppercase tracking-wider text-ink-muted">
+      FAQs
+    </h3>
+    <button
+      type="button"
+      onClick={() =>
+        setF({ ...f, faqs: [...f.faqs, { question: '', answer: '' }] })
+      }
+      className="text-xs sm:text-sm font-semibold text-brand underline hover:text-brand-dark"
+    >
+      + Add FAQ
+    </button>
+  </div>
 
+  <div className="flex flex-col gap-4">
+    {f.faqs.map((faq, i) => (
+      <div
+        key={i}
+        className="border border-line rounded-lg p-3 sm:p-4 bg-gray-50/50"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-extrabold uppercase text-ink-muted">
+            FAQ #{i + 1}
+          </span>
+          <button
+            type="button"
+            onClick={() =>
+              setF({ ...f, faqs: f.faqs.filter((_, idx) => idx !== i) })
+            }
+            className="text-xs font-semibold text-red-700 hover:text-red-900"
+          >
+            Remove
+          </button>
+        </div>
+
+        <Input
+          label="Question"
+          value={faq.question}
+          onChange={(e) => {
+            const next = [...f.faqs];
+            next[i] = { ...next[i], question: e.target.value };
+            setF({ ...f, faqs: next });
+          }}
+          maxLength={200}
+          placeholder="How long does AC repair take?"
+        />
+
+        <div className="mt-3">
+          <Textarea
+            label="Answer"
+            value={faq.answer}
+            onChange={(e) => {
+              const next = [...f.faqs];
+              next[i] = { ...next[i], answer: e.target.value };
+              setF({ ...f, faqs: next });
+            }}
+            maxLength={1000}
+            rows={3}
+            placeholder="Most AC repairs take 1-2 hours. Complex issues may need a follow-up visit."
+          />
+        </div>
+      </div>
+    ))}
+
+    {f.faqs.length === 0 && (
+      <p className="text-sm text-ink-muted text-center py-3">
+        No FAQs yet. Click "+ Add FAQ" to start.
+      </p>
+    )}
+  </div>
+</div>
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>
             Close
