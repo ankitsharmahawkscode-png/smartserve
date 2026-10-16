@@ -195,6 +195,77 @@ export default function CategoryPage() {
               ))}
             </div>
           )}
+          {/* Understanding section — EasyShiksha style */}
+{category.longDescription && (
+  <section className="mt-12 sm:mt-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+      
+      {/* Left: Content */}
+      <div className="lg:col-span-2">
+        <p className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-accent-text mb-3">
+          Understanding {category.name}
+        </p>
+
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-brand-dark mb-6">
+          What is {category.name}?
+        </h2>
+
+        <div className="text-sm sm:text-base text-ink-muted leading-relaxed space-y-4">
+          {category.longDescription
+            .split(/\n\n+/)
+            .filter(Boolean)
+            .map((para, i) => (
+              <p key={i}>{para.trim()}</p>
+            ))}
+        </div>
+      </div>
+
+      {/* Right: Info cards (sticky) */}
+      <aside className="lg:col-span-1">
+        <div className="lg:sticky lg:top-24 flex flex-col gap-3">
+          <div className="border border-line rounded-xl p-4 sm:p-5 bg-white">
+            <p className="font-extrabold text-brand-dark text-base sm:text-lg mb-1">
+              {services.length}
+            </p>
+            <p className="text-xs sm:text-sm text-ink-muted uppercase tracking-wider">
+              Services available
+            </p>
+          </div>
+
+          <div className="border border-line rounded-xl p-4 sm:p-5 bg-white">
+            <p className="font-extrabold text-brand-dark text-base sm:text-lg mb-1">
+              Same-day
+            </p>
+            <p className="text-xs sm:text-sm text-ink-muted uppercase tracking-wider">
+              Booking available
+            </p>
+          </div>
+
+          <div className="border border-line rounded-xl p-4 sm:p-5 bg-white">
+            <p className="font-extrabold text-brand-dark text-base sm:text-lg mb-1">
+              Verified
+            </p>
+            <p className="text-xs sm:text-sm text-ink-muted uppercase tracking-wider">
+              Technicians
+            </p>
+          </div>
+
+          <div className="border border-line rounded-xl p-4 sm:p-5 bg-brand-tint">
+            <p className="font-extrabold text-brand-dark text-sm sm:text-base mb-2">
+              Need help?
+            </p>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-1 text-brand-dark underline underline-offset-2 text-xs sm:text-sm font-semibold"
+            >
+              Contact us →
+            </Link>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+)}
 {/* FAQs */}
 {category.faqs?.length > 0 && (
   <section className="mt-12 sm:mt-16">

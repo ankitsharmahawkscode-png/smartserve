@@ -25,6 +25,7 @@ exports.addressUpdateSchema = addressSchema.partial();
 exports.categorySchema = z.object({
   name: z.string().trim().min(2).max(60),
   description: z.string().trim().max(300).optional(),
+  longDescription: z.string().trim().max(3000).optional(),
   icon: z.string().trim().max(60).optional(),
   isActive: z.boolean().optional(),
 

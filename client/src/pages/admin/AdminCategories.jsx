@@ -13,6 +13,7 @@ function CategoryForm({ category, onClose, onDone }) {
   const [f, setF] = useState({
   name: category?.name || '',
   description: category?.description || '',
+  longDescription: category?.longDescription || '', 
   isActive: category?.isActive ?? true,
   seoTitle: category?.seo?.title || '',
   seoDescription: category?.seo?.description || '',
@@ -33,6 +34,7 @@ function CategoryForm({ category, onClose, onDone }) {
   name: f.name.trim(),
   isActive: f.isActive,
   ...(f.description.trim() && { description: f.description.trim() }),
+    ...(f.longDescription.trim() && { longDescription: f.longDescription.trim() }),  // 👈 NEW
   seo: {
     title: f.seoTitle.trim(),
     description: f.seoDescription.trim(),
@@ -97,7 +99,19 @@ function CategoryForm({ category, onClose, onDone }) {
           checked={f.isActive}
           onChange={(e) => setF({ ...f, isActive: e.target.checked })}
         />
-
+<div>
+  <Textarea
+    label="Long description (for SEO)"
+    value={f.longDescription}
+    onChange={(e) => setF({ ...f, longDescription: e.target.value })}
+    maxLength={3000}
+    rows={8}
+    placeholder={`AC repair is a focused service... Explain what this category covers, why customers need it, what's included, how long it takes, and why choose SmartServe. 2-3 paragraphs.`}
+  />
+  <p className="text-xs text-ink-muted mt-1">
+    {f.longDescription.length}/3000 · Shown as "What is {f.name || 'Category'}?" on the category page
+  </p>
+</div>
         {/* SEO section */}
         <div className="border-t border-line pt-4 mt-2">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-ink-muted mb-3">
