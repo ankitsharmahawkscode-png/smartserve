@@ -349,8 +349,6 @@ export default function AdminCategories() {
                  <td className="p-3 font-semibold">
   <a
     href={`/category/${encodeURIComponent(c.slug)}`}
-    target="_blank"
-    rel="noopener noreferrer"
     className="text-brand-dark hover:text-brand underline underline-offset-2 font-bold"
     title={`Open ${c.name} page`}
   >
@@ -366,22 +364,6 @@ export default function AdminCategories() {
                     )}
 
                     {/* SEO keyword chips */}
-                    {c.seo?.keywords && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {c.seo.keywords
-                          .split(',')
-                          .map((k) => k.trim())
-                          .filter(Boolean)
-                          .map((k, i) => (
-                            <span
-                              key={i}
-                              className="inline-flex items-center rounded-full bg-amber-500 text-white text-[10px] sm:text-xs font-semibold px-2 py-0.5"
-                            >
-                              {k}
-                            </span>
-                          ))}
-                      </div>
-                    )}
                   </td>
                   <td className="p-3 text-sm sm:text-base">
                     {c.isActive ? 'Active' : 'Hidden'}
