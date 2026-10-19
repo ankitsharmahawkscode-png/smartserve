@@ -54,8 +54,15 @@ export default function PublicLayout() {
             {open ? 'Close' : 'Menu'}
           </button>
         </div>
-        {open && <nav id="mobile-nav" aria-label="Mobile" className="md:hidden border-t border-line bg-white px-6 pb-4 flex flex-col">{items(true)}</nav>}
-      </header>
+        {open && (
+  <nav 
+    id="mobile-nav" 
+    aria-label="Mobile" 
+    className="md:hidden absolute top-full left-0 right-0 border-t border-line bg-white px-6 pb-4 flex flex-col shadow-lg z-50"
+  >
+    {items(true)}
+  </nav>
+)}      </header>
       <div id="content" tabIndex={-1} className="flex-1 outline-none"><Outlet /></div>
       <Footer />
       <InstallPWA />
