@@ -80,19 +80,18 @@ export default function App() {
         ['profile', <TechProfile />],
       ], <TechOverview />)}
       {dash('admin', [
-        ['bookings', <AdminBookings />],
-        ['services', <AdminServices />],
-        ['categories', <AdminCategories />],
-        ['technicians', <AdminTechnicians />],
-        ['customers', <AdminCustomers />],
-        ['payments', <AdminPayments />],
-        ['reviews', <AdminReviews />],
-        ['messages', <AdminMessages />],
-        ['audit', <AdminAudit />],
-        ['settings', <AdminSettings />],
-        <Route path="/admin/blogs" element={<AdminBlog />} />
-
-      ], <AdminOverview />)}
+  ['bookings', <AdminBookings />],
+  ['services', <AdminServices />],
+  ['categories', <AdminCategories />],
+  ['technicians', <AdminTechnicians />],
+  ['customers', <AdminCustomers />],
+  ['payments', <AdminPayments />],
+  ['reviews', <AdminReviews />],
+  ['messages', <AdminMessages />],
+  ['audit', <AdminAudit />],
+  ['settings', <AdminSettings />],
+  ['blogs', <AdminBlog />]   // 👈 THIS
+], <AdminOverview />)}
      
     </Routes>
   );

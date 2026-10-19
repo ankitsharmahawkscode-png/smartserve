@@ -7,7 +7,20 @@ import useSeo from '../hooks/useSeo.js';
 const MENUS = {
   customer: [['Overview', ''], ['My bookings', 'bookings'], ['Payments', 'payments'], ['Reviews', 'reviews'], ['Profile', 'profile']],
   technician: [['Overview', ''], ['Assigned jobs', 'jobs'], ['History', 'history'], ['Earnings', 'earnings'], ['Profile', 'profile']],
-  admin: [['Overview', ''], ['Bookings', 'bookings'], ['Services', 'services'], ['Categories', 'categories'], ['Technicians', 'technicians'], ['Customers', 'customers'], ['Payments', 'payments'], ['Reviews', 'reviews'], ['Messages', 'messages'], ['Activity log', 'audit'], ['Settings', 'settings']],
+   admin: [
+    ['Overview', ''], 
+    ['Bookings', 'bookings'], 
+    ['Services', 'services'], 
+    ['Categories', 'categories'], 
+    ['Blog', 'blogs'],       // 👈 NEW
+    ['Technicians', 'technicians'], 
+    ['Customers', 'customers'], 
+    ['Payments', 'payments'], 
+    ['Reviews', 'reviews'], 
+    ['Messages', 'messages'], 
+    ['Activity log', 'audit'], 
+    ['Settings', 'settings']
+  ],
 };
 
 export default function DashboardLayout({ role }) {
