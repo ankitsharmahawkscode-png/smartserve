@@ -21,5 +21,7 @@ app.use('/api', noStore, apiLimiter, writeLimiter, rejectOperatorKeys);
 app.use('/api/v1', routes);
 app.use(notFound);
 app.use(errorHandler);
+app.use('/uploads', express.static('uploads'));
+
 
 module.exports = app;

@@ -10,6 +10,7 @@
     "test:coverage": "jest --runInBand --coverage"
   },
   "dependencies": {
-    "motion": "^14.2.0"
+    "motion": "^14.2.0",
+    "multer": "^2.4.0"
   }
 }
