@@ -3,6 +3,8 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import Footer from '../components/Footer.jsx';
 import { company } from '../content.js';
+import InstallPWA from '../components/InstallPWA.jsx';
+
 
 const NAV = [['/services', 'Services'], ['/blog', 'Blog'], ['/about', 'About'], ['/contact', 'Contact']];
 
@@ -56,6 +58,7 @@ export default function PublicLayout() {
       </header>
       <div id="content" tabIndex={-1} className="flex-1 outline-none"><Outlet /></div>
       <Footer />
+      <InstallPWA />
     </div>
   );
 }
