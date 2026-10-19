@@ -44,14 +44,14 @@ export default function AdminBlog() {
     }
   };
 
-  // ✅ SAFE ARRAY CHECK: Agar data.items array nahi hai to crash nahi hoga
-let rawData = data;
-if (data && !Array.isArray(data) && data.data) {
-  rawData = data.data; // Handle { data: { items: [] } }
-}
-const blogsList = Array.isArray(rawData?.items) 
-  ? rawData.items 
-  : (Array.isArray(rawData?.blogs) ? rawData.blogs : []);
+  // Safe array extraction
+  let rawData = data;
+  if (data && !Array.isArray(data) && data.data) {
+    rawData = data.data; 
+  }
+  const blogsList = Array.isArray(rawData?.items) 
+    ? rawData.items 
+    : (Array.isArray(rawData?.blogs) ? rawData.blogs : []);
 
   if (loading) {
     return (
@@ -106,6 +106,29 @@ const blogsList = Array.isArray(rawData?.items)
             onChange={(e) => setForm({ ...form, slug: e.target.value })}
             placeholder="Auto-generated from title"
           />
+          
+          {/* 👇 NEW: Cover Image URL Field */}
+          <div>
+            <Input
+              label="Cover Image URL (optional)"
+              value={form.coverImage || ''}
+              onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
+              placeholder="https://example.com/image.jpg"
+            />
+            {form.coverImage && (
+              <div className="mt-2">
+                <p className="text-xs text-ink-muted mb-1">Preview:</p>
+                <img 
+                  src={form.coverImage} 
+                  alt="Cover preview" 
+                  className="h-32 w-auto object-cover rounded-lg border border-line"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                  onLoad={(e) => { e.target.style.display = 'block'; }}
+                />
+              </div>
+            )}
+          </div>
+
           <Textarea
             label="Content (HTML or plain text)"
             rows={10}
