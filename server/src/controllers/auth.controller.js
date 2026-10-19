@@ -13,9 +13,9 @@ const COOKIE = 'refreshToken';
 // ✅ Cookie Options correctly defined
 const cookieOptions = {
   httpOnly: true,
-  secure: isProd,         // Production me HTTPS par hi chalega
-  sameSite: cookieSameSite, // 'none' on production
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 din
+  secure: true,
+  sameSite: 'none',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
   path: '/'
 };
 
