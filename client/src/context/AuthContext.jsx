@@ -5,20 +5,38 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // true until the first session check finishes
+  const [loading, setLoading] = useState(true);
+  
+  // ✅ NEW: Track karo ki initial session check ho chuka hai ya nahi
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
 
   useEffect(() => {
+    // Agar pehle se check ho chuka hai, toh dobara refresh mat karo
+    if (initialCheckDone) return;
+
     let active = true;
     setAuthFailureHandler(() => setUser(null));
+    
     refreshSession()
       .then((d) => active && setUser(d.user))
-      .catch(() => {}) // no valid session: stay logged out
-      .finally(() => active && setLoading(false));
+      .catch(() => {}) 
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+          setInitialCheckDone(true); // ✅ Flag set karo
+        }
+      });
+      
     return () => { active = false; };
-  }, []);
+  }, [initialCheckDone]);
 
   const value = useMemo(() => {
-    const start = (data) => { setAccessToken(data.accessToken); setUser(data.user); return data.user; };
+    const start = (data) => { 
+      setAccessToken(data.accessToken); 
+      setUser(data.user); 
+      return data.user; 
+    };
+    
     return {
       user,
       setUser,
@@ -29,6 +47,7 @@ export function AuthProvider({ children }) {
         try { await api.post('/auth/logout'); } catch { /* cookie may already be gone */ }
         setAccessToken(null);
         setUser(null);
+        setInitialCheckDone(false); // Logout pe reset karo
       },
     };
   }, [user, loading]);
