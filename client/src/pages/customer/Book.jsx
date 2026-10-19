@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import api, { apiMessage } from '../../api/client.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import useFetch from '../../hooks/useFetch.js';
+
 import { Button, Card } from '../../components/ui.jsx';
 import Input, { Alert } from '../../components/Input.jsx';
 import AddressFields, { EMPTY_ADDRESS, cleanAddress, validateAddress } from '../../components/AddressFields.jsx';
@@ -16,7 +17,8 @@ export default function Book() {
   const svc = useFetch(`/services/${serviceId}`);
   const cfg = useFetch('/settings/public');
   const saved = user.addresses || [];
-
+  const related = useFetch(serviceId ? `/services/${serviceId}/related` : null);
+  
   const [date, setDate] = useState('');
   const [slot, setSlot] = useState('');
   const [addressId, setAddressId] = useState(saved.find((a) => a.isDefault)?._id || saved[0]?._id || 'new');
@@ -27,7 +29,7 @@ export default function Book() {
   const [serverError, setServerError] = useState('');
   const [busy, setBusy] = useState(false);
   
-  // ✅ Coupon states - Component ke andar
+  // Coupon states
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [couponMsg, setCouponMsg] = useState('');
@@ -42,7 +44,6 @@ export default function Book() {
   const settings = cfg.data.settings;
   const today = todayYMD();
 
-  // ✅ Coupon Function - Component ke andar
   const applyCoupon = async () => {
     if (!couponCode) return;
     try {
@@ -80,7 +81,7 @@ export default function Book() {
         serviceId, date, slot, paymentMethod: payment,
         ...(notes.trim() && { notes: notes.trim() }),
         ...(addressId === 'new' ? { address: cleanAddress(addr) } : { addressId }),
-        ...(couponApplied && { couponCode }), // Optional: Backend ko coupon code bhejna
+        ...(couponApplied && { couponCode }),
       };
       const { data } = await api.post('/bookings', payload);
       navigate(`/customer/bookings/${data.data.booking._id}`, { state: { created: true } });
@@ -107,7 +108,7 @@ export default function Book() {
         <div className="min-w-0 flex flex-col gap-4 sm:gap-5">
           {serverError && <Alert>{serverError}</Alert>}
 
-          {/* Coupon Box - Date ke upar */}
+          {/* Coupon Box */}
           <Card className="p-4 sm:p-5 bg-gray-50 border-dashed">
             <label className="block text-sm font-semibold mb-2">Have a coupon code?</label>
             <div className="flex gap-2">
@@ -202,7 +203,6 @@ export default function Book() {
           <p className="font-semibold">{service.name}</p>
           <p className="text-ink-muted mb-3">{service.pricingType === 'fixed' ? 'Fixed price' : 'Estimated price'}</p>
 
-          {/* Price Calculation */}
           <div className="flex justify-between items-center mb-2 text-sm">
             <span className="text-gray-600">Original Amount:</span>
             <span className="font-semibold">{inr(service.basePrice)}</span>
@@ -224,7 +224,40 @@ export default function Book() {
           <p className="text-sm text-ink-muted mb-4">
             Free cancellation until {settings.cancellation.freeHoursBefore} hours before your slot. After that a {settings.cancellation.feePercent}% fee applies.
           </p>
-          <Button type="submit" className="w-full min-h-[48px] justify-center rounded-xl" disabled={busy || (payment === 'cod' && !settings.codEnabled) || (payment === 'online' && !settings.onlineEnabled)}>{busy ? 'Booking...' : 'Confirm booking'}</Button>
+
+          {/* 🛒 Frequently Bought Together */}
+          {related.data?.items?.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-line">
+              <h3 className="text-sm font-extrabold uppercase tracking-wider text-ink-muted mb-3">
+                Frequently Bought Together
+              </h3>
+              <div className="flex flex-col gap-2">
+                {related.data.items.map((item) => (
+                  <div key={item._id} className="flex items-center gap-3 p-2 rounded-lg border border-line bg-gray-50">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded-md" />
+                    ) : (
+                      <div className="w-10 h-10 bg-brand-tint rounded-md flex items-center justify-center text-brand-dark text-xs">?</div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold truncate">{item.name}</p>
+                      <p className="text-xs text-ink-muted">{inr(item.basePrice)}</p>
+                    </div>
+                    <a 
+                      href={`/customer/book/${item._id}`}
+                      className="text-xs font-bold text-brand underline shrink-0 bg-white px-2 py-1 rounded border border-brand/20 hover:bg-brand-tint"
+                    >
+                      Book
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Button type="submit" className="w-full min-h-[48px] justify-center rounded-xl mt-4" disabled={busy || (payment === 'cod' && !settings.codEnabled) || (payment === 'online' && !settings.onlineEnabled)}>
+            {busy ? 'Booking...' : 'Confirm booking'}
+          </Button>
         </Card>
       </form>
     </div>
