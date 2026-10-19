@@ -10,10 +10,11 @@ const { newResetToken } = require('../utils/tokens');
 const email = require('../services/email.service');
 const { clientUrl, appName, nodeEnv } = require('../config/env');
 const cookieOptions = {
-  httpOnly: true, // JavaScript se access nahi hoga (secure)
-  secure: true,   // HTTPS par hi chalega (Vercel/Prod ke liye zaroori)
-  sameSite: 'none', // Cross-domain (Vercel -> Render) ke liye 'none' zaroori hai
-  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 din
+  httpOnly: true,
+  secure: true,          // HTTPS ke liye zaroori
+  sameSite: 'none',      // Cross-domain (Vercel -> Render) ke liye zaroori
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 din
+  path: '/'
 };
 
 res.cookie('refreshToken', refreshToken, cookieOptions);
