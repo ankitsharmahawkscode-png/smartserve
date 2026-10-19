@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import api, { refreshSession, setAccessToken, setAuthFailureHandler } from '../api/client.js';
 
 const AuthContext = createContext(null);
@@ -7,28 +7,31 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // ✅ NEW: Track karo ki initial session check ho chuka hai ya nahi
-  const [initialCheckDone, setInitialCheckDone] = useState(false);
+  // ✅ Session check sirf ek baar ho, baar-baar na ho
+  const hasChecked = useRef(false);
 
   useEffect(() => {
-    // Agar pehle se check ho chuka hai, toh dobara refresh mat karo
-    if (initialCheckDone) return;
+    if (hasChecked.current) return;
+    hasChecked.current = true;
 
     let active = true;
-    setAuthFailureHandler(() => setUser(null));
-    
+    setAuthFailureHandler(() => {
+        if (active) setUser(null);
+    });
+
     refreshSession()
-      .then((d) => active && setUser(d.user))
-      .catch(() => {}) 
+      .then((d) => {
+        if (active) setUser(d.user);
+      })
+      .catch(() => {
+        // Kuch nahi karna, user null rahega
+      })
       .finally(() => {
-        if (active) {
-          setLoading(false);
-          setInitialCheckDone(true); // ✅ Flag set karo
-        }
+        if (active) setLoading(false);
       });
-      
+
     return () => { active = false; };
-  }, [initialCheckDone]);
+  }, []);
 
   const value = useMemo(() => {
     const start = (data) => { 
@@ -44,10 +47,10 @@ export function AuthProvider({ children }) {
       login: async (email, password) => start((await api.post('/auth/login', { email, password })).data.data),
       register: async (payload) => start((await api.post('/auth/register', payload)).data.data),
       logout: async () => {
-        try { await api.post('/auth/logout'); } catch { /* cookie may already be gone */ }
+        try { await api.post('/auth/logout'); } catch {}
         setAccessToken(null);
         setUser(null);
-        setInitialCheckDone(false); // Logout pe reset karo
+        hasChecked.current = false; // Logout pe reset karo taaki next login pe check ho
       },
     };
   }, [user, loading]);
