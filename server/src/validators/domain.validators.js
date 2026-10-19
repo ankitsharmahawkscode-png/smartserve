@@ -146,3 +146,16 @@ exports.contactSchema = z.object({
   message: z.string().trim().min(10, 'Please write at least 10 characters').max(2000),
   website: z.string().max(200).optional(), // hidden honeypot field
 });
+exports.blogSchema = z.object({
+  title: z.string().trim().min(5).max(150),
+  slug: z.string().trim().optional(),
+  content: z.string().trim().min(50), // Require at least some content
+  excerpt: z.string().trim().max(300).optional(),
+  coverImage: z.string().url().optional(),
+  isPublished: z.boolean().optional(),
+  seo: z.object({
+    title: z.string().trim().max(70).optional(),
+    description: z.string().trim().max(160).optional(),
+    keywords: z.string().trim().max(300).optional(),
+  }).optional(),
+});

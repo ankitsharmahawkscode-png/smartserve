@@ -5,6 +5,7 @@ const S = require('../validators/domain.validators');
 const cat = require('../controllers/admin.catalog.controller');
 const ops = require('../controllers/admin.ops.controller');
 const fin = require('../controllers/admin.finance.controller');
+const blogController = require('../controllers/blog.controller');
 
 router.param('id', validId);
 router.get('/ping', (req, res) => res.json({ success: true, data: { role: req.user.role }, message: 'admin ok' }));
@@ -36,5 +37,9 @@ router.get('/reviews', fin.listReviews);
 router.patch('/reviews/:id', validate(S.reviewVisibilitySchema), fin.setReviewHidden);
 
 router.route('/settings').get(ops.getSettings).put(validate(S.settingsSchema), ops.putSettings);
+router.post('/blogs', validate(S.blogSchema), blogController.createBlog);
+router.put('/blogs/:id', validate(S.blogSchema), blogController.updateBlog);
+router.delete('/blogs/:id', blogController.deleteBlog);
+router.get('/blogs', blogController.adminListBlogs);
 
 module.exports = router;

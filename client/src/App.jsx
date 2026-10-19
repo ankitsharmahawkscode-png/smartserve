@@ -37,6 +37,7 @@ import Earnings from './pages/technician/Earnings.jsx';
 import TechProfile from './pages/technician/TechProfile.jsx';
 import CategoryPage from './pages/public/CategoryPage.jsx';
 
+import AdminBlog from './pages/admin/AdminBlog.jsx';
 
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
@@ -89,6 +90,8 @@ export default function App() {
         ['messages', <AdminMessages />],
         ['audit', <AdminAudit />],
         ['settings', <AdminSettings />],
+        <Route path="/admin/blogs" element={<AdminBlog />} />
+
       ], <AdminOverview />)}
      
     </Routes>
