@@ -7,6 +7,7 @@ const c = require('../controllers/catalog.controller');
 const reviews = require('../controllers/review.controller');
 const contact = require('../controllers/contact.controller');
 const blogController = require('../controllers/blog.controller');
+const couponController = require('../controllers/coupon.controller');
 
 router.param('id', validId);
 
@@ -21,5 +22,6 @@ router.post('/contact', contactLimiter, validate(S.contactSchema), contact.creat
 router.get('/blogs', blogController.listPublishedBlogs);
 router.get('/blogs/:slug', blogController.getBlogBySlug);
 
+router.post('/coupons/validate', couponController.validateCoupon);
 
 module.exports = router;

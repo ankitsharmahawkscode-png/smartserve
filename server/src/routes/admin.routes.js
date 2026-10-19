@@ -6,6 +6,7 @@ const cat = require('../controllers/admin.catalog.controller');
 const ops = require('../controllers/admin.ops.controller');
 const fin = require('../controllers/admin.finance.controller');
 const blogController = require('../controllers/blog.controller');
+const couponController = require('../controllers/coupon.controller');
 
 router.param('id', validId);
 router.get('/ping', (req, res) => res.json({ success: true, data: { role: req.user.role }, message: 'admin ok' }));
@@ -41,5 +42,9 @@ router.post('/blogs', validate(S.blogSchema), blogController.createBlog);
 router.put('/blogs/:id', validate(S.blogSchema), blogController.updateBlog);
 router.delete('/blogs/:id', blogController.deleteBlog);
 router.get('/blogs', blogController.adminListBlogs);
+
+router.post('/coupons', couponController.createCoupon);
+router.get('/coupons', couponController.listCoupons);
+router.delete('/coupons/:id', couponController.deleteCoupon);
 
 module.exports = router;

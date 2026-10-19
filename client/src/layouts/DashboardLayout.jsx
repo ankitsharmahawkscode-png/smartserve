@@ -19,7 +19,9 @@ const MENUS = {
     ['Reviews', 'reviews'], 
     ['Messages', 'messages'], 
     ['Activity log', 'audit'], 
-    ['Settings', 'settings']
+    ['Settings', 'settings'],
+    ['Coupons', 'coupons'],
+
   ],
 };
 
