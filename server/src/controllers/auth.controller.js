@@ -30,9 +30,9 @@ async function startSession(user, res) {
     { _id: user._id },
     { $push: { refreshTokens: { $each: [hashToken(refreshToken)], $slice: -5 } } }
   );
-  
-  // ✅ Yahan 'cookieOptions' use karo, 'cookieOpts' nahi
-  res.cookie(COOKIE, refreshToken, cookieOptions); 
+
+  // ✅ Yahan 'cookieOptions' likho, 'cookieOpts' nahi
+  res.cookie(COOKIE, refreshToken, cookieOptions);
   
   return accessToken;
 }
