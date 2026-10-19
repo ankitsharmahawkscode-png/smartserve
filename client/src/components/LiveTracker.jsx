@@ -21,11 +21,20 @@ const techIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-function RecenterMap({ center }) {
+function RecenterMap({ center, follow }) {
   const map = useMap();
+
   useEffect(() => {
-    if (center) map.setView(center, map.getZoom());
-  }, [center, map]);
+    if (!center || !follow) return;
+
+    // Smooth pan to new location
+    map.panTo(center, {
+      animate: true,
+      duration: 1.5,
+      easeLinearity: 0.25,
+    });
+  }, [center, follow, map]);
+
   return null;
 }
 
@@ -42,6 +51,7 @@ export default function LiveTracker({ bookingId, initialCenter }) {
   const [location, setLocation] = useState(null);
   const [stopped, setStopped] = useState(false);
   const [center, setCenter] = useState(initialCenter || [28.6139, 77.209]);
+  const [follow, setFollow] = useState(true);
 
   useEffect(() => {
     connectSocket();
@@ -87,29 +97,19 @@ export default function LiveTracker({ bookingId, initialCenter }) {
         )}
       </div>
 
-      {/* Map — full width, fixed height */}
+      {/* Map */}
       <div
         className="w-full relative"
-        style={{
-          height: '400px',
-          minHeight: '400px',
-          position: 'relative',
-          zIndex: 1,
-        }}
+        style={{ height: '400px', position: 'relative' }}
       >
         <MapContainer
           center={center}
           zoom={15}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: '100%',
-            width: '100%',
+          scrollWheelZoom={true}
+          style={{ height: '100%', width: '100%' }}
+          whenReady={(map) => {
+            map.target.on('dragstart', () => setFollow(false));
           }}
-          scrollWheelZoom={false}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -120,9 +120,21 @@ export default function LiveTracker({ bookingId, initialCenter }) {
               <Popup>Your technician</Popup>
             </Marker>
           )}
-          <RecenterMap center={center} />
+          <RecenterMap center={center} follow={follow} />
           <InvalidateOnMount />
         </MapContainer>
+
+        {/* Follow toggle — top right */}
+        {!follow && (
+          <button
+            type="button"
+            onClick={() => setFollow(true)}
+            className="absolute top-3 right-3 bg-white border border-line rounded-lg shadow-md px-3 py-2 text-xs sm:text-sm font-semibold text-brand-dark hover:bg-brand-tint transition-colors"
+            style={{ zIndex: 1000 }}
+          >
+            📍 Recenter on technician
+          </button>
+        )}
       </div>
     </div>
   );
