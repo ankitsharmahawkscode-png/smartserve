@@ -9,14 +9,14 @@ const COOKIE = 'refreshToken';
 const { newResetToken } = require('../utils/tokens');
 const email = require('../services/email.service');
 const { clientUrl, appName, nodeEnv } = require('../config/env');
-const cookieOpts = {
-  httpOnly: true,
-  secure: isProd,
-sameSite: cookieSameSite,// 'none' needed when client and API are on different domains
-  path: '/api/v1/auth',
-  maxAge: 7 * 24 * 60 * 60 * 1000, // keep in sync with JWT_REFRESH_EXPIRES
+const cookieOptions = {
+  httpOnly: true, // JavaScript se access nahi hoga (secure)
+  secure: true,   // HTTPS par hi chalega (Vercel/Prod ke liye zaroori)
+  sameSite: 'none', // Cross-domain (Vercel -> Render) ke liye 'none' zaroori hai
+  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 din
 };
-const clearCookie = (res) => res.clearCookie(COOKIE, { ...cookieOpts, maxAge: undefined });
+
+res.cookie('refreshToken', refreshToken, cookieOptions);
 
 // Compared against when the email is unknown so response time doesn't reveal which emails exist.
 const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', bcryptRounds);
