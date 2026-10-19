@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import Footer from '../components/Footer.jsx';
 import { company } from '../content.js';
 
-const NAV = [['/services', 'Services'], ['/about', 'About'], ['/contact', 'Contact']];
+const NAV = [['/services', 'Services'], ['/blog', 'Blog'], ['/about', 'About'], ['/contact', 'Contact']];
 
 export default function PublicLayout() {
   const { user, loading } = useAuth();

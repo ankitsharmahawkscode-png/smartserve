@@ -38,6 +38,9 @@ import TechProfile from './pages/technician/TechProfile.jsx';
 import CategoryPage from './pages/public/CategoryPage.jsx';
 
 import AdminBlog from './pages/admin/AdminBlog.jsx';
+import Blog from './pages/public/Blog.jsx';
+import BlogPost from './pages/public/BlogPost.jsx';
+
 
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
@@ -63,6 +66,8 @@ export default function App() {
          <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/blog" element={<Blog />} />
+<Route path="/blog/:slug" element={<BlogPost />} />
       </Route>
       {dash('customer', [
         ['bookings', <MyBookings />],
