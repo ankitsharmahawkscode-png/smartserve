@@ -206,48 +206,57 @@ export default function AdminBlog() {
         </EmptyState>
       ) : (
         <div className="bg-white rounded-card border border-line shadow">
-          {blogsList.map((post) => (
-            <div
-              key={post._id}
-              className="p-4 border-b border-line last:border-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
-            >
-              <div className="min-w-0">
-                <h3 className="font-bold text-base sm:text-lg break-words">
-                  {post.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-ink-muted mt-1">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      post.isPublished
-                        ? 'bg-green-50 text-green-800'
-                        : 'bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    {post.isPublished ? 'Published' : 'Draft'}
-                  </span>
-                  {post.slug && (
-                    <span className="ml-2 text-ink-muted">/{post.slug}</span>
-                  )}
-                </p>
-              </div>
-              <div className="flex gap-2 shrink-0">
-                <Button
-                  variant="secondary"
-                  onClick={() => setForm(post)}
-                  className="min-h-[40px]"
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => handleDelete(post._id)}
-                  className="min-h-[40px]"
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
-          ))}
+      {blogsList.map((post) => (
+  <div
+    key={post._id}
+    className="p-4 border-b border-line last:border-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
+  >
+    <div className="min-w-0">
+      <h3 className="font-bold text-base sm:text-lg break-words">
+        {post.title}
+      </h3>
+      <p className="text-xs sm:text-sm text-ink-muted mt-1">
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+            post.isPublished
+              ? 'bg-green-50 text-green-800'
+              : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          {post.isPublished ? 'Published' : 'Draft'}
+        </span>
+        {post.slug && (
+          <span className="ml-2 text-ink-muted">/{post.slug}</span>
+        )}
+      </p>
+    </div>
+    <div className="flex flex-wrap gap-2 shrink-0">
+      {/* 👇 NEW: View Button */}
+      <a
+        href={`/blog/${post.slug}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center justify-center min-h-[40px] px-4 rounded-[10px] border border-line-strong bg-gray-50 text-ink font-semibold text-sm hover:bg-gray-100 transition-colors"
+      >
+        View
+      </a>
+      <Button
+        variant="secondary"
+        onClick={() => setForm(post)}
+        className="min-h-[40px]"
+      >
+        Edit
+      </Button>
+      <Button
+        variant="secondary"
+        onClick={() => handleDelete(post._id)}
+        className="min-h-[40px]"
+      >
+        Delete
+      </Button>
+    </div>
+  </div>
+))}
         </div>
       )}
     </div>
