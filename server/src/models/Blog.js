@@ -4,9 +4,9 @@ const blogSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true, maxlength: 150 },
     slug: { type: String, required: true, unique: true, lowercase: true },
-    content: { type: String, required: true }, // HTML or Markdown content
+    content: { type: String, required: true },
     excerpt: { type: String, maxlength: 300 },
-    coverImage: { type: String }, // URL
+    coverImage: { type: String },
     isPublished: { type: Boolean, default: false },
     publishedAt: { type: Date },
     seo: {
@@ -19,7 +19,6 @@ const blogSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Auto-generate slug from title if not provided
 blogSchema.pre('validate', function (next) {
   if (!this.slug && this.title) {
     this.slug = this.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
