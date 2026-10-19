@@ -11,8 +11,8 @@ const email = require('../services/email.service');
 const { clientUrl, appName, nodeEnv } = require('../config/env');
 const cookieOptions = {
   httpOnly: true,
-  secure: true,          // HTTPS ke liye zaroori
-  sameSite: 'none',      // Cross-domain (Vercel -> Render) ke liye zaroori
+  secure: true,          // HTTPS ke liye (Vercel/Render)
+  sameSite: 'none',      // Cross-domain (Vercel -> Render) ke liye SABSE ZAROORI
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 din
   path: '/'
 };
@@ -25,11 +25,15 @@ const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', bcryptRounds);
 async function startSession(user, res) {
   const accessToken = signAccess(user);
   const refreshToken = signRefresh(user);
+  
   await User.updateOne(
     { _id: user._id },
     { $push: { refreshTokens: { $each: [hashToken(refreshToken)], $slice: -5 } } }
   );
-  res.cookie(COOKIE, refreshToken, cookieOpts);
+  
+  // ✅ Yahan 'cookieOptions' use karo, 'cookieOpts' nahi
+  res.cookie(COOKIE, refreshToken, cookieOptions); 
+  
   return accessToken;
 }
 
