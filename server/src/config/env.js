@@ -24,7 +24,7 @@ module.exports = {
   trustProxyHops: Number(process.env.TRUST_PROXY_HOPS) || 1,
   // 'lax' works when the frontend and API share one site (Vercel proxy, or sibling subdomains).
   // Use 'none' only if they sit on different sites; Safari blocks those cookies.
-  cookieSameSite: ['lax', 'strict', 'none'].includes(process.env.COOKIE_SAMESITE) ? process.env.COOKIE_SAMESITE : 'lax',
+  cookieSameSite: process.env.COOKIE_SAMESITE || 'none',
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET || 'dev-access-secret',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
