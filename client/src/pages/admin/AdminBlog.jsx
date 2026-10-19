@@ -45,11 +45,13 @@ export default function AdminBlog() {
   };
 
   // ✅ SAFE ARRAY CHECK: Agar data.items array nahi hai to crash nahi hoga
-  const blogsList = Array.isArray(data?.items)
-    ? data.items
-    : Array.isArray(data?.blogs)
-      ? data.blogs
-      : [];
+let rawData = data;
+if (data && !Array.isArray(data) && data.data) {
+  rawData = data.data; // Handle { data: { items: [] } }
+}
+const blogsList = Array.isArray(rawData?.items) 
+  ? rawData.items 
+  : (Array.isArray(rawData?.blogs) ? rawData.blogs : []);
 
   if (loading) {
     return (
