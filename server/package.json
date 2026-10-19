@@ -29,6 +29,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.0",
     "morgan": "^1.10.0",
+    "multer": "^2.4.0",
     "razorpay": "^2.9.8",
     "smartserve": "file:..",
     "socket.io": "^4.8.4",
