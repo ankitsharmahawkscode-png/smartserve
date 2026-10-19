@@ -1,3 +1,4 @@
+const { authLimiter } = require('../middleware/security'); // Import karo
 const multer = require('multer');
 const path = require('path');
 const router = require('express').Router();
@@ -16,12 +17,12 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage: storage });
-router.post('/register', authLimiter, validate(registerSchema), c.register);
-router.post('/login', authLimiter, validate(loginSchema), c.login);
+router.post('/register', authLimiter, authController.register);
+router.post('/login', authLimiter, authController.login);
 router.post('/forgot-password', resetLimiter, validate(forgotPasswordSchema), c.forgotPassword);
 router.post('/reset-password', resetLimiter, validate(resetPasswordSchema), c.resetPassword);
-router.post('/refresh', requireTrustedOrigin, refreshLimiter, c.refresh);
-router.post('/logout', requireTrustedOrigin, c.logout);
+router.post('/refresh', authController.refresh);
+router.post('/logout', authController.logout);
 router.get('/me', protect, c.me);
 router.post('/upload', upload.single('image'), (req, res) => {
   if (!req.file) {

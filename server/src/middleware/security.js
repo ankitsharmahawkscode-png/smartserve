@@ -1,6 +1,7 @@
 const rateLimit = require('express-rate-limit');
 const ApiError = require('../utils/ApiError');
 const { clientUrl, nodeEnv } = require('../config/env');
+const { resetLimiter } = require('../middleware/security');
 
 // ---- rate limiting (switched off in tests so they stay fast) ----
 const limiter = ({ windowMs, limit, message = 'Too many attempts. Please try again later.', skip }) =>
@@ -59,3 +60,14 @@ exports.noStore = (req, res, next) => {
   res.set('Cache-Control', 'no-store');
   next();
 };
+exports.authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 requests per `window`
+  message: {
+    success: false,
+    message: 'Too many login attempts from this IP, please try again after 15 minutes',
+    errors: []
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
