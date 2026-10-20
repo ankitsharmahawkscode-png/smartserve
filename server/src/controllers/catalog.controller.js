@@ -65,3 +65,19 @@ exports.getCategoryBySlug = asyncHandler(async (req, res) => {
 
   ok(res, { category, services });
 });
+// GET /api/v1/services/:id/related
+exports.relatedServices = asyncHandler(async (req, res) => {
+  const service = await Service.findById(req.params.id);
+  if (!service) throw new ApiError(404, 'Service not found');
+
+  // Same category ki doosri services (khud ko chhod kar), max 3
+  const related = await Service.find({
+    category: service.category,
+    _id: { $ne: service._id },
+    isAvailable: true,
+  })
+    .limit(3)
+    .select('name basePrice pricingType image');
+
+  ok(res, { items: related });
+});
