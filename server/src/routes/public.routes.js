@@ -3,12 +3,12 @@ const validate = require('../middleware/validate');
 const validId = require('../middleware/validId');
 const { contactLimiter } = require('../middleware/security');
 const S = require('../validators/domain.validators');
-const c = require('../controllers/catalog.controller');
+const c = require('../controllers/catalog.controller'); // ✅ Ek baar hi import hai
 const reviews = require('../controllers/review.controller');
 const contact = require('../controllers/contact.controller');
 const blogController = require('../controllers/blog.controller');
 const couponController = require('../controllers/coupon.controller');
-const c = require('../controllers/catalog.controller');
+const applicationController = require('../controllers/application.controller'); // ✅ Naya import
 
 router.param('id', validId);
 
@@ -25,5 +25,8 @@ router.get('/blogs/:slug', blogController.getBlogBySlug);
 router.get('/services/:id/related', c.relatedServices);
 
 router.post('/coupons/validate', couponController.validateCoupon);
+
+// ✅ Technician Application Route
+router.post('/applications', applicationController.submitApplication);
 
 module.exports = router;
