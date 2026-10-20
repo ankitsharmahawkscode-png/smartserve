@@ -42,7 +42,9 @@ import Blog from './pages/public/Blog.jsx';
 import BlogPost from './pages/public/BlogPost.jsx';
 import AdminCoupons from './pages/admin/AdminCoupons.jsx';
 import WhatWeOffer from './pages/public/WhatWeOffer.jsx';
-
+import CustomizedSolutions from './pages/public/CustomizedSolutions.jsx';
+import CustomerSupport from './pages/public/CustomerSupport.jsx';
+import Consultation from './pages/public/Consultation.jsx';
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -69,6 +71,9 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
         <Route path="/blog" element={<Blog />} />
       <Route path="/what-we-offer" element={<WhatWeOffer />} />
+<Route path="/customized-solutions" element={<CustomizedSolutions />} />
+<Route path="/customer-support" element={<CustomerSupport />} />
+<Route path="/consultation" element={<Consultation />} />
 
 <Route path="/blog/:slug" element={<BlogPost />} />
       </Route>

@@ -106,40 +106,28 @@ export default function Footer() {
               What We Offer
             </h2>
 
-            <ul className="space-y-3 text-sm text-white/75">
-              <li>
-                <Link
-                  to="/what-we-offer"
-                  className="no-underline transition hover:text-white"
-                >
-                  Professional Services
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/what-we-offer"
-                  className="no-underline transition hover:text-white"
-                >
-                  Customized Solutions
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/what-we-offer"
-                  className="no-underline transition hover:text-white"
-                >
-                  Customer Support
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/what-we-offer"
-                  className="no-underline transition hover:text-white"
-                >
-                  Consultation
-                </Link>
-              </li>
-            </ul>
+          <ul className="space-y-3 text-sm text-white/75">
+  <li>
+    <Link to="/what-we-offer" className="no-underline transition hover:text-white">
+      Professional Services
+    </Link>
+  </li>
+  <li>
+    <Link to="/customized-solutions" className="no-underline transition hover:text-white">
+      Customized Solutions
+    </Link>
+  </li>
+  <li>
+    <Link to="/customer-support" className="no-underline transition hover:text-white">
+      Customer Support
+    </Link>
+  </li>
+  <li>
+    <Link to="/consultation" className="no-underline transition hover:text-white">
+      Consultation
+    </Link>
+  </li>
+</ul>
 
             <div className="mt-6 border-l-2 border-white/30 pl-4">
               <p className="text-sm font-semibold">
