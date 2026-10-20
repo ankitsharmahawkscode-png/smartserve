@@ -8,6 +8,7 @@ const reviews = require('../controllers/review.controller');
 const contact = require('../controllers/contact.controller');
 const blogController = require('../controllers/blog.controller');
 const couponController = require('../controllers/coupon.controller');
+const c = require('../controllers/catalog.controller');
 
 router.param('id', validId);
 
@@ -21,6 +22,7 @@ router.get('/settings/public', c.publicSettings);
 router.post('/contact', contactLimiter, validate(S.contactSchema), contact.create);
 router.get('/blogs', blogController.listPublishedBlogs);
 router.get('/blogs/:slug', blogController.getBlogBySlug);
+router.get('/services/:id/related', c.relatedServices);
 
 router.post('/coupons/validate', couponController.validateCoupon);
 
