@@ -20,7 +20,9 @@ const MENUS = {
     ['Messages', 'messages'], 
     ['Activity log', 'audit'], 
     ['Settings', 'settings'],
-    ['Coupons', 'coupons'],
+    ['Coupons', 'coupons'],  
+    ['Applications', 'applications'], // 👈 Add this
+  ['Technicians', 'technicians'],
 
   ],
 };

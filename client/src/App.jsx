@@ -36,6 +36,7 @@ import JobDetail from './pages/technician/JobDetail.jsx';
 import Earnings from './pages/technician/Earnings.jsx';
 import TechProfile from './pages/technician/TechProfile.jsx';
 import CategoryPage from './pages/public/CategoryPage.jsx';
+import AdminApplications from './pages/admin/AdminApplications.jsx';
 
 import AdminBlog from './pages/admin/AdminBlog.jsx';
 import Blog from './pages/public/Blog.jsx';
@@ -108,6 +109,7 @@ export default function App() {
   ['settings', <AdminSettings />],
   ['blogs', <AdminBlog />],   // 👈 THIS
   ['coupons', <AdminCoupons />],
+['applications', <AdminApplications />],
 
   
 ], <AdminOverview />)}

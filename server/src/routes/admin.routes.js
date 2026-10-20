@@ -7,6 +7,7 @@ const ops = require('../controllers/admin.ops.controller');
 const fin = require('../controllers/admin.finance.controller');
 const blogController = require('../controllers/blog.controller');
 const couponController = require('../controllers/coupon.controller');
+const applicationController = require('../controllers/application.controller');
 
 router.param('id', validId);
 router.get('/ping', (req, res) => res.json({ success: true, data: { role: req.user.role }, message: 'admin ok' }));
@@ -46,5 +47,7 @@ router.get('/blogs', blogController.adminListBlogs);
 router.post('/coupons', couponController.createCoupon);
 router.get('/coupons', couponController.listCoupons);
 router.delete('/coupons/:id', couponController.deleteCoupon);
+router.get('/applications', applicationController.listApplications);
+router.post('/applications/:id/approve', applicationController.approveApplication);
 
 module.exports = router;
