@@ -100,6 +100,7 @@ export default function Footer() {
           </nav>
 
           {/* Services */}
+                  {/* Services */}
           <div>
             <h2 className="text-lg font-bold mb-5">
               What We Offer
@@ -108,7 +109,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-white/75">
               <li>
                 <Link
-                  to="/services"
+                  to="/what-we-offer"
                   className="no-underline transition hover:text-white"
                 >
                   Professional Services
@@ -116,7 +117,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/services"
+                  to="/what-we-offer"
                   className="no-underline transition hover:text-white"
                 >
                   Customized Solutions
@@ -124,7 +125,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/services"
+                  to="/what-we-offer"
                   className="no-underline transition hover:text-white"
                 >
                   Customer Support
@@ -132,7 +133,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/services"
+                  to="/what-we-offer"
                   className="no-underline transition hover:text-white"
                 >
                   Consultation
