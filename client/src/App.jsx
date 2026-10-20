@@ -45,6 +45,8 @@ import WhatWeOffer from './pages/public/WhatWeOffer.jsx';
 import CustomizedSolutions from './pages/public/CustomizedSolutions.jsx';
 import CustomerSupport from './pages/public/CustomerSupport.jsx';
 import Consultation from './pages/public/Consultation.jsx';
+import BecomeTechnician from './pages/public/BecomeTechnician.jsx';
+
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -74,6 +76,7 @@ export default function App() {
 <Route path="/customized-solutions" element={<CustomizedSolutions />} />
 <Route path="/customer-support" element={<CustomerSupport />} />
 <Route path="/consultation" element={<Consultation />} />
+<Route path="/become-a-technician" element={<BecomeTechnician />} />
 
 <Route path="/blog/:slug" element={<BlogPost />} />
       </Route>

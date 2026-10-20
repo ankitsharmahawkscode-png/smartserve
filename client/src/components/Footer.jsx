@@ -88,6 +88,11 @@ export default function Footer() {
                   Contact Us
                 </Link>
               </li>
+               <li>
+                <Link to="/become-a-technician" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
+                  Become a Technician
+                </Link>
+              </li>
               <li>
                 <Link
                   to="/login"
