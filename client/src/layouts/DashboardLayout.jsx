@@ -42,7 +42,15 @@ export default function DashboardLayout({ role }) {
           {open ? 'Close' : 'Menu'}
         </button>
       </div>
-      <nav id="dashboard-nav" aria-label={`${role} menu`} className={`${open ? 'flex' : 'hidden'} md:flex flex-col gap-1 w-full md:w-60 md:shrink-0 md:min-h-screen md:overflow-y-auto bg-brand-dark text-white p-4`}>
+      <nav   id="dashboard-nav"
+  aria-label={`${role} menu`}
+  className={`
+    ${open ? 'flex' : 'hidden'}
+    md:flex flex-col gap-1
+    w-full md:w-60 md:shrink-0
+    h-auto md:h-screen
+    overflow-y-auto
+    bg-brand-dark text-white p-4`}>
         <a href="/" className="hidden md:block bg-white rounded-[10px] p-2 mb-6" aria-label={`${company.name} website`}>
           <img src="/logo.png" alt={company.name} className="h-10 w-auto mx-auto" />
         </a>
@@ -52,7 +60,11 @@ export default function DashboardLayout({ role }) {
         ))}
         <button onClick={logout} className="md:mt-auto text-left px-3 py-3 font-semibold hover:bg-white/10 rounded-[10px]">Log out</button>
       </nav>
-   <main className="flex-1 min-w-0 h-screen overflow-y-auto overflow-x-hidden">
+<main className="flex-1 min-w-0 h-screen overflow-y-auto overflow-x-hidden bg-gray-50">
+  <header className="sticky top-0 z-30 h-14 bg-white border-b flex items-center justify-between px-6">
+    <span className="font-semibold">Technical Workers</span>
+  </header>
+
   <Outlet />
 </main>
     </div>
