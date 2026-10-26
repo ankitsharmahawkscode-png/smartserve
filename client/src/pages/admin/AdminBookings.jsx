@@ -81,6 +81,10 @@ export default function AdminBookings() {
   const approve = async (b) => { if (await action.run(() => api.patch(`/admin/bookings/${b._id}/approve`))) done('Booking confirmed'); };
   const reset = (fn) => (e) => { fn(e.target.value); setPage(1); };
 
+  // ✅ S.No offset — continues across pages
+  const perPage = data?.perPage ?? data?.limit ?? 10;
+  const offset = (page - 1) * perPage;
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-3xl font-extrabold mb-6">Bookings</h1>
@@ -100,13 +104,14 @@ export default function AdminBookings() {
       {data && data.items.length === 0 && <EmptyState title="No bookings match">Change the filters to see more.</EmptyState>}
       {data && data.items.length > 0 && (
         <div className="overflow-x-auto bg-white border border-line rounded-card">
-          <table className="w-full min-w-[860px] text-left">
+          <table className="w-full min-w-[920px] text-left">
             <thead className="text-sm text-ink-muted"><tr>
-              {['Booking', 'Customer', 'Service', 'When', 'Technician', 'Amount', 'Status', 'Actions'].map((h) => <th key={h} scope="col" className="p-3">{h}</th>)}
+              {['S.No', 'Booking', 'Customer', 'Service', 'When', 'Technician', 'Amount', 'Status', 'Actions'].map((h) => <th key={h} scope="col" className="p-3">{h}</th>)}
             </tr></thead>
             <tbody>
-              {data.items.map((b) => (
+              {data.items.map((b, index) => (
                 <tr key={b._id} className="border-t border-line align-top">
+                  <td className="p-3 font-semibold text-ink-muted">{offset + index + 1}</td>
                   <td className="p-3 font-semibold">{b.bookingNo}</td>
                   <td className="p-3">{b.customer?.name}<br /><span className="text-sm text-ink-muted">{b.customer?.phone}</span></td>
                   <td className="p-3">{b.service?.name}</td>
