@@ -45,10 +45,15 @@ export default function AdminApplications() {
         </EmptyState>
       ) : (
         <div className="bg-white rounded-card border border-line shadow flex flex-col">
-          {apps.map((app) => (
+          {apps.map((app, index) => (
             <div key={app._id} className="p-4 sm:p-5 border-b border-line last:border-0 flex flex-col sm:flex-row gap-4 sm:items-start sm:justify-between">
               <div className="min-w-0">
-                <h3 className="font-bold text-lg">{app.name}</h3>
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-tint text-brand-dark text-xs font-bold">
+                    {index + 1}
+                  </span>
+                  <h3 className="font-bold text-lg">{app.name}</h3>
+                </div>
                 <p className="text-sm text-ink-muted">{app.email} • {app.phone}</p>
                 <p className="text-sm text-ink-muted mt-1">
                   <strong>City:</strong> {app.city} • <strong>Experience:</strong> {app.experienceYears} years

@@ -79,13 +79,14 @@ export default function AdminTechnicians() {
       {data && data.items.length === 0 && <EmptyState title="No technicians yet">Add a technician so you can assign jobs.</EmptyState>}
       {data && data.items.length > 0 && (
         <div className="overflow-x-auto bg-white border border-line rounded-card">
-          <table className="w-full min-w-[820px] text-left">
+          <table className="w-full min-w-[880px] text-left">
             <thead className="text-sm text-ink-muted"><tr>
-              {['Technician', 'Skills', 'Commission', 'Account', 'Availability', 'Actions'].map((h) => <th key={h} scope="col" className="p-3">{h}</th>)}
+              {['S.No', 'Technician', 'Skills', 'Commission', 'Account', 'Availability', 'Actions'].map((h) => <th key={h} scope="col" className="p-3">{h}</th>)}
             </tr></thead>
             <tbody>
-              {data.items.map((t) => (
+              {data.items.map((t, index) => (
                 <tr key={t._id} className="border-t border-line">
+                  <td className="p-3 font-semibold text-ink-muted">{index + 1}</td>
                   <td className="p-3 font-semibold">{t.name}<br /><span className="text-sm font-normal text-ink-muted">{t.email}</span></td>
                   <td className="p-3">{t.technician?.skills?.join(', ') || '-'}</td>
                   <td className="p-3">{t.technician?.commissionPct ?? 0}%</td>

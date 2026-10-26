@@ -8,6 +8,11 @@ import { prettyDateTime } from '../../utils/format.js';
 export default function AdminMessages() {
   const [page, setPage] = useState(1);
   const { data, loading, error, reload } = useFetch('/admin/messages', { page });
+
+  // ✅ S.No offset
+  const perPage = data?.perPage ?? data?.limit ?? 10;
+  const offset = (page - 1) * perPage;
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-extrabold mb-6">Messages</h1>
@@ -16,10 +21,15 @@ export default function AdminMessages() {
       {data && data.items.length === 0 && <EmptyState title="No messages yet">Messages sent from the Contact page appear here.</EmptyState>}
       {data && data.items.length > 0 && (
         <ul className="flex flex-col gap-3">
-          {data.items.map((m) => (
+          {data.items.map((m, index) => (
             <li key={m._id}><Card>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <p className="font-extrabold">{m.name}</p>
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-tint text-brand-dark text-xs font-bold">
+                    {offset + index + 1}
+                  </span>
+                  <p className="font-extrabold">{m.name}</p>
+                </div>
                 <p className="text-sm text-ink-muted">{prettyDateTime(m.createdAt)}</p>
               </div>
               <p className="text-sm mb-2">

@@ -26,6 +26,10 @@ export default function AdminPayments() {
     if (await act.run(() => api.post(`/admin/payments/${target._id}/refund`))) { setTarget(null); setNotice('Refund processed'); reload(); }
   };
 
+  // ✅ S.No offset
+  const perPage = data?.perPage ?? data?.limit ?? 10;
+  const offset = (page - 1) * perPage;
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-3xl font-extrabold mb-6">Payments</h1>
@@ -44,11 +48,12 @@ export default function AdminPayments() {
       {data && data.items.length === 0 && <EmptyState title="No payments found">Payments appear here when customers pay or jobs are paid in cash.</EmptyState>}
       {data && data.items.length > 0 && (
         <div className="overflow-x-auto bg-white border border-line rounded-card">
-          <table className="w-full min-w-[820px] text-left">
-            <thead className="text-sm text-ink-muted"><tr>{['Date', 'Booking', 'Customer', 'Method', 'Amount', 'Status', 'Action'].map((h) => <th key={h} scope="col" className="p-3">{h}</th>)}</tr></thead>
+          <table className="w-full min-w-[880px] text-left">
+            <thead className="text-sm text-ink-muted"><tr>{['S.No', 'Date', 'Booking', 'Customer', 'Method', 'Amount', 'Status', 'Action'].map((h) => <th key={h} scope="col" className="p-3">{h}</th>)}</tr></thead>
             <tbody>
-              {data.items.map((p) => (
+              {data.items.map((p, index) => (
                 <tr key={p._id} className="border-t border-line align-top">
+                  <td className="p-3 font-semibold text-ink-muted">{offset + index + 1}</td>
                   <td className="p-3">{prettyDateTime(p.createdAt)}</td>
                   <td className="p-3 font-semibold">{p.booking?.bookingNo}</td>
                   <td className="p-3">{p.customer?.name}</td>
