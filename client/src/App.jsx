@@ -47,6 +47,7 @@ import CustomizedSolutions from './pages/public/CustomizedSolutions.jsx';
 import CustomerSupport from './pages/public/CustomerSupport.jsx';
 import Consultation from './pages/public/Consultation.jsx';
 import BecomeTechnician from './pages/public/BecomeTechnician.jsx';
+import AdminProfile from './pages/admin/AdminProfile.jsx';
 
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
@@ -110,6 +111,7 @@ export default function App() {
   ['blogs', <AdminBlog />],   // 👈 THIS
   ['coupons', <AdminCoupons />],
 ['applications', <AdminApplications />],
+['profile' ,<AdminProfile /> ],
 
   
 ], <AdminOverview />)}

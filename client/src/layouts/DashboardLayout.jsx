@@ -9,12 +9,13 @@ const MENUS = {
   // ... (keep your MENUS object exactly as it is)
   customer: [['Overview', ''], ['My bookings', 'bookings'], ['Payments', 'payments'], ['Reviews', 'reviews'], ['Profile', 'profile']],
   technician: [['Overview', ''], ['Assigned jobs', 'jobs'], ['History', 'history'], ['Earnings', 'earnings'], ['Profile', 'profile']],
-  admin: [
-    ['Overview', ''], ['Bookings', 'bookings'], ['Services', 'services'], ['Categories', 'categories'], 
-    ['Blog', 'blogs'], ['Technicians', 'technicians'], ['Customers', 'customers'], ['Payments', 'payments'], 
-    ['Reviews', 'reviews'], ['Messages', 'messages'], ['Activity log', 'audit'], ['Settings', 'settings'],
-    ['Coupons', 'coupons'], ['Applications', 'applications'], 
-  ],
+ admin: [
+  ['Overview', ''], ['Bookings', 'bookings'], ['Services', 'services'], 
+  ['Categories', 'categories'], ['Blog', 'blogs'], ['Technicians', 'technicians'], 
+  ['Customers', 'customers'], ['Payments', 'payments'], ['Reviews', 'reviews'], 
+  ['Messages', 'messages'], ['Activity log', 'audit'], ['Settings', 'settings'],
+  ['Coupons', 'coupons'], ['Applications', 'applications'], 
+],
 };
 
 export default function DashboardLayout({ role }) {

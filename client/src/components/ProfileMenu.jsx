@@ -61,21 +61,28 @@ export default function ProfileMenu({ user, logout, role }) {
       {/* Dropdown Menu */}
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
-          <Link
-            to={`/${role}/profile`}
-            onClick={() => setIsOpen(false)}
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-          >
-            My Profile
-          </Link>
-          <div className="border-t border-gray-100 my-1"></div>
+          
+          {/* 👇 HIDE "My Profile" FOR ADMINS TO PREVENT 404 👇 */}
+          {role !== 'admin' && (
+            <Link
+              to={`/${role}/profile`}
+              onClick={() => setIsOpen(false)}
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 font-medium"
+            >
+              My Profile
+            </Link>
+          )}
+
+          {role !== 'admin' && <div className="border-t border-gray-100 my-1"></div>}
+
+          {/* Logout Button */}
           <button
             onClick={() => {
               setIsOpen(false);
               logout();
               navigate('/');
             }}
-            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-semibold"
+            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-bold"
           >
             Log out
           </button>
