@@ -273,28 +273,37 @@ export default function AdminBlog() {
         </EmptyState>
       ) : (
         <div className="bg-white rounded-card border border-line shadow">
-          {blogsList.map((post) => (
+          {blogsList.map((post, index) => (
             <div
               key={post._id}
               className="p-4 border-b border-line last:border-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
             >
-              <div className="min-w-0">
-                <h3 className="font-bold text-base sm:text-lg break-words">
-                  {post.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-ink-muted mt-1">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${post.isPublished
-                        ? 'bg-green-50 text-green-800'
-                        : 'bg-gray-100 text-gray-600'
-                      }`}
-                  >
-                    {post.isPublished ? 'Published' : 'Draft'}
-                  </span>
-                  {post.slug && (
-                    <span className="ml-2 text-ink-muted">/{post.slug}</span>
-                  )}
-                </p>
+              {/* ✅ S.No + Title block */}
+              <div className="flex items-start gap-3 min-w-0">
+                <span
+                  className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-tint text-brand-dark text-xs sm:text-sm font-bold"
+                  aria-label={`Serial number ${index + 1}`}
+                >
+                  {index + 1}
+                </span>
+                <div className="min-w-0">
+                  <h3 className="font-bold text-base sm:text-lg break-words">
+                    {post.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-ink-muted mt-1">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${post.isPublished
+                          ? 'bg-green-50 text-green-800'
+                          : 'bg-gray-100 text-gray-600'
+                        }`}
+                    >
+                      {post.isPublished ? 'Published' : 'Draft'}
+                    </span>
+                    {post.slug && (
+                      <span className="ml-2 text-ink-muted">/{post.slug}</span>
+                    )}
+                  </p>
+                </div>
               </div>
               <div className="flex flex-wrap gap-2 shrink-0">
                 <a
