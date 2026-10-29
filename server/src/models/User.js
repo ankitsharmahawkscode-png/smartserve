@@ -21,16 +21,20 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, trim: true },
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ROLES, default: 'customer', index: true },
+    
+    // 👇 NAYE FIELDS SUPER ADMIN & PERMISSIONS KE LIYE 👇
+    isSuperAdmin: { type: Boolean, default: false },
+    permissions: { type: [String], default: [] }, 
+    // 👆 Example: ['blogs', 'categories', 'bookings']
+    
     isActive: { type: Boolean, default: true },
     addresses: [addressSchema],
-    // SHA-256 hashes of valid refresh tokens (one per device, newest 5 kept)
     refreshTokens: { type: [String], select: false, default: [] },
     lastLoginAt: Date,
-    // Technician-only fields (used from Milestone 3 onward)
-        failedLogins: { type: Number, default: 0, select: false },
+    failedLogins: { type: Number, default: 0, select: false },
     lockUntil: { type: Date, select: false },
     tokenVersion: { type: Number, default: 0 },
-        resetTokenHash: { type: String, select: false, index: true, sparse: true },
+    resetTokenHash: { type: String, select: false, index: true, sparse: true },
     resetTokenExpires: { type: Date, select: false },
     technician: {
       skills: [String],
@@ -52,10 +56,10 @@ userSchema.set('toJSON', {
   transform: (doc, ret) => {
     delete ret.passwordHash;
     delete ret.refreshTokens;  
-      delete ret.failedLogins;
+    delete ret.failedLogins;
     delete ret.lockUntil;
     delete ret.tokenVersion;
-        delete ret.resetTokenHash;
+    delete ret.resetTokenHash;
     delete ret.resetTokenExpires;
     delete ret.__v;
     return ret;

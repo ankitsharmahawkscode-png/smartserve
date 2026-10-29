@@ -122,3 +122,39 @@ exports.setCustomerStatus = asyncHandler(async (req, res) => {
 // ----- settings -----
 exports.getSettings = asyncHandler(async (req, res) => ok(res, { settings: await getSettings() }));
 exports.putSettings = asyncHandler(async (req, res) => ok(res, { settings: await updateSettings(req.body) }, 'Settings saved'));
+exports.updateUserAccess = asyncHandler(async (req, res) => {
+  // Check if the requester is actually a Super Admin
+  if (!req.user.isSuperAdmin) {
+    throw new ApiError(403, 'Only Super Admin can manage admin access and permissions.');
+  }
+
+  const { role, permissions, isSuperAdmin } = req.body;
+  const userId = req.params.id;
+
+  // Prevent the Super Admin from accidentally removing their own super admin status
+  if (userId === req.user._id.toString() && isSuperAdmin === false) {
+    throw new ApiError(400, 'You cannot remove your own Super Admin status.');
+  }
+
+  const set = {};
+  if (role) set.role = role;
+  if (permissions) set.permissions = permissions;
+  if (typeof isSuperAdmin === 'boolean') set.isSuperAdmin = isSuperAdmin;
+
+  if (!Object.keys(set).length) {
+    throw new ApiError(400, 'Nothing to update');
+  }
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: set },
+    { new: true, runValidators: true }
+  );
+
+  if (!user) throw new ApiError(404, 'User not found');
+
+  // Optional: Log this action in AuditLog
+  // await AuditLog.create({ actor: req.user._id, action: 'ACCESS_UPDATED', entity: 'User', entityId: user._id, meta: set });
+
+  ok(res, { user }, 'User access and permissions updated successfully');
+});

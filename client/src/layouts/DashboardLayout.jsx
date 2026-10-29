@@ -5,31 +5,52 @@ import { company } from '../content.js';
 import useSeo from '../hooks/useSeo.js';
 import ProfileMenu from '../components/ProfileMenu.jsx';
 
-const MENUS = {
-  customer: [['Overview', ''], ['My bookings', 'bookings'], ['Payments', 'payments'], ['Reviews', 'reviews'], ['Profile', 'profile']],
-  technician: [['Overview', ''], ['Assigned jobs', 'jobs'], ['History', 'history'], ['Earnings', 'earnings'], ['Profile', 'profile']],
-  admin: [
-    ['Overview', ''], 
-    ['Bookings', 'bookings'], 
-    ['Services', 'services'], 
-    ['Categories', 'categories'], 
-    ['Blog', 'blogs'],
-    ['Technicians', 'technicians'], 
-    ['Customers', 'customers'], 
-    ['Payments', 'payments'], 
-    ['Reviews', 'reviews'], 
-    ['Messages', 'messages'], 
-    ['Activity log', 'audit'], 
-    ['Settings', 'settings'],
-    ['Coupons', 'coupons'],  
-    ['Applications', 'applications'],
-  ],
-};
+// Admin ke menus ab object format mein hain taaki permission mapping aasan ho
+const ADMIN_MENUS = [
+  { label: 'Overview', path: '', permission: 'all' },
+  { label: 'Bookings', path: 'bookings', permission: 'bookings' },
+  { label: 'Services', path: 'services', permission: 'services' },
+  { label: 'Categories', path: 'categories', permission: 'categories' },
+  { label: 'Blog', path: 'blogs', permission: 'blogs' },
+  { label: 'Technicians', path: 'technicians', permission: 'technicians' },
+  { label: 'Customers', path: 'customers', permission: 'customers' },
+  { label: 'Payments', path: 'payments', permission: 'payments' },
+  { label: 'Reviews', path: 'reviews', permission: 'reviews' },
+  { label: 'Messages', path: 'messages', permission: 'messages' },
+  { label: 'Activity log', path: 'audit', permission: 'audit' },
+  { label: 'Settings', path: 'settings', permission: 'settings' },
+  { label: 'Coupons', path: 'coupons', permission: 'coupons' },
+  { label: 'Applications', path: 'applications', permission: 'applications' },
+];
+
+const CUSTOMER_MENUS = [['Overview', ''], ['My bookings', 'bookings'], ['Payments', 'payments'], ['Reviews', 'reviews'], ['Profile', 'profile']];
+const TECH_MENUS = [['Overview', ''], ['Assigned jobs', 'jobs'], ['History', 'history'], ['Earnings', 'earnings'], ['Profile', 'profile']];
 
 export default function DashboardLayout({ role }) {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   useSeo({ title: 'Dashboard', noindex: true });
+
+  // 👇 Menu Filter Logic 👇
+  const getMenuItems = () => {
+    if (role === 'customer') return CUSTOMER_MENUS;
+    if (role === 'technician') return TECH_MENUS;
+    
+    // Admin logic
+    if (role === 'admin') {
+      if (user?.isSuperAdmin) {
+        return ADMIN_MENUS.map(m => [m.label, m.path]); // Super admin gets all
+      }
+      
+      // Sub Admin gets only allowed permissions
+      return ADMIN_MENUS
+        .filter(m => m.permission === 'all' || (user?.permissions || []).includes(m.permission))
+        .map(m => [m.label, m.path]);
+    }
+    return [];
+  };
+
+  const activeMenus = getMenuItems();
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
@@ -64,7 +85,8 @@ export default function DashboardLayout({ role }) {
           <img src="/logo.png" alt={company.name} className="h-10 w-auto mx-auto" />
         </a>
         
-        {MENUS[role]?.map(([label, path]) => (
+        {/* Dynamically mapped menus based on permissions */}
+        {activeMenus.map(([label, path]) => (
           <NavLink 
             key={label} 
             end={path === ''} 
@@ -76,7 +98,7 @@ export default function DashboardLayout({ role }) {
           </NavLink>
         ))}
         
-        <button onClick={logout} className="md:mt-auto text-left px-3 py-3 font-semibold hover:bg-white/10 rounded-[10px] transition-colors">
+        <button onClick={logout} className="md:mt-auto text-left px-3 py-3 font-semibold hover:bg-white/10 rounded-[10px] transition-colors mt-4">
           Log out
         </button>
       </nav>
