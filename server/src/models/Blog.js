@@ -12,7 +12,8 @@ const blogSchema = new mongoose.Schema(
     seo: {
       title: { type: String, default: '', trim: true },
       description: { type: String, default: '', trim: true },
-      keywords: { type: String, default: '', trim: true },
+    keywords: { type: [String], default: [] }, 
+
     },
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   },

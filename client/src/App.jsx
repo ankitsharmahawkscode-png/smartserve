@@ -1,4 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google'; // ✅ Import sahi jagah
+
+// ... aapke saare page imports (same rahenge)
 import PublicLayout from './layouts/PublicLayout.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
@@ -37,7 +40,6 @@ import Earnings from './pages/technician/Earnings.jsx';
 import TechProfile from './pages/technician/TechProfile.jsx';
 import CategoryPage from './pages/public/CategoryPage.jsx';
 import AdminApplications from './pages/admin/AdminApplications.jsx';
-
 import AdminBlog from './pages/admin/AdminBlog.jsx';
 import Blog from './pages/public/Blog.jsx';
 import BlogPost from './pages/public/BlogPost.jsx';
@@ -60,62 +62,64 @@ const dash = (role, pages, home = <DashboardHome />) => (
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<PublicLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/services/:id" element={<ServiceDetail />} />
-          <Route path="/category/:slug" element={<CategoryPage />} /> 
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="*" element={<NotFound />} />
-        <Route path="/blog" element={<Blog />} />
-      <Route path="/what-we-offer" element={<WhatWeOffer />} />
-<Route path="/customized-solutions" element={<CustomizedSolutions />} />
-<Route path="/customer-support" element={<CustomerSupport />} />
-<Route path="/consultation" element={<Consultation />} />
-<Route path="/become-a-technician" element={<BecomeTechnician />} />
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <Routes>
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/services/:id" element={<ServiceDetail />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/what-we-offer" element={<WhatWeOffer />} />
+          <Route path="/customized-solutions" element={<CustomizedSolutions />} />
+          <Route path="/customer-support" element={<CustomerSupport />} />
+          <Route path="/consultation" element={<Consultation />} />
+          <Route path="/become-a-technician" element={<BecomeTechnician />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
 
-<Route path="/blog/:slug" element={<BlogPost />} />
-      </Route>
-      {dash('customer', [
-        ['bookings', <MyBookings />],
-        ['book/:serviceId', <Book />],
-        ['bookings/:id', <BookingDetail />],
-        ['payments', <Payments />],
-        ['reviews', <Reviews />],
-        ['profile', <Profile />],
-      ])}
-      {dash('technician', [
-        ['jobs', <JobList />],
-        ['jobs/:id', <JobDetail />],
-        ['history', <JobList history />],
-        ['earnings', <Earnings />],
-        ['profile', <TechProfile />],
-      ], <TechOverview />)}
-      {dash('admin', [
-  ['bookings', <AdminBookings />],
-  ['services', <AdminServices />],
-  ['categories', <AdminCategories />],
-  ['technicians', <AdminTechnicians />],
-  ['customers', <AdminCustomers />],
-  ['payments', <AdminPayments />],
-  ['reviews', <AdminReviews />],
-  ['messages', <AdminMessages />],
-  ['audit', <AdminAudit />],
-  ['settings', <AdminSettings />],
-  ['blogs', <AdminBlog />],   // 👈 THIS
-  ['coupons', <AdminCoupons />],
-['applications', <AdminApplications />],
-['profile' ,<AdminProfile /> ],
+        {dash('customer', [
+          ['bookings', <MyBookings />],
+          ['book/:serviceId', <Book />],
+          ['bookings/:id', <BookingDetail />],
+          ['payments', <Payments />],
+          ['reviews', <Reviews />],
+          ['profile', <Profile />],
+        ])}
 
-  
-], <AdminOverview />)}
-     
-    </Routes>
+        {dash('technician', [
+          ['jobs', <JobList />],
+          ['jobs/:id', <JobDetail />],
+          ['history', <JobList history />],
+          ['earnings', <Earnings />],
+          ['profile', <TechProfile />],
+        ], <TechOverview />)}
+
+        {dash('admin', [
+          ['bookings', <AdminBookings />],
+          ['services', <AdminServices />],
+          ['categories', <AdminCategories />],
+          ['technicians', <AdminTechnicians />],
+          ['customers', <AdminCustomers />],
+          ['payments', <AdminPayments />],
+          ['reviews', <AdminReviews />],
+          ['messages', <AdminMessages />],
+          ['audit', <AdminAudit />],
+          ['settings', <AdminSettings />],
+          ['blogs', <AdminBlog />],
+          ['coupons', <AdminCoupons />],
+          ['applications', <AdminApplications />],
+          ['profile', <AdminProfile />],
+        ], <AdminOverview />)}
+
+      </Routes>
+    </GoogleOAuthProvider>
   );
 }
