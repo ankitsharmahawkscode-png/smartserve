@@ -13,10 +13,15 @@ export default function AdminBlog() {
   const [busy, setBusy] = useState(false);
 
   // ✅ Keyword chip helpers (form ke andar)
-  const keywords = (form?.seo?.keywords || '')
-    .split(',')
-    .map((k) => k.trim())
-    .filter(Boolean);
+  // ✅ SAFE VERSION: Handles both Arrays and Strings
+  let keywords = [];
+  if (form?.seo?.keywords) {
+    if (Array.isArray(form.seo.keywords)) {
+      keywords = form.seo.keywords;
+    } else if (typeof form.seo.keywords === 'string') {
+      keywords = form.seo.keywords.split(',').map((k) => k.trim()).filter(Boolean);
+    }
+  }
 
   const addKeyword = (raw) => {
     const v = raw.trim();
@@ -35,16 +40,33 @@ export default function AdminBlog() {
     });
   };
 
-  const handleSubmit = async (e) => {
+   const handleSubmit = async (e) => {
     e.preventDefault();
     setBusy(true);
     setNotice('');
+    
+    // ✅ Convert the comma-separated string back to an Array for the DB
+    const formattedKeywords = (form.seo?.keywords || '')
+      .split(',')
+      .map((k) => k.trim())
+      .filter(Boolean);
+
+    const payload = {
+      ...form,
+      seo: {
+        ...form.seo,
+        keywords: form.seo?.keywords && Array.isArray(form.seo.keywords) 
+          ? form.seo.keywords 
+          : formattedKeywords,
+      }
+    };
+
     try {
       if (form._id) {
-        await api.put(`/admin/blogs/${form._id}`, form);
+        await api.put(`/admin/blogs/${form._id}`, payload);
         setNotice('Blog updated');
       } else {
-        await api.post('/admin/blogs', form);
+        await api.post('/admin/blogs', payload);
         setNotice('Blog created');
       }
       setForm(null);
@@ -314,13 +336,20 @@ export default function AdminBlog() {
                 >
                   View
                 </a>
-                <Button
-                  variant="secondary"
-                  onClick={() => setForm(post)}
-                  className="min-h-[40px]"
-                >
-                  Edit
-                </Button>
+              <Button
+  variant="secondary"
+  onClick={() => {
+    // ✅ Convert Array to String before putting it in the form
+    const editData = { ...post };
+    if (Array.isArray(editData.seo?.keywords)) {
+      editData.seo.keywords = editData.seo.keywords.join(', ');
+    }
+    setForm(editData);
+  }}
+  className="min-h-[40px]"
+>
+  Edit
+</Button>
                 <Button
                   variant="secondary"
                   onClick={() => handleDelete(post._id)}
