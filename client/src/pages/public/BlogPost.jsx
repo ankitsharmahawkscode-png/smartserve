@@ -58,6 +58,18 @@ export default function BlogPost() {
   if (error) return <div className="p-10"><ErrorState message={error} /></div>;
   if (!blog) return <Navigate to="/blog" replace />;
 
+  // ✅ THE FIX: Safely handle keywords whether they are an Array or a String
+  let tagList = [];
+  if (blog.seo?.keywords) {
+    if (Array.isArray(blog.seo.keywords)) {
+      // Handles the new Mongoose [String] schema
+      tagList = blog.seo.keywords; 
+    } else if (typeof blog.seo.keywords === 'string') {
+      // Handles legacy comma-separated strings
+      tagList = blog.seo.keywords.split(',').map(k => k.trim()).filter(Boolean);
+    }
+  }
+
   return (
     <main className="bg-white pb-20">
       <article className="max-w-[1000px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
@@ -71,7 +83,7 @@ export default function BlogPost() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
             <div className="text-sm">
               <span className="text-[#d97706] font-medium">{blog.author?.name || 'Ankit Sharma'}</span>
-              <span className="text-gray-500 ml-2">- {blog.publishedAt ? prettyDate(blog.publishedAt) : 'Recent'} at 11:50 AM IST</span>
+              <span className="text-gray-500 ml-2">- {blog.publishedAt ? prettyDate(blog.publishedAt) : 'Recent'}</span>
             </div>
             <SocialIcons title={blog.title} />
           </div>
@@ -89,22 +101,28 @@ export default function BlogPost() {
             </figure>
           )}
           
-          {/* Render HTML content. Note: 'first-letter' styling requires the first element to be a <p> tag */}
           <div 
             className="prose prose-lg max-w-none prose-p:mb-5 prose-h2:text-[28px] prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:font-bold prose-h3:mt-6 prose-h3:mb-3 prose-p:first-of-type:first-letter:text-5xl prose-p:first-of-type:first-letter:font-serif prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:mr-3 prose-p:first-of-type:first-letter:text-[#d97706] prose-p:first-of-type:first-letter:leading-[0.8] clearfix"
             dangerouslySetInnerHTML={{ __html: blog.content }} 
           />
         </div>
 
-        {/* Tags Section (Static for now, you can make it dynamic later) */}
+        {/* ✅ DYNAMIC TAGS SECTION */}
         <div className="mt-10 clear-both">
           <p className="font-bold text-gray-700 mb-3">Tags :</p>
           <div className="flex flex-wrap gap-2">
-            {/* Example static tags */}
-            <span className="bg-[#222] text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide">Home Maintenance</span>
-            <span className="bg-[#222] text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide">AC Repair</span>
-            <span className="bg-[#222] text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide">Summer Tips</span>
-            <span className="bg-[#222] text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide">SmartServe</span>
+            {tagList.length > 0 ? (
+              tagList.map((tag, index) => (
+                <span 
+                  key={index} 
+                  className="bg-[#222] text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide"
+                >
+                  {tag}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-400 text-sm italic">No tags added</span>
+            )}
           </div>
         </div>
 
