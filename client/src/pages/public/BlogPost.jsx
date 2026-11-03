@@ -1,25 +1,16 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch.js';
 import { ErrorState, Spinner } from '../../components/States.jsx';
-import { prettyDate } from '../../utils/format.js';
+import { prettyPostDate } from '../../utils/format.js';
 import useSeo from '../../hooks/useSeo.js';
 import { company } from '../../content.js';
-import { prettyPostDate } from '../../utils/format.js';
 
 // Social Share Icons (SVG)
 const SocialIcons = ({ title }) => {
   const url = typeof window !== 'undefined' ? window.location.href : '';
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
-const author = blog.author || {};
-const authorName = author.name || 'SmartServe Team';
-const authorSlug = author.profile?.slug;
-const authorRole = author.profile?.designation || 'Content Creator & Home Expert';
-const authorAvatar = author.profile?.avatar;
-const authorInitials =
-  authorName.split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase() || 'SS';
-const CardTag = authorSlug ? Link : 'div';
-const cardProps = authorSlug ? { to: `/author/${authorSlug}` } : {};
+
   return (
     <div className="flex gap-2">
       <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-brand-dark text-white flex items-center justify-center hover:bg-brand transition">
@@ -67,18 +58,29 @@ export default function BlogPost() {
   if (error) return <div className="p-10"><ErrorState message={error} /></div>;
   if (!blog) return <Navigate to="/blog" replace />;
 
-  // Safely handle keywords whether they are an Array or a String
-let tagList = [];
-const kw = blog.seo?.keywords;
-if (Array.isArray(kw)) {
-  tagList = kw;
-} else if (typeof kw === 'string') {
-  tagList = [kw];
-}
-tagList = tagList
-  .flatMap((k) => String(k).split(','))
-  .map((k) => k.trim())
-  .filter(Boolean);
+  // Tags: handles an array, an array with one comma-joined item, or a plain string
+  let tagList = [];
+  const kw = blog.seo?.keywords;
+  if (Array.isArray(kw)) {
+    tagList = kw;
+  } else if (typeof kw === 'string') {
+    tagList = [kw];
+  }
+  tagList = tagList
+    .flatMap((k) => String(k).split(','))
+    .map((k) => k.trim())
+    .filter(Boolean);
+
+  // Author card data
+  const author = blog.author || {};
+  const authorName = author.name || 'SmartServe Team';
+  const authorSlug = author.profile?.slug;
+  const authorRole = author.profile?.designation || 'Content Creator & Home Expert';
+  const authorAvatar = author.profile?.avatar;
+  const authorInitials =
+    authorName.split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase() || 'SS';
+  const CardTag = authorSlug ? Link : 'div';
+  const cardProps = authorSlug ? { to: `/author/${authorSlug}` } : {};
 
   return (
     <main className="bg-white pb-20">
@@ -92,8 +94,16 @@ tagList = tagList
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
             <div className="text-sm">
-              <span className="text-[#d97706] font-medium">{blog.author?.name || 'Ankit Sharma'}</span>
-           <span className="text-gray-500 ml-2">- {prettyPostDate(blog.publishedAt || blog.createdAt) || 'Recent'}</span>
+              {authorSlug ? (
+                <Link to={`/author/${authorSlug}`} className="text-[#d97706] font-medium hover:underline">
+                  {authorName}
+                </Link>
+              ) : (
+                <span className="text-[#d97706] font-medium">{authorName}</span>
+              )}
+              <span className="text-gray-500 ml-2">
+                - {prettyPostDate(blog.publishedAt || blog.createdAt) || 'Recent'}
+              </span>
             </div>
             <SocialIcons title={blog.title} />
           </div>
@@ -138,37 +148,36 @@ tagList = tagList
         </div>
 
         {/* Editor/Author Profile Section */}
-   {/* Editor/Author Profile Section */}
-<div className="mt-12 pt-8 border-t border-gray-200">
-  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">About The Editor</p>
-  <CardTag
-    {...cardProps}
-    className={`bg-white border-b-4 border-[#d97706] shadow-sm rounded-lg p-6 flex items-start gap-4 ${
-      authorSlug ? 'hover:shadow-md transition-shadow cursor-pointer' : ''
-    }`}
-  >
-    {authorAvatar ? (
-      <img src={authorAvatar} alt={authorName} className="w-16 h-16 rounded-full object-cover shrink-0" />
-    ) : (
-      <div className="w-16 h-16 bg-[#0B1F3A] text-white rounded-full flex items-center justify-center shrink-0 text-xl font-bold">
-        {authorInitials}
-      </div>
-    )}
-    <div>
-      <div className="flex items-center gap-2">
-        <h3 className="text-lg font-bold text-gray-900">{authorName}</h3>
-        <span className="bg-[#fef3c7] text-[#d97706] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-          Verified
-        </span>
-      </div>
-      <p className="text-sm text-gray-500 mt-1">{authorRole}</p>
-      {authorSlug && (
-        <p className="text-xs font-semibold text-[#d97706] mt-2">View profile →</p>
-      )}
-    </div>
-  </CardTag>
-</div>
+        <div className="mt-12 pt-8 border-t border-gray-200">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">About The Editor</p>
+          <CardTag
+            {...cardProps}
+            className={`bg-white border-b-4 border-[#d97706] shadow-sm rounded-lg p-6 flex items-start gap-4 ${
+              authorSlug ? 'hover:shadow-md transition-shadow cursor-pointer' : ''
+            }`}
+          >
+            {authorAvatar ? (
+              <img src={authorAvatar} alt={authorName} className="w-16 h-16 rounded-full object-cover shrink-0" />
+            ) : (
+              <div className="w-16 h-16 bg-[#0B1F3A] text-white rounded-full flex items-center justify-center shrink-0 text-xl font-bold">
+                {authorInitials}
+              </div>
+            )}
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-bold text-gray-900">{authorName}</h3>
+                <span className="bg-[#fef3c7] text-[#d97706] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                  Verified
+                </span>
+              </div>
+              <p className="text-sm text-gray-500 mt-1">{authorRole}</p>
+              {authorSlug && (
+                <p className="text-xs font-semibold text-[#d97706] mt-2">View profile →</p>
+              )}
+            </div>
+          </CardTag>
+        </div>
 
         <div className="mt-8">
           <Link to="/blog" className="text-brand font-semibold hover:underline">← Back to all articles</Link>
