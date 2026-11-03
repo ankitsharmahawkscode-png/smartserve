@@ -58,28 +58,26 @@ export default function BlogPost() {
   if (error) return <div className="p-10"><ErrorState message={error} /></div>;
   if (!blog) return <Navigate to="/blog" replace />;
 
-  // ✅ THE FIX: Safely handle keywords whether they are an Array or a String
+  // Safely handle keywords whether they are an Array or a String
   let tagList = [];
   if (blog.seo?.keywords) {
     if (Array.isArray(blog.seo.keywords)) {
-      // Handles the new Mongoose [String] schema
-      tagList = blog.seo.keywords; 
+      tagList = blog.seo.keywords.map((k) => String(k).trim()).filter(Boolean);
     } else if (typeof blog.seo.keywords === 'string') {
-      // Handles legacy comma-separated strings
-      tagList = blog.seo.keywords.split(',').map(k => k.trim()).filter(Boolean);
+      tagList = blog.seo.keywords.split(',').map((k) => k.trim()).filter(Boolean);
     }
   }
 
   return (
     <main className="bg-white pb-20">
       <article className="max-w-[1000px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        
+
         {/* Header Section */}
         <header className="mb-8">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1a1a1a] leading-[1.2] mb-4">
             {blog.title}
           </h1>
-          
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
             <div className="text-sm">
               <span className="text-[#d97706] font-medium">{blog.author?.name || 'Ankit Sharma'}</span>
@@ -93,37 +91,37 @@ export default function BlogPost() {
         <div className="text-[17px] text-[#333] leading-[1.8]">
           {blog.coverImage && (
             <figure className="sm:float-left sm:mr-6 mb-6 w-full sm:w-[45%]">
-              <img 
-                src={blog.coverImage} 
-                alt={blog.title} 
+              <img
+                src={blog.coverImage}
+                alt={blog.title}
                 className="w-full h-auto object-cover rounded-sm"
               />
             </figure>
           )}
-          
-          <div 
+
+          <div
             className="prose prose-lg max-w-none prose-p:mb-5 prose-h2:text-[28px] prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:font-bold prose-h3:mt-6 prose-h3:mb-3 prose-p:first-of-type:first-letter:text-5xl prose-p:first-of-type:first-letter:font-serif prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:mr-3 prose-p:first-of-type:first-letter:text-[#d97706] prose-p:first-of-type:first-letter:leading-[0.8] clearfix"
-            dangerouslySetInnerHTML={{ __html: blog.content }} 
+            dangerouslySetInnerHTML={{ __html: blog.content }}
           />
         </div>
 
-        {/* ✅ DYNAMIC TAGS SECTION */}
+        {/* CLICKABLE TAGS SECTION */}
         <div className="mt-10 clear-both">
-          <p className="font-bold text-gray-700 mb-3">Tags :</p>
-          <div className="flex flex-wrap gap-2">
-         {tagList.length > 0 ? (
-  tagList.map((tag, index) => (
-    <Link
-      key={`${tag}-${index}`}
-      to={`/blog?tag=${encodeURIComponent(tag)}`}
-      className="bg-[#222] text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide hover:bg-[#d97706] transition-colors"
-    >
-      {tag}
-    </Link>
-  ))
-) : (
-  <span className="text-gray-400 text-sm italic">No tags added</span>
-)}
+          <p className="font-bold text-gray-700 text-sm mb-3">Tags :</p>
+          <div className="flex flex-wrap gap-3 sm:gap-4">
+            {tagList.length > 0 ? (
+              tagList.map((tag, index) => (
+                <Link
+                  key={`${tag}-${index}`}
+                  to={`/blog?tag=${encodeURIComponent(tag)}`}
+                  className="bg-[#222] text-white text-[13px] font-semibold px-4 py-2 rounded-[3px] hover:bg-[#d97706] transition-colors"
+                >
+                  {tag}
+                </Link>
+              ))
+            ) : (
+              <span className="text-gray-400 text-sm italic">No tags added</span>
+            )}
           </div>
         </div>
 
@@ -148,7 +146,7 @@ export default function BlogPost() {
         </div>
 
         <div className="mt-8">
-           <Link to="/blog" className="text-brand font-semibold hover:underline">← Back to all articles</Link>
+          <Link to="/blog" className="text-brand font-semibold hover:underline">← Back to all articles</Link>
         </div>
       </article>
     </main>
