@@ -21,12 +21,12 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, trim: true },
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ROLES, default: 'customer', index: true },
-    
+
     // 👇 NAYE FIELDS SUPER ADMIN & PERMISSIONS KE LIYE 👇
     isSuperAdmin: { type: Boolean, default: false },
-    permissions: { type: [String], default: [] }, 
+    permissions: { type: [String], default: [] },
     // 👆 Example: ['blogs', 'categories', 'bookings']
-    
+
     isActive: { type: Boolean, default: true },
     addresses: [addressSchema],
     refreshTokens: { type: [String], select: false, default: [] },
@@ -36,6 +36,24 @@ const userSchema = new mongoose.Schema(
     tokenVersion: { type: Number, default: 0 },
     resetTokenHash: { type: String, select: false, index: true, sparse: true },
     resetTokenExpires: { type: Date, select: false },
+
+    // 👇 AUTHOR PROFILE (Admin Profile page + public author page) 👇
+    profile: {
+      slug: { type: String, lowercase: true, trim: true, maxlength: 60 }, // no default on purpose
+      designation: { type: String, default: '', trim: true, maxlength: 80 },
+      workplace: { type: String, default: '', trim: true, maxlength: 100 },
+      location: { type: String, default: '', trim: true, maxlength: 100 },
+      avatar: { type: String, default: '' },
+      about: { type: [String], default: [] },
+      social: {
+        linkedin: { type: String, default: '', trim: true },
+        twitter: { type: String, default: '', trim: true },
+        facebook: { type: String, default: '', trim: true },
+        instagram: { type: String, default: '', trim: true },
+        website: { type: String, default: '', trim: true },
+      },
+    },
+
     technician: {
       skills: [String],
       isAvailable: { type: Boolean, default: true },
@@ -43,6 +61,13 @@ const userSchema = new mongoose.Schema(
     },
   },
   { timestamps: true }
+);
+
+// Author slugs must be unique, but only users who set one are checked
+// (everyone else has no slug, so a plain unique index would clash on "null").
+userSchema.index(
+  { 'profile.slug': 1 },
+  { unique: true, partialFilterExpression: { 'profile.slug': { $type: 'string' } } }
 );
 
 userSchema.statics.ROLES = ROLES;
@@ -55,7 +80,7 @@ userSchema.methods.verifyPassword = function verifyPassword(plain) {
 userSchema.set('toJSON', {
   transform: (doc, ret) => {
     delete ret.passwordHash;
-    delete ret.refreshTokens;  
+    delete ret.refreshTokens;
     delete ret.failedLogins;
     delete ret.lockUntil;
     delete ret.tokenVersion;
