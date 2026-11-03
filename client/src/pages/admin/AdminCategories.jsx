@@ -9,6 +9,41 @@ import Modal from '../../components/Modal.jsx';
 import ConfirmDialog from '../../components/ConfirmDialog.jsx';
 import { EmptyState, ErrorState, Spinner } from '../../components/States.jsx';
 
+const PAGE_SIZE = 10;
+
+// "November 3, 2026 at 1:10 PM"
+const fmtDateTime = (v) => {
+  if (!v) return '—';
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' });
+};
+
+// ---------- small icons ----------
+const Icon = ({ children }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+    {children}
+  </svg>
+);
+const LockIcon = () => (
+  <Icon><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></Icon>
+);
+const UnlockIcon = () => (
+  <Icon><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.5-2" /></Icon>
+);
+const TrashIcon = () => (
+  <Icon><path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M6 6l1 14h10l1-14" /></Icon>
+);
+const PencilIcon = () => (
+  <Icon><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></Icon>
+);
+const EyeIcon = () => (
+  <Icon><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" /><circle cx="12" cy="12" r="3" /></Icon>
+);
+
+const actionBtn =
+  'inline-flex h-8 w-9 items-center justify-center rounded text-white transition-opacity hover:opacity-85 disabled:opacity-50';
+
 function CategoryForm({ category, onClose, onDone }) {
   const [f, setF] = useState({
     name: category?.name || '',
@@ -300,6 +335,8 @@ export default function AdminCategories() {
   const [form, setForm] = useState(null);
   const [del, setDel] = useState(null);
   const [notice, setNotice] = useState('');
+  const [page, setPage] = useState(1);
+  const [togglingId, setTogglingId] = useState(null);
   const action = useAction();
 
   const done = (msg) => {
@@ -316,15 +353,44 @@ export default function AdminCategories() {
     }
   };
 
-  return (
-    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5 sm:mb-6">
-        <h1 className="text-2xl sm:text-3xl font-extrabold">Categories</h1>
-        <Button onClick={() => setForm('new')} className="w-full sm:w-auto min-h-[44px]">
-          Add category
-        </Button>
-      </div>
+  // Lock / unlock = show or hide the category for customers
+  const toggleActive = async (c) => {
+    setTogglingId(c._id);
+    setNotice('');
+    try {
+      await api.put(`/admin/categories/${c._id}`, {
+        name: c.name,
+        isActive: !c.isActive,
+      });
+      setNotice(c.isActive ? 'Category hidden' : 'Category is now active');
+      reload();
+    } catch (err) {
+      const resp = err.response?.data;
+      const details = resp?.errors
+        ?.map((er) => `${er.field || ''} ${er.message || ''}`.trim())
+        .join(' | ');
+      setNotice(`${resp?.message || 'Error updating category'}${details ? ': ' + details : ''}`);
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
+  const items = data?.items || [];
+
+  // Pagination (client side)
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const startIdx = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = items.slice(startIdx, startIdx + PAGE_SIZE);
+
+  const pageNumbers = [];
+  const from = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+  const to = Math.min(totalPages, from + 4);
+  for (let i = from; i <= to; i++) pageNumbers.push(i);
+
+  return (
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       {notice && (
         <div
           role="status"
@@ -337,141 +403,170 @@ export default function AdminCategories() {
       {loading && <Spinner />}
       {error && <ErrorState message={error} onRetry={reload} />}
 
-      {data && data.items.length === 0 && (
-        <EmptyState title="No categories yet">
-          Add your first category, such as AC Repair.
-        </EmptyState>
-      )}
+      {data && (
+        <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 shadow">
+          {/* Header */}
+          <div className="mb-5 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+            <h1 className="flex-1 text-center text-2xl sm:text-3xl font-extrabold text-[#d97706] sm:pl-[190px]">
+              Categories
+            </h1>
+            <button
+              type="button"
+              onClick={() => setForm('new')}
+              className="inline-flex items-center justify-center gap-2 rounded bg-cyan-400 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-500 transition-colors sm:w-[190px]"
+            >
+              <span className="text-lg leading-none">+</span> Add New Category
+            </button>
+          </div>
 
-    
-             {data && data.items.length > 0 && (
-  <>
-    {/* ─── DESKTOP: table ─── */}
-    <div className="hidden md:block overflow-x-auto bg-white border border-line rounded-card">
-      <table className="w-full text-left">
-        <thead className="text-xs sm:text-sm text-ink-muted">
-          <tr>
-            <th scope="col" className="p-3">Name</th>
-            <th scope="col" className="p-3">Status</th>
-            <th scope="col" className="p-3 w-[180px]">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.items.map((c) => (
-            <tr key={c._id} className="border-t border-line">
-              <td className="p-3 font-semibold">
-                <a
-                  href={`/category/${encodeURIComponent(c.slug)}`}
-                  className="text-brand-dark hover:text-brand underline underline-offset-2 font-bold"
-                  title={`Open ${c.name} page`}
-                >
-                  {c.name}
-                </a>
-                {c.description && (
-                  <>
-                    <br />
-                    <span className="text-sm font-normal text-ink-muted">
-                      {c.description}
-                    </span>
-                  </>
-                )}
-              </td>
-              <td className="p-3 text-sm">
-                <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                    c.isActive
-                      ? 'bg-green-50 text-green-800'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {c.isActive ? 'Active' : 'Hidden'}
-                </span>
-              </td>
-              <td className="p-3">
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant="secondary"
-                    onClick={() => setForm(c)}
-                    className="min-h-[36px]"
+          {total === 0 ? (
+            <EmptyState title="No categories yet">
+              Add your first category, such as AC Repair.
+            </EmptyState>
+          ) : (
+            <>
+              <div className="overflow-x-auto rounded border border-gray-300">
+                <table className="w-full min-w-[860px] border-collapse text-left text-[13px] text-gray-600">
+                  <thead>
+                    <tr className="border-b border-gray-300 text-gray-800">
+                      {['S.No', 'Category', 'Created Date', 'Modified Date', 'Status', 'Action'].map((h) => (
+                        <th key={h} className="border-r border-gray-200 px-3 py-3 font-bold last:border-r-0">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageItems.map((c, i) => (
+                      <tr
+                        key={c._id}
+                        className="border-b border-gray-200 even:bg-white odd:bg-[#f3f7fa] last:border-b-0"
+                      >
+                        <td className="border-r border-gray-200 px-3 py-3 align-top">
+                          {startIdx + i + 1}
+                        </td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top max-w-[340px]">
+                          <span className="font-semibold text-gray-800">{c.name}</span>
+                          {c.description && (
+                            <span className="mt-0.5 block text-gray-500 line-clamp-2">
+                              {c.description}
+                            </span>
+                          )}
+                        </td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top whitespace-nowrap">
+                          {fmtDateTime(c.createdAt)}
+                        </td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top whitespace-nowrap">
+                          {fmtDateTime(c.updatedAt)}
+                        </td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top">
+                          <span className={c.isActive ? 'text-green-700' : 'text-gray-500'}>
+                            {c.isActive ? 'Active' : 'Hidden'}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 align-top">
+                          <div className="flex gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => toggleActive(c)}
+                              disabled={togglingId === c._id}
+                              title={c.isActive ? 'Hide from customers' : 'Make active'}
+                              aria-label={c.isActive ? 'Hide from customers' : 'Make active'}
+                              className={`${actionBtn} bg-cyan-400`}
+                            >
+                              {c.isActive ? <LockIcon /> : <UnlockIcon />}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                action.setError('');
+                                setDel(c);
+                              }}
+                              title="Delete"
+                              aria-label="Delete"
+                              className={`${actionBtn} bg-red-500`}
+                            >
+                              <TrashIcon />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setForm(c)}
+                              title="Edit"
+                              aria-label="Edit"
+                              className={`${actionBtn} bg-[#5bc0a5]`}
+                            >
+                              <PencilIcon />
+                            </button>
+                            {c.isActive && c.slug ? (
+                              <a
+                                href={`/category/${encodeURIComponent(c.slug)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title={`Open ${c.name} page`}
+                                aria-label="View"
+                                className={`${actionBtn} bg-amber-400`}
+                              >
+                                <EyeIcon />
+                              </a>
+                            ) : (
+                              <span
+                                title="Make active to view"
+                                className={`${actionBtn} cursor-not-allowed bg-amber-400 opacity-40`}
+                              >
+                                <EyeIcon />
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Footer: count + pagination */}
+              <div className="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row">
+                <p className="text-sm text-teal-600 underline">
+                  Showing {startIdx + 1} to {Math.min(startIdx + PAGE_SIZE, total)} of {total} entries
+                </p>
+
+                <div className="flex items-center gap-1 text-sm">
+                  <button
+                    type="button"
+                    onClick={() => setPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="rounded bg-gray-500 px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      action.setError('');
-                      setDel(c);
-                    }}
-                    className="min-h-[36px]"
+                    Previous
+                  </button>
+                  {pageNumbers.map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setPage(n)}
+                      className={`min-w-[36px] rounded px-3 py-2 font-medium ${
+                        n === currentPage
+                          ? 'bg-teal-600 text-white'
+                          : 'text-teal-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="rounded bg-gray-500 px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Delete
-                  </Button>
+                    Next
+                  </button>
                 </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-
-    {/* ─── MOBILE: cards ─── */}
-    <div className="md:hidden flex flex-col gap-3">
-      {data.items.map((c) => (
-        <div
-          key={c._id}
-          className="bg-white border border-line rounded-card p-4"
-        >
-          {/* Header row — name + status */}
-          <div className="flex items-start justify-between gap-3 mb-2">
-            <a
-              href={`/category/${encodeURIComponent(c.slug)}`}
-              className="text-brand-dark hover:text-brand underline underline-offset-2 font-bold text-base min-w-0 break-words"
-            >
-              {c.name}
-            </a>
-            <span
-              className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                c.isActive
-                  ? 'bg-green-50 text-green-800'
-                  : 'bg-gray-100 text-gray-600'
-              }`}
-            >
-              {c.isActive ? 'Active' : 'Hidden'}
-            </span>
-          </div>
-
-          {/* Description */}
-          {c.description && (
-            <p className="text-sm text-ink-muted mb-3 line-clamp-2">
-              {c.description}
-            </p>
+              </div>
+            </>
           )}
-
-          {/* Actions */}
-          <div className="flex gap-2 pt-2 border-t border-line">
-            <Button
-              variant="secondary"
-              onClick={() => setForm(c)}
-              className="flex-1 min-h-[40px]"
-            >
-              Edit
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                action.setError('');
-                setDel(c);
-              }}
-              className="flex-1 min-h-[40px]"
-            >
-              Delete
-            </Button>
-          </div>
         </div>
-      ))}
-    </div>
-  </>
-)}
+      )}
 
       {form && (
         <CategoryForm
