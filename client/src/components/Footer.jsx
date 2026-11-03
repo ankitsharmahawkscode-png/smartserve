@@ -101,6 +101,7 @@ export default function Footer() {
                   Log In
                 </Link>
               </li>
+
             </ul>
           </nav>
 
@@ -234,6 +235,10 @@ export default function Footer() {
                     >
                       Send us a message
                     </Link>
+                    <Link to="/privacy-policy">Privacy Policy</Link>
+<Link to="/terms">Terms &amp; Conditions</Link>
+<Link to="/refund-policy">Refund &amp; Cancellation</Link>
+<Link to="/faq">FAQ</Link>
                   </li>
                 )}
             </ul>
