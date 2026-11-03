@@ -103,7 +103,7 @@ exports.technicianSchema = z.object({
 exports.technicianUpdateSchema = z
   .object({
     name: z.string().trim().min(2).max(80),
-    phone,
+    phone: z.union([phone, z.literal('')]),
     isActive: z.boolean(),
     isAvailable: z.boolean(),
     skills: z.array(z.string().trim().min(1)).max(20),

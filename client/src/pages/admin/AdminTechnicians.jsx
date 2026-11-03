@@ -7,6 +7,38 @@ import Input, { Alert } from '../../components/Input.jsx';
 import Modal from '../../components/Modal.jsx';
 import { EmptyState, ErrorState, Spinner } from '../../components/States.jsx';
 
+const PAGE_SIZE = 10;
+
+// "November 3, 2026 at 1:10 PM"
+const fmtDateTime = (v) => {
+  if (!v) return '—';
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' });
+};
+
+// ---------- small icons ----------
+const Icon = ({ children }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+    {children}
+  </svg>
+);
+const LockIcon = () => (
+  <Icon><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></Icon>
+);
+const UnlockIcon = () => (
+  <Icon><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.5-2" /></Icon>
+);
+const PencilIcon = () => (
+  <Icon><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></Icon>
+);
+const PowerIcon = () => (
+  <Icon><path d="M12 2v10" /><path d="M18.4 6.6a9 9 0 1 1-12.8 0" /></Icon>
+);
+
+const actionBtn =
+  'inline-flex h-8 w-9 items-center justify-center rounded text-white transition-opacity hover:opacity-85 disabled:opacity-50';
+
 function TechnicianForm({ tech, onClose, onDone }) {
   const [f, setF] = useState({
     name: tech?.name || '', email: tech?.email || '', phone: tech?.phone || '', password: '',
@@ -29,10 +61,19 @@ function TechnicianForm({ tech, onClose, onDone }) {
     if (Object.keys(x).length) return;
 
     const skills = f.skills.split(',').map((s) => s.trim()).filter(Boolean);
-    const phone = f.phone.trim() && { phone: f.phone.trim() };
+
+    // Send the phone when it has a value. When editing and the admin cleared a
+    // number that existed before, send '' so it is actually removed.
+    const phoneValue = f.phone.trim();
+    const phone = phoneValue
+      ? { phone: phoneValue }
+      : tech?.phone
+        ? { phone: '' }
+        : {};
+
     const ok = await run(() => (tech
       ? api.patch(`/admin/technicians/${tech._id}`, { name: f.name.trim(), ...phone, skills, commissionPct: pct })
-      : api.post('/admin/technicians', { name: f.name.trim(), email: f.email.trim(), password: f.password, skills, commissionPct: pct, ...phone })));
+      : api.post('/admin/technicians', { name: f.name.trim(), email: f.email.trim(), password: f.password, skills, commissionPct: pct, ...(phoneValue && { phone: phoneValue }) })));
     if (ok) onDone(tech ? 'Technician updated' : 'Technician created');
   };
 
@@ -59,6 +100,7 @@ export default function AdminTechnicians() {
   const { data, loading, error, reload } = useFetch('/admin/technicians');
   const [form, setForm] = useState(null);
   const [notice, setNotice] = useState('');
+  const [page, setPage] = useState(1);
   const action = useAction();
 
   const done = (msg) => { setForm(null); setNotice(msg); reload(); };
@@ -66,47 +108,188 @@ export default function AdminTechnicians() {
     if (await action.run(() => api.patch(`/admin/technicians/${t._id}`, body))) { setNotice(msg); reload(); }
   };
 
+  const items = data?.items || [];
+
+  // Pagination (client side)
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const startIdx = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = items.slice(startIdx, startIdx + PAGE_SIZE);
+
+  const pageNumbers = [];
+  const from = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+  const to = Math.min(totalPages, from + 4);
+  for (let i = from; i <= to; i++) pageNumbers.push(i);
+
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <h1 className="text-3xl font-extrabold">Technicians</h1>
-        <Button onClick={() => setForm('new')}>Add technician</Button>
-      </div>
-      {notice && <div role="status" className="mb-4 rounded-[10px] bg-brand-tint p-3 font-semibold text-brand-dark">{notice}</div>}
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      {notice && (
+        <div role="status" className="mb-4 rounded-[10px] bg-brand-tint p-3 font-semibold text-brand-dark">
+          {notice}
+        </div>
+      )}
       {action.error && <div className="mb-4"><Alert>{action.error}</Alert></div>}
       {loading && <Spinner />}
       {error && <ErrorState message={error} onRetry={reload} />}
-      {data && data.items.length === 0 && <EmptyState title="No technicians yet">Add a technician so you can assign jobs.</EmptyState>}
-      {data && data.items.length > 0 && (
-        <div className="overflow-x-auto bg-white border border-line rounded-card">
-          <table className="w-full min-w-[880px] text-left">
-            <thead className="text-sm text-ink-muted"><tr>
-              {['S.No', 'Technician', 'Skills', 'Commission', 'Account', 'Availability', 'Actions'].map((h) => <th key={h} scope="col" className="p-3">{h}</th>)}
-            </tr></thead>
-            <tbody>
-              {data.items.map((t, index) => (
-                <tr key={t._id} className="border-t border-line">
-                  <td className="p-3 font-semibold text-ink-muted">{index + 1}</td>
-                  <td className="p-3 font-semibold">{t.name}<br /><span className="text-sm font-normal text-ink-muted">{t.email}</span></td>
-                  <td className="p-3">{t.technician?.skills?.join(', ') || '-'}</td>
-                  <td className="p-3">{t.technician?.commissionPct ?? 0}%</td>
-                  <td className="p-3">{t.isActive ? 'Active' : 'Deactivated'}</td>
-                  <td className="p-3">{t.technician?.isAvailable ? 'Available' : 'Unavailable'}</td>
-                  <td className="p-3"><div className="flex flex-wrap gap-2">
-                    <Button variant="secondary" onClick={() => setForm(t)}>Edit</Button>
-                    <Button variant="secondary" disabled={action.busy} onClick={() => patch(t, { isAvailable: !t.technician?.isAvailable }, `${t.name} availability updated`)}>
-                      {t.technician?.isAvailable ? 'Mark unavailable' : 'Mark available'}
-                    </Button>
-                    <Button variant="secondary" disabled={action.busy} onClick={() => patch(t, { isActive: !t.isActive }, t.isActive ? `${t.name} deactivated` : `${t.name} reactivated`)}>
-                      {t.isActive ? 'Deactivate' : 'Reactivate'}
-                    </Button>
-                  </div></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+      {data && (
+        <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 shadow">
+          {/* Header */}
+          <div className="mb-5 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+            <h1 className="flex-1 text-center text-2xl sm:text-3xl font-extrabold text-[#d97706] sm:pl-[200px]">
+              Technicians
+            </h1>
+            <button
+              type="button"
+              onClick={() => setForm('new')}
+              className="inline-flex items-center justify-center gap-2 rounded bg-cyan-400 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-500 transition-colors sm:w-[200px]"
+            >
+              <span className="text-lg leading-none">+</span> Add New Technician
+            </button>
+          </div>
+
+          {total === 0 ? (
+            <EmptyState title="No technicians yet">Add a technician so you can assign jobs.</EmptyState>
+          ) : (
+            <>
+              <div className="overflow-x-auto rounded border border-gray-300">
+                <table className="w-full min-w-[1050px] border-collapse text-left text-[13px] text-gray-600">
+                  <thead>
+                    <tr className="border-b border-gray-300 text-gray-800">
+                      {['S.No', 'Technician', 'Phone', 'Skills', 'Commission', 'Created Date', 'Account', 'Availability', 'Action'].map((h) => (
+                        <th key={h} className="border-r border-gray-200 px-3 py-3 font-bold last:border-r-0">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageItems.map((t, i) => (
+                      <tr
+                        key={t._id}
+                        className="border-b border-gray-200 even:bg-white odd:bg-[#f3f7fa] last:border-b-0"
+                      >
+                        <td className="border-r border-gray-200 px-3 py-3 align-top">{startIdx + i + 1}</td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top">
+                          <span className="font-semibold text-gray-800">{t.name}</span>
+                          <span className="block text-gray-500">{t.email}</span>
+                        </td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top whitespace-nowrap">
+                          {t.phone || '—'}
+                        </td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top max-w-[220px]">
+                          {t.technician?.skills?.join(', ') || '—'}
+                        </td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top">
+                          {t.technician?.commissionPct ?? 0}%
+                        </td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top whitespace-nowrap">
+                          {fmtDateTime(t.createdAt)}
+                        </td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top">
+                          <span className={t.isActive ? 'text-green-700' : 'text-red-600'}>
+                            {t.isActive ? 'Active' : 'Deactivated'}
+                          </span>
+                        </td>
+                        <td className="border-r border-gray-200 px-3 py-3 align-top">
+                          <span className={t.technician?.isAvailable ? 'text-green-700' : 'text-gray-500'}>
+                            {t.technician?.isAvailable ? 'Available' : 'Unavailable'}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 align-top">
+                          <div className="flex gap-1.5">
+                            <button
+                              type="button"
+                              disabled={action.busy}
+                              onClick={() =>
+                                patch(
+                                  t,
+                                  { isActive: !t.isActive },
+                                  t.isActive ? `${t.name} deactivated` : `${t.name} reactivated`
+                                )
+                              }
+                              title={t.isActive ? 'Deactivate account' : 'Reactivate account'}
+                              aria-label={t.isActive ? 'Deactivate account' : 'Reactivate account'}
+                              className={`${actionBtn} bg-cyan-400`}
+                            >
+                              {t.isActive ? <LockIcon /> : <UnlockIcon />}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setForm(t)}
+                              title="Edit"
+                              aria-label="Edit"
+                              className={`${actionBtn} bg-[#5bc0a5]`}
+                            >
+                              <PencilIcon />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={action.busy}
+                              onClick={() =>
+                                patch(
+                                  t,
+                                  { isAvailable: !t.technician?.isAvailable },
+                                  `${t.name} availability updated`
+                                )
+                              }
+                              title={t.technician?.isAvailable ? 'Mark unavailable' : 'Mark available'}
+                              aria-label={t.technician?.isAvailable ? 'Mark unavailable' : 'Mark available'}
+                              className={`${actionBtn} bg-amber-400`}
+                            >
+                              <PowerIcon />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Footer: count + pagination */}
+              <div className="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row">
+                <p className="text-sm text-teal-600 underline">
+                  Showing {startIdx + 1} to {Math.min(startIdx + PAGE_SIZE, total)} of {total} entries
+                </p>
+
+                <div className="flex items-center gap-1 text-sm">
+                  <button
+                    type="button"
+                    onClick={() => setPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="rounded bg-gray-500 px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  {pageNumbers.map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setPage(n)}
+                      className={`min-w-[36px] rounded px-3 py-2 font-medium ${
+                        n === currentPage ? 'bg-teal-600 text-white' : 'text-teal-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="rounded bg-gray-500 px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
+
       {form && <TechnicianForm tech={form === 'new' ? null : form} onClose={() => setForm(null)} onDone={done} />}
     </div>
   );
