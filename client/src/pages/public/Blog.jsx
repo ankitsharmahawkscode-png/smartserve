@@ -4,6 +4,7 @@ import useFetch from '../../hooks/useFetch.js';
 import { EmptyState, ErrorState, Spinner } from '../../components/States.jsx';
 import { prettyDate } from '../../utils/format.js';
 import useSeo from '../../hooks/useSeo.js';
+import { prettyPostDate } from '../../utils/format.js';
 
 // ---------- small building blocks ----------
 const Badge = ({ children }) => (
@@ -30,7 +31,7 @@ const Meta = ({ post, light }) => (
   <p className={`mt-2 text-xs ${light ? 'text-gray-500' : 'text-gray-700'}`}>
     <span>{post.author?.name || 'Admin'}</span>
     <span className="mx-1.5">•</span>
-    <span>{post.publishedAt ? prettyDate(post.publishedAt) : ''}</span>
+    <span>{prettyPostDate(post.publishedAt || post.createdAt)}</span>
   </p>
 );
 

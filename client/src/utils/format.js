@@ -11,3 +11,10 @@ export const addDaysYMD = (ymd, n) => {
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 };
+// For blog posts: accepts ISO timestamps (publishedAt / createdAt) or YYYY-MM-DD
+export const prettyPostDate = (value) => {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+};

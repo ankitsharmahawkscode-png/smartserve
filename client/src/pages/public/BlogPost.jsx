@@ -4,6 +4,7 @@ import { ErrorState, Spinner } from '../../components/States.jsx';
 import { prettyDate } from '../../utils/format.js';
 import useSeo from '../../hooks/useSeo.js';
 import { company } from '../../content.js';
+import { prettyPostDate } from '../../utils/format.js';
 
 // Social Share Icons (SVG)
 const SocialIcons = ({ title }) => {
@@ -84,7 +85,7 @@ tagList = tagList
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
             <div className="text-sm">
               <span className="text-[#d97706] font-medium">{blog.author?.name || 'Ankit Sharma'}</span>
-              <span className="text-gray-500 ml-2">- {blog.publishedAt ? prettyDate(blog.publishedAt) : 'Recent'}</span>
+           <span className="text-gray-500 ml-2">- {prettyPostDate(blog.publishedAt || blog.createdAt) || 'Recent'}</span>
             </div>
             <SocialIcons title={blog.title} />
           </div>
