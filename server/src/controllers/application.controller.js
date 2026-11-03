@@ -2,11 +2,22 @@ const User = require('../models/User');
 const TechnicianApplication = require('../models/TechnicianApplication');
 const asyncHandler = require('../utils/asyncHandler');
 const { ok } = require('../utils/respond');
-const ApiError = require('../utils/ApiError'); // ✅ YEH IMPORT MISSING THA
+const ApiError = require('../utils/ApiError');
+const { notifyAdmins } = require('../services/notify');
 
 // POST /api/v1/applications
 exports.submitApplication = asyncHandler(async (req, res) => {
   const application = await TechnicianApplication.create(req.body);
+
+  // 🔔 Admin ko bell notification (await zaroori hai, Vercel par)
+  await notifyAdmins({
+    type: 'application',
+    title: 'New technician application',
+    message: `${application.name} · ${application.city || ''}`.trim(),
+    link: '/admin/applications',
+    entityId: application._id,
+  });
+
   ok(res, { application }, 'Application submitted successfully', 201);
 });
 
@@ -17,7 +28,7 @@ exports.listApplications = asyncHandler(async (req, res) => {
 
 exports.approveApplication = asyncHandler(async (req, res) => {
   const application = await TechnicianApplication.findById(req.params.id);
-  
+
   if (!application) throw new ApiError(404, 'Application not found');
   if (application.status === 'approved') throw new ApiError(400, 'Already approved');
 
