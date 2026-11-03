@@ -68,23 +68,23 @@ function CategoryForm({ category, onClose, onDone }) {
     if (f.name.trim().length < 2) return setErr('Enter a category name');
     setErr('');
 
-    const body = {
-      name: f.name.trim(),
-      isActive: f.isActive,
-      ...(f.description.trim() && { description: f.description.trim() }),
-      ...(f.longDescription.trim() && { longDescription: f.longDescription.trim() }),
-      seo: {
-        title: f.seoTitle.trim(),
-        description: f.seoDescription.trim(),
-        keywords: f.seoKeywords.trim(),
-      },
-      faqs: f.faqs
-        .filter((x) => x.question.trim() && x.answer.trim())
-        .map((x) => ({
-          question: x.question.trim(),
-          answer: x.answer.trim(),
-        })),
-    };
+ const body = {
+  name: f.name.trim(),
+  isActive: f.isActive,
+  description: f.description.trim(),          // always sent, so clearing works
+  longDescription: f.longDescription.trim(),  // always sent, so clearing works
+  seo: {
+    title: f.seoTitle.trim(),
+    description: f.seoDescription.trim(),
+    keywords: f.seoKeywords.trim(),
+  },
+  faqs: f.faqs
+    .filter((x) => x.question.trim() && x.answer.trim())
+    .map((x) => ({
+      question: x.question.trim(),
+      answer: x.answer.trim(),
+    })),
+};
 
     const ok = await run(() =>
       category
