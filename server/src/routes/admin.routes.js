@@ -13,12 +13,18 @@ const profileCtrl = require('../controllers/profile.controller');
 const { adminProfileSchema } = require('../validators/domain.validators');
 const notifCtrl = require('../controllers/notification.controller');
 const { notifyAdmins } = require('../services/notify');
+const staffCtrl = require('../controllers/staff.controller');
+const { requireSuperAdmin, requirePermission } = require('../middleware/permissions');
+const { staffCreateSchema, staffUpdateSchema, staffPasswordSchema } = require('../validators/domain.validators');
+
 router.param('id', validId);
 
 // Ye routes sabke liye open hain (Super Admin + Sub Admin)
 router.get('/ping', (req, res) => res.json({ success: true, data: { role: req.user.role }, message: 'admin ok' }));
 router.get('/stats', require('../controllers/admin.stats.controller').stats);
-
+['bookings', 'services', 'categories', 'blogs', 'technicians', 'customers',
+ 'payments', 'reviews', 'messages', 'audit', 'settings', 'coupons', 'applications',
+].forEach((p) => router.use(`/${p}`, requirePermission(p)));
 // 👇 AB HAR ROUTE PE PERMISSION LAGAYI HAI 👇
 router.get('/audit', checkPermission('audit'), require('../controllers/admin.audit.controller').list);
 router.get('/messages', checkPermission('messages'), require('../controllers/contact.controller').list);
@@ -78,4 +84,9 @@ router.post('/applications/:id/approve', checkPermission('applications'), applic
 router.get('/notifications', notifCtrl.list);
 router.patch('/notifications/read-all', notifCtrl.markAllRead);
 router.patch('/notifications/:id/read', notifCtrl.markRead);
+router.get('/staff', requireSuperAdmin, staffCtrl.list);
+router.post('/staff', requireSuperAdmin, validate(staffCreateSchema), staffCtrl.create);
+router.patch('/staff/:id', requireSuperAdmin, validate(staffUpdateSchema), staffCtrl.update);
+router.patch('/staff/:id/password', requireSuperAdmin, validate(staffPasswordSchema), staffCtrl.resetPassword);
+
 module.exports = router;

@@ -3,7 +3,7 @@ const { z } = require('zod');
 const objectId = z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid id');
 const phone = z.string().trim().regex(/^\+?[0-9\s-]{10,15}$/, 'Enter a valid phone number');
 const slotRe = /^([01]\d|2[0-3]):[0-5]\d-([01]\d|2[0-3]):[0-5]\d$/;
-
+const { PERMISSION_KEYS } = require('../config/permissions');
 // Accepts an array or a comma-separated string, splits every item on commas,
 // trims, drops empties, and always outputs a clean array of keywords.
 const keywordsField = z
@@ -211,3 +211,30 @@ exports.adminProfileSchema = z.object({
     })
     .default({}),
 });
+// ----- admin staff -----
+const permissionList = z.array(z.enum(PERMISSION_KEYS)).max(PERMISSION_KEYS.length);
+const staffPassword = z
+  .string()
+  .min(8)
+  .max(72)
+  .regex(/[A-Za-z]/, 'Include a letter')
+  .regex(/\d/, 'Include a number');
+
+exports.staffCreateSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  email: z.string().trim().toLowerCase().email(),
+  phone: z.union([phone, z.literal('')]).optional(),
+  password: staffPassword,
+  permissions: permissionList.default([]),
+});
+
+exports.staffUpdateSchema = z
+  .object({
+    name: z.string().trim().min(2).max(80),
+    phone: z.union([phone, z.literal('')]),
+    isActive: z.boolean(),
+    permissions: permissionList,
+  })
+  .partial();
+
+exports.staffPasswordSchema = z.object({ password: staffPassword });

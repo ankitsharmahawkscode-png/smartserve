@@ -51,6 +51,7 @@ import AdminProfile from './pages/admin/AdminProfile.jsx';
 import Author from './pages/public/Author.jsx';
 import { PrivacyPolicy, Terms, RefundPolicy } from './pages/public/Legal.jsx';
 import Faq from './pages/public/Faq.jsx';
+import AdminStaff from './pages/admin/AdminStaff.jsx';
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -120,7 +121,7 @@ export default function App() {
 ['applications', <AdminApplications />],
 ['profile' ,<AdminProfile /> ],
 
-  
+  ['staff', <AdminStaff />],
 ], <AdminOverview />)}
      
     </Routes>

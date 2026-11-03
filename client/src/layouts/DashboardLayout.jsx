@@ -20,6 +20,7 @@ const ADMIN_MENUS = [
   { label: 'Messages', path: 'messages', permission: 'messages' },
   { label: 'Activity log', path: 'audit', permission: 'audit' },
   { label: 'Settings', path: 'settings', permission: 'settings' },
+  { label: 'Staff', path: 'staff', permission: 'staff' },
   { label: 'Coupons', path: 'coupons', permission: 'coupons' },
   { label: 'Applications', path: 'applications', permission: 'applications' },
 ];
