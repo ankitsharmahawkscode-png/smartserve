@@ -39,8 +39,7 @@ export default function AdminBlog() {
       seo: { ...form.seo, keywords: next.join(', ') },
     });
   };
-
- const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   setBusy(true);
   setNotice('');
@@ -52,9 +51,15 @@ export default function AdminBlog() {
         .map((k) => k.trim())
         .filter(Boolean);
 
-  // Send only the fields the API needs
+  // Generate a slug from the title if the field is empty
+  const autoSlug = (form.title || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
   const payload = {
     title: form.title?.trim(),
+    slug: form.slug?.trim() || autoSlug,
     content: form.content,
     isPublished: !!form.isPublished,
     seo: {
@@ -63,7 +68,6 @@ export default function AdminBlog() {
       keywords: keywordsArray,
     },
   };
-  if (form.slug?.trim()) payload.slug = form.slug.trim();
   if (form.excerpt?.trim()) payload.excerpt = form.excerpt.trim();
   if (form.coverImage?.trim()) payload.coverImage = form.coverImage.trim();
 
@@ -78,8 +82,12 @@ export default function AdminBlog() {
     setForm(null);
     reload();
   } catch (err) {
-    console.error(err.response?.data);
-    setNotice(err.response?.data?.message || 'Error saving blog');
+    const data = err.response?.data;
+    console.error(JSON.stringify(data?.errors, null, 2));
+    const details = data?.errors
+      ?.map((e) => `${e.field || e.path || e.param || ''} ${e.message || e.msg || ''}`.trim() || JSON.stringify(e))
+      .join(' | ');
+    setNotice(`${data?.message || 'Error saving blog'}${details ? ': ' + details : ''}`);
   } finally {
     setBusy(false);
   }
