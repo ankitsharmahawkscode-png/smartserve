@@ -3,6 +3,8 @@ const asyncHandler = require('../utils/asyncHandler');
 const { ok } = require('../utils/respond');
 
 exports.list = asyncHandler(async (req, res) => {
+      res.set('Cache-Control', 'no-store');   // <-- add this line
+
   const uid = String(req.user._id);
   const limit = Math.min(Number(req.query.limit) || 20, 50);
 

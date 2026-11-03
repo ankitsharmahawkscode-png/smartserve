@@ -2,6 +2,7 @@ const Booking = require('../models/Booking');
 const email = require('./email.service');
 const { clientUrl, appName, adminNotifyEmail, nodeEnv } = require('../config/env');
 const { notifyAdmins } = require('./notify');
+
 const when = (b) => `${b.date}, ${b.slot.replace('-', ' - ')}`;
 const url = (b, role) => `${clientUrl}/${role}/${role === 'technician' ? 'jobs' : 'bookings'}/${b._id}`;
 const subject = (b, s) => `${appName}: ${s} (${b.bookingNo})`;
@@ -29,14 +30,63 @@ const TEMPLATES = {
   'payment.refunded': (b, x) => [toCustomer(b, 'Refund processed', `A refund of Rs ${x.amount} has been issued for your cancelled booking. It reaches your account in 5-7 working days.`)],
 };
 
-// Email problems never break the main request. In tests it waits so assertions are deterministic.
+// 🔔 What the admin bell shows for each event (none listed = no bell notification)
+const BELL = {
+  'booking.created': (b) => [{
+    type: 'booking',
+    title: 'New booking',
+    message: `${b.bookingNo} · ${b.customer.name} · ${b.service.name} · ${when(b)}`,
+    link: '/admin/bookings',
+    entityId: b._id,
+  }],
+  'booking.rejected': (b) => [{
+    type: 'booking',
+    title: 'Technician rejected a job',
+    message: `${b.bookingNo} needs a new technician (${when(b)})`,
+    link: '/admin/bookings',
+    entityId: b._id,
+  }],
+  'booking.cancelled': (b) => [
+    {
+      type: 'booking',
+      title: 'Booking cancelled',
+      message: `${b.bookingNo} · ${b.customer.name} · ${when(b)}`,
+      link: '/admin/bookings',
+      entityId: b._id,
+    },
+    // An online payment was made, so the admin has to refund it
+    ...(b.paymentStatus === 'refund_pending'
+      ? [{
+          type: 'refund',
+          title: 'Refund due',
+          message: `${b.bookingNo} was cancelled after an online payment`,
+          link: '/admin/payments',
+          entityId: b._id,
+        }]
+      : []),
+  ],
+};
+
+// Email problems never break the main request.
 exports.notify = async (event, bookingId, extra = {}) => {
   const job = (async () => {
     const build = TEMPLATES[event];
-    if (!build) return;
-    const b = await Booking.findById(bookingId).populate('customer', 'name email').populate('technician', 'name email').populate('service', 'name');
+    const bell = BELL[event];
+    if (!build && !bell) return;
+
+    const b = await Booking.findById(bookingId)
+      .populate('customer', 'name email')
+      .populate('technician', 'name email')
+      .populate('service', 'name');
     if (!b || !b.customer) return;
-    for (const message of build(b, extra)) await email.send(message);
+
+    // Bell first: it is a quick database write
+    if (bell) for (const n of bell(b, extra)) await notifyAdmins(n);
+
+    if (build) for (const message of build(b, extra)) await email.send(message);
   })().catch((e) => console.error(`Notification ${event} failed:`, e.message));
-  if (nodeEnv === 'test') await job;
+
+  // Always wait. On Vercel a function can be frozen right after it responds,
+  // and work that was not awaited may never finish.
+  await job;
 };

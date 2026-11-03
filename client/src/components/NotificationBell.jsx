@@ -52,7 +52,7 @@ export default function NotificationBell() {
 
   const load = useCallback(async () => {
     try {
-      const res = await api.get('/admin/notifications', { params: { limit: 20 } });
+     const res = await api.get('/admin/notifications', { params: { limit: 20, _: Date.now() } });
       // works whether the API client unwraps the body or not
       const d = res?.data?.data ?? res?.data ?? {};
       setItems(Array.isArray(d.items) ? d.items : []);
