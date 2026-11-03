@@ -111,18 +111,19 @@ export default function BlogPost() {
         <div className="mt-10 clear-both">
           <p className="font-bold text-gray-700 mb-3">Tags :</p>
           <div className="flex flex-wrap gap-2">
-            {tagList.length > 0 ? (
-              tagList.map((tag, index) => (
-                <span 
-                  key={index} 
-                  className="bg-[#222] text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide"
-                >
-                  {tag}
-                </span>
-              ))
-            ) : (
-              <span className="text-gray-400 text-sm italic">No tags added</span>
-            )}
+         {tagList.length > 0 ? (
+  tagList.map((tag, index) => (
+    <Link
+      key={`${tag}-${index}`}
+      to={`/blog?tag=${encodeURIComponent(tag)}`}
+      className="bg-[#222] text-white text-xs font-semibold px-4 py-2 uppercase tracking-wide hover:bg-[#d97706] transition-colors"
+    >
+      {tag}
+    </Link>
+  ))
+) : (
+  <span className="text-gray-400 text-sm italic">No tags added</span>
+)}
           </div>
         </div>
 

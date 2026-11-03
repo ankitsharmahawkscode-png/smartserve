@@ -34,8 +34,17 @@ exports.adminListBlogs = asyncHandler(async (req, res) => {
 });
 
 // --- PUBLIC ---
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 exports.listPublishedBlogs = asyncHandler(async (req, res) => {
-  const blogs = await Blog.find({ isPublished: true })
+  const filter = { isPublished: true };
+
+  if (req.query.tag) {
+    // case-insensitive exact match against the keywords array
+    filter['seo.keywords'] = new RegExp(`^${escapeRegex(req.query.tag.trim())}$`, 'i');
+  }
+
+  const blogs = await Blog.find(filter)
     .sort('-publishedAt')
     .select('-content')
     .populate('author', 'name');
