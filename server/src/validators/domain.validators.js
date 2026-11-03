@@ -4,6 +4,20 @@ const objectId = z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid id');
 const phone = z.string().trim().regex(/^\+?[0-9\s-]{10,15}$/, 'Enter a valid phone number');
 const slotRe = /^([01]\d|2[0-3]):[0-5]\d-([01]\d|2[0-3]):[0-5]\d$/;
 
+// Accepts an array or a comma-separated string, splits every item on commas,
+// trims, drops empties, and always outputs a clean array of keywords.
+const keywordsField = z
+  .union([z.array(z.string()), z.string()])
+  .transform((v) => {
+    const list = Array.isArray(v) ? v : [v];
+    return list
+      .flatMap((s) => s.split(','))
+      .map((k) => k.trim())
+      .filter(Boolean);
+  })
+  .pipe(z.array(z.string().max(100)).max(30))
+  .optional();
+
 // ----- profile -----
 exports.profileSchema = z.object({
   name: z.string().trim().min(2).max(80).optional(),
@@ -110,7 +124,7 @@ exports.settingsSchema = z
   })
   .partial()
   .strict();
-  
+
 // ----- payments and reviews (Milestone 5) -----
 exports.orderSchema = z.object({ bookingId: objectId });
 exports.verifyPaymentSchema = z.object({
@@ -137,7 +151,7 @@ exports.changePasswordSchema = z
       .regex(/\d/, 'Password must include a number'),
   })
   .refine((d) => d.currentPassword !== d.newPassword, { path: ['newPassword'], message: 'New password must be different' });
-  
+
 // ----- contact form (Milestone 7) -----
 exports.contactSchema = z.object({
   name: z.string().trim().min(2, 'Enter your name').max(80),
@@ -146,15 +160,8 @@ exports.contactSchema = z.object({
   message: z.string().trim().min(10, 'Please write at least 10 characters').max(2000),
   website: z.string().max(200).optional(), // hidden honeypot field
 });
-const keywordsField = z
-  .union([
-    z.array(z.string().trim().min(1).max(100)).max(30),
-    z
-      .string()
-      .max(300)
-      .transform((s) => s.split(',').map((k) => k.trim()).filter(Boolean)),
-  ])
-  .optional();
+
+// ----- blog -----
 exports.blogSchema = z.object({
   title: z.string().trim().min(5).max(150),
   slug: z.string().trim().optional(),
