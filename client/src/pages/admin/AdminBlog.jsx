@@ -40,43 +40,50 @@ export default function AdminBlog() {
     });
   };
 
-   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setBusy(true);
-    setNotice('');
-    
-    // ✅ Convert the comma-separated string back to an Array for the DB
-    const formattedKeywords = (form.seo?.keywords || '')
-      .split(',')
-      .map((k) => k.trim())
-      .filter(Boolean);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setBusy(true);
+  setNotice('');
 
-    const payload = {
-      ...form,
-      seo: {
-        ...form.seo,
-        keywords: form.seo?.keywords && Array.isArray(form.seo.keywords) 
-          ? form.seo.keywords 
-          : formattedKeywords,
-      }
-    };
+  const keywordsArray = Array.isArray(form.seo?.keywords)
+    ? form.seo.keywords
+    : (form.seo?.keywords || '')
+        .split(',')
+        .map((k) => k.trim())
+        .filter(Boolean);
 
-    try {
-      if (form._id) {
-        await api.put(`/admin/blogs/${form._id}`, payload);
-        setNotice('Blog updated');
-      } else {
-        await api.post('/admin/blogs', payload);
-        setNotice('Blog created');
-      }
-      setForm(null);
-      reload();
-    } catch (err) {
-      setNotice(err.response?.data?.message || 'Error saving blog');
-    } finally {
-      setBusy(false);
-    }
+  // Send only the fields the API needs
+  const payload = {
+    title: form.title?.trim(),
+    content: form.content,
+    isPublished: !!form.isPublished,
+    seo: {
+      title: form.seo?.title || '',
+      description: form.seo?.description || '',
+      keywords: keywordsArray,
+    },
   };
+  if (form.slug?.trim()) payload.slug = form.slug.trim();
+  if (form.excerpt?.trim()) payload.excerpt = form.excerpt.trim();
+  if (form.coverImage?.trim()) payload.coverImage = form.coverImage.trim();
+
+  try {
+    if (form._id) {
+      await api.put(`/admin/blogs/${form._id}`, payload);
+      setNotice('Blog updated');
+    } else {
+      await api.post('/admin/blogs', payload);
+      setNotice('Blog created');
+    }
+    setForm(null);
+    reload();
+  } catch (err) {
+    console.error(err.response?.data);
+    setNotice(err.response?.data?.message || 'Error saving blog');
+  } finally {
+    setBusy(false);
+  }
+};
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this blog post?')) return;
