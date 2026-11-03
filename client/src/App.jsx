@@ -48,7 +48,7 @@ import CustomerSupport from './pages/public/CustomerSupport.jsx';
 import Consultation from './pages/public/Consultation.jsx';
 import BecomeTechnician from './pages/public/BecomeTechnician.jsx';
 import AdminProfile from './pages/admin/AdminProfile.jsx';
-
+import Author from './pages/public/Author.jsx';
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -81,6 +81,7 @@ export default function App() {
 <Route path="/become-a-technician" element={<BecomeTechnician />} />
 
 <Route path="/blog/:slug" element={<BlogPost />} />
+<Route path="/author/:slug" element={<Author />} />
       </Route>
       {dash('customer', [
         ['bookings', <MyBookings />],

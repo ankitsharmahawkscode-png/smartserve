@@ -5,16 +5,18 @@ const { ok } = require('../utils/respond');
 
 // --- ADMIN ONLY ---
 exports.createBlog = asyncHandler(async (req, res) => {
-  const blog = await Blog.create({ ...req.body, author: req.user._id });
-  if (blog.isPublished) blog.publishedAt = new Date();
-  await blog.save();
+  const blog = await Blog.create({
+    ...req.body,
+    author: req.user._id,
+    publishedAt: req.body.isPublished ? new Date() : undefined,
+  });
   ok(res, { blog }, 'Blog post created', 201);
 });
 
 exports.updateBlog = asyncHandler(async (req, res) => {
   const blog = await Blog.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
   if (!blog) throw new ApiError(404, 'Blog post not found');
-  
+
   if (blog.isPublished && !blog.publishedAt) {
     blog.publishedAt = new Date();
     await blog.save();
@@ -47,13 +49,15 @@ exports.listPublishedBlogs = asyncHandler(async (req, res) => {
   const blogs = await Blog.find(filter)
     .sort('-publishedAt')
     .select('-content')
-    .populate('author', 'name');
+    // slug only: the photo is large and the list doesn't need it
+    .populate('author', 'name profile.slug');
   ok(res, { items: blogs });
 });
 
 exports.getBlogBySlug = asyncHandler(async (req, res) => {
   const blog = await Blog.findOne({ slug: req.params.slug, isPublished: true })
-    .populate('author', 'name');
+    // everything the "About The Editor" card needs
+    .populate('author', 'name profile.slug profile.designation profile.avatar');
   if (!blog) throw new ApiError(404, 'Blog post not found');
   ok(res, { blog });
 });

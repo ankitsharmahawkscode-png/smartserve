@@ -9,6 +9,7 @@ const contact = require('../controllers/contact.controller');
 const blogController = require('../controllers/blog.controller');
 const couponController = require('../controllers/coupon.controller');
 const applicationController = require('../controllers/application.controller'); // ✅ Naya import
+const authorCtrl = require('../controllers/author.controller');
 
 router.param('id', validId);
 
@@ -22,6 +23,7 @@ router.get('/settings/public', c.publicSettings);
 router.post('/contact', contactLimiter, validate(S.contactSchema), contact.create);
 router.get('/blogs', blogController.listPublishedBlogs);
 router.get('/blogs/:slug', blogController.getBlogBySlug);
+router.get('/authors/:slug', authorCtrl.getAuthorBySlug);
 router.get('/services/:id/related', c.relatedServices);
 
 router.post('/coupons/validate', couponController.validateCoupon);
