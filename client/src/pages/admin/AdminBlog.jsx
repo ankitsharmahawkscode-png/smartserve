@@ -12,86 +12,72 @@ export default function AdminBlog() {
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
 
-  // ✅ Keyword chip helpers (form ke andar)
-  // ✅ SAFE VERSION: Handles both Arrays and Strings
-  let keywords = [];
-  if (form?.seo?.keywords) {
-    if (Array.isArray(form.seo.keywords)) {
-      keywords = form.seo.keywords;
-    } else if (typeof form.seo.keywords === 'string') {
-      keywords = form.seo.keywords.split(',').map((k) => k.trim()).filter(Boolean);
-    }
-  }
+  // Keywords are always kept as an array inside the form
+  const keywords = Array.isArray(form?.seo?.keywords) ? form.seo.keywords : [];
 
   const addKeyword = (raw) => {
     const v = raw.trim();
     if (!v || keywords.includes(v)) return;
-    setForm({
-      ...form,
-      seo: { ...form.seo, keywords: [...keywords, v].join(', ') },
-    });
+    setForm({ ...form, seo: { ...form.seo, keywords: [...keywords, v] } });
   };
 
   const removeKeyword = (index) => {
-    const next = keywords.filter((_, i) => i !== index);
     setForm({
       ...form,
-      seo: { ...form.seo, keywords: next.join(', ') },
+      seo: { ...form.seo, keywords: keywords.filter((_, i) => i !== index) },
     });
   };
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setBusy(true);
-  setNotice('');
 
-  const keywordsArray = Array.isArray(form.seo?.keywords)
-    ? form.seo.keywords
-    : (form.seo?.keywords || '')
-        .split(',')
-        .map((k) => k.trim())
-        .filter(Boolean);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setNotice('');
 
-  // Generate a slug from the title if the field is empty
-  const autoSlug = (form.title || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+    // Generate a slug from the title if the field is empty
+    const autoSlug = (form.title || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
 
-  const payload = {
-    title: form.title?.trim(),
-    slug: form.slug?.trim() || autoSlug,
-    content: form.content,
-    isPublished: !!form.isPublished,
-    seo: {
-      title: form.seo?.title || '',
-      description: form.seo?.description || '',
-      keywords: keywordsArray,
-    },
-  };
-  if (form.excerpt?.trim()) payload.excerpt = form.excerpt.trim();
-  if (form.coverImage?.trim()) payload.coverImage = form.coverImage.trim();
+    const payload = {
+      title: form.title?.trim(),
+      slug: form.slug?.trim() || autoSlug,
+      content: form.content,
+      isPublished: !!form.isPublished,
+      seo: {
+        title: form.seo?.title || '',
+        description: form.seo?.description || '',
+        keywords,
+      },
+    };
+    if (form.excerpt?.trim()) payload.excerpt = form.excerpt.trim();
+    if (form.coverImage?.trim()) payload.coverImage = form.coverImage.trim();
 
-  try {
-    if (form._id) {
-      await api.put(`/admin/blogs/${form._id}`, payload);
-      setNotice('Blog updated');
-    } else {
-      await api.post('/admin/blogs', payload);
-      setNotice('Blog created');
+    try {
+      if (form._id) {
+        await api.put(`/admin/blogs/${form._id}`, payload);
+        setNotice('Blog updated');
+      } else {
+        await api.post('/admin/blogs', payload);
+        setNotice('Blog created');
+      }
+      setForm(null);
+      reload();
+    } catch (err) {
+      const resp = err.response?.data;
+      console.error(JSON.stringify(resp?.errors, null, 2));
+      const details = resp?.errors
+        ?.map(
+          (er) =>
+            `${er.field || er.path || er.param || ''} ${er.message || er.msg || ''}`.trim() ||
+            JSON.stringify(er)
+        )
+        .join(' | ');
+      setNotice(`${resp?.message || 'Error saving blog'}${details ? ': ' + details : ''}`);
+    } finally {
+      setBusy(false);
     }
-    setForm(null);
-    reload();
-  } catch (err) {
-    const data = err.response?.data;
-    console.error(JSON.stringify(data?.errors, null, 2));
-    const details = data?.errors
-      ?.map((e) => `${e.field || e.path || e.param || ''} ${e.message || e.msg || ''}`.trim() || JSON.stringify(e))
-      .join(' | ');
-    setNotice(`${data?.message || 'Error saving blog'}${details ? ': ' + details : ''}`);
-  } finally {
-    setBusy(false);
-  }
-};
+  };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this blog post?')) return;
@@ -137,7 +123,7 @@ const handleSubmit = async (e) => {
         <h1 className="text-2xl sm:text-3xl font-extrabold">Blog Posts</h1>
         <Button
           onClick={() =>
-            setForm({ title: '', content: '', isPublished: false, seo: {} })
+            setForm({ title: '', content: '', isPublished: false, seo: { keywords: [] } })
           }
           className="w-full sm:w-auto min-h-[44px]"
         >
@@ -232,7 +218,7 @@ const handleSubmit = async (e) => {
                 maxLength={160}
               />
 
-              {/* ✅ Keywords — chip input (Category jaisa) */}
+              {/* Keywords — chip input */}
               <div>
                 <label className="block text-sm font-semibold text-ink-muted mb-1">
                   Keywords
@@ -315,7 +301,7 @@ const handleSubmit = async (e) => {
               key={post._id}
               className="p-4 border-b border-line last:border-0 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
             >
-              {/* ✅ S.No + Title block */}
+              {/* S.No + Title block */}
               <div className="flex items-start gap-3 min-w-0">
                 <span
                   className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-tint text-brand-dark text-xs sm:text-sm font-bold"
@@ -329,10 +315,11 @@ const handleSubmit = async (e) => {
                   </h3>
                   <p className="text-xs sm:text-sm text-ink-muted mt-1">
                     <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${post.isPublished
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        post.isPublished
                           ? 'bg-green-50 text-green-800'
                           : 'bg-gray-100 text-gray-600'
-                        }`}
+                      }`}
                     >
                       {post.isPublished ? 'Published' : 'Draft'}
                     </span>
@@ -351,20 +338,23 @@ const handleSubmit = async (e) => {
                 >
                   View
                 </a>
-              <Button
-  variant="secondary"
-  onClick={() => {
-    // ✅ Convert Array to String before putting it in the form
-    const editData = { ...post };
-    if (Array.isArray(editData.seo?.keywords)) {
-      editData.seo.keywords = editData.seo.keywords.join(', ');
-    }
-    setForm(editData);
-  }}
-  className="min-h-[40px]"
->
-  Edit
-</Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    setForm({
+                      ...post,
+                      seo: {
+                        ...post.seo,
+                        keywords: Array.isArray(post.seo?.keywords)
+                          ? post.seo.keywords
+                          : [],
+                      },
+                    })
+                  }
+                  className="min-h-[40px]"
+                >
+                  Edit
+                </Button>
                 <Button
                   variant="secondary"
                   onClick={() => handleDelete(post._id)}
