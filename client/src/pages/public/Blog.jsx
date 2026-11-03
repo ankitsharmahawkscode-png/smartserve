@@ -1,76 +1,86 @@
-import { useParams, Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch.js';
-import { ErrorState, Spinner } from '../../components/States.jsx';
+import { EmptyState, ErrorState, Spinner } from '../../components/States.jsx';
 import { prettyDate } from '../../utils/format.js';
 import useSeo from '../../hooks/useSeo.js';
 
-export default function BlogPost() {
-  const { slug } = useParams();
-  const { data, loading, error } = useFetch(`/blogs/${slug}`);
+export default function Blog() {
+  const [searchParams] = useSearchParams();
+  const tag = searchParams.get('tag');
 
-  // API responds with { blog }, but fall back to data in case useFetch already unwraps it
-  const post = data?.blog ?? data;
+  const { data, loading, error, reload } = useFetch(
+    tag ? `/blogs?tag=${encodeURIComponent(tag)}` : '/blogs'
+  );
 
   useSeo({
-    title: post?.seo?.title || (post ? `${post.title} | SmartServe` : 'Loading...'),
-    description: post?.seo?.description || post?.excerpt || 'Read expert tips and guides from SmartServe.',
-    path: `/blog/${slug}`,
-    image: post?.coverImage,
+    title: tag ? `${tag} – Blog | SmartServe` : 'Blog | SmartServe',
+    description: 'Read expert tips and guides from SmartServe.',
+    path: '/blog',
   });
 
-  if (loading) return <div className="p-10 min-h-screen flex justify-center"><Spinner /></div>;
-  if (error || !post) return <div className="p-10"><ErrorState message={error || 'Post not found'} /></div>;
+  // Safe array extraction
+  let raw = data;
+  if (raw && !Array.isArray(raw) && raw.data) raw = raw.data;
+  const posts = Array.isArray(raw?.items)
+    ? raw.items
+    : Array.isArray(raw?.blogs)
+      ? raw.blogs
+      : Array.isArray(raw)
+        ? raw
+        : [];
 
-  // Handles both Array (Mongoose [String]) and legacy comma-separated String
-  let tagList = [];
-  const kw = post.seo?.keywords;
-  if (Array.isArray(kw)) {
-    tagList = kw.map((k) => String(k).trim()).filter(Boolean);
-  } else if (typeof kw === 'string') {
-    tagList = kw.split(',').map((k) => k.trim()).filter(Boolean);
-  }
+  if (loading) return <div className="p-10 flex justify-center"><Spinner /></div>;
+  if (error) return <div className="p-10"><ErrorState message={error} onRetry={reload} /></div>;
 
   return (
     <main className="bg-white min-h-screen pb-20">
-      {/* --- COVER IMAGE & HEADER --- */}
-      <section className="max-w-[900px] mx-auto px-4 sm:px-6 pt-10 pb-8">
-        <Link to="/blog" className="text-brand-dark font-semibold text-sm hover:underline mb-6 inline-block">
-          ← Back to Blog
-        </Link>
+      <section className="max-w-[1000px] mx-auto px-4 sm:px-6 py-10">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1a1a1a] mb-6">Blog</h1>
 
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1a1a1a] leading-[1.15] mb-6">
-          {post.title}
-        </h1>
-
-        <div className="flex items-center gap-4 text-sm text-gray-500 font-medium mb-8">
-          <span className="text-brand-dark font-bold">{post.author?.name || 'Admin'}</span>
-          <span>•</span>
-          <span>{post.publishedAt ? prettyDate(post.publishedAt) : 'Draft'}</span>
-        </div>
-
-        {post.coverImage && (
-          <div className="w-full aspect-video rounded-xl overflow-hidden mb-10 bg-gray-100">
-            <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
+        {tag && (
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <span className="text-sm text-gray-600">
+              Showing posts tagged: <strong>{tag}</strong>
+            </span>
+            <Link to="/blog" className="text-brand font-semibold text-sm hover:underline">
+              Clear filter ✕
+            </Link>
           </div>
         )}
 
-        {/* --- BLOG CONTENT --- */}
-        <div className="prose prose-lg max-w-none text-gray-700">
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
-        </div>
-
-        {/* --- CLICKABLE TAGS --- */}
-        {tagList.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mt-12 pt-8 border-t border-gray-200">
-            <span className="font-bold text-[#1a1a1a] text-sm mr-2">Tags :</span>
-
-            {tagList.map((keyword, index) => (
+        {posts.length === 0 ? (
+          <EmptyState title="No posts found">
+            {tag ? 'No articles use this tag yet.' : 'Check back soon for new articles.'}
+          </EmptyState>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => (
               <Link
-                key={`${keyword}-${index}`}
-                to={`/blog?tag=${encodeURIComponent(keyword)}`}
-                className="bg-[#1a1a1a] text-white text-xs font-bold px-3 py-1.5 uppercase tracking-wider hover:bg-[#d97706] transition-colors"
+                key={post._id}
+                to={`/blog/${post.slug}`}
+                className="group block rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
               >
-                {keyword}
+                {post.coverImage && (
+                  <div className="aspect-video bg-gray-100 overflow-hidden">
+                    <img
+                      src={post.coverImage}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                  </div>
+                )}
+                <div className="p-4">
+                  <h2 className="font-bold text-lg text-[#1a1a1a] group-hover:text-[#d97706] transition-colors">
+                    {post.title}
+                  </h2>
+                  {post.excerpt && (
+                    <p className="text-sm text-gray-600 mt-2 line-clamp-3">{post.excerpt}</p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-3">
+                    {post.author?.name || 'Admin'}
+                    {post.publishedAt ? ` · ${prettyDate(post.publishedAt)}` : ''}
+                  </p>
+                </div>
               </Link>
             ))}
           </div>
