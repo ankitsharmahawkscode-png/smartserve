@@ -59,14 +59,17 @@ export default function BlogPost() {
   if (!blog) return <Navigate to="/blog" replace />;
 
   // Safely handle keywords whether they are an Array or a String
-  let tagList = [];
-  if (blog.seo?.keywords) {
-    if (Array.isArray(blog.seo.keywords)) {
-      tagList = blog.seo.keywords.map((k) => String(k).trim()).filter(Boolean);
-    } else if (typeof blog.seo.keywords === 'string') {
-      tagList = blog.seo.keywords.split(',').map((k) => k.trim()).filter(Boolean);
-    }
-  }
+let tagList = [];
+const kw = blog.seo?.keywords;
+if (Array.isArray(kw)) {
+  tagList = kw;
+} else if (typeof kw === 'string') {
+  tagList = [kw];
+}
+tagList = tagList
+  .flatMap((k) => String(k).split(','))
+  .map((k) => k.trim())
+  .filter(Boolean);
 
   return (
     <main className="bg-white pb-20">
