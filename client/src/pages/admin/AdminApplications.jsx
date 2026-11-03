@@ -1,13 +1,25 @@
 import { useState } from 'react';
 import api from '../../api/client.js';
 import useFetch from '../../hooks/useFetch.js';
-import { Button } from '../../components/ui.jsx';
 import { EmptyState, ErrorState, Spinner } from '../../components/States.jsx';
+import {
+  PageCard, DataTable, TableFooter, fmtDateTime,
+  CheckIcon, actionBtn, rowCls, td, tdLast,
+} from '../../components/TableParts.jsx';
+
+const PAGE_SIZE = 10;
+
+const STATUS_STYLE = {
+  approved: 'bg-green-100 text-green-800',
+  rejected: 'bg-red-100 text-red-800',
+  pending: 'bg-yellow-100 text-yellow-800',
+};
 
 export default function AdminApplications() {
   const { data, loading, error, reload } = useFetch('/admin/applications');
   const [busyId, setBusyId] = useState(null);
   const [notice, setNotice] = useState('');
+  const [page, setPage] = useState(1);
 
   const handleApprove = async (id) => {
     if (!window.confirm('Approve this technician? They will get access to the technician dashboard.')) return;
@@ -29,67 +41,100 @@ export default function AdminApplications() {
 
   const apps = data?.items || [];
 
-  return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-      <h1 className="text-2xl sm:text-3xl font-extrabold mb-6">Technician Applications</h1>
+  // Pagination (client side)
+  const total = apps.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const current = Math.min(page, totalPages);
+  const startIdx = (current - 1) * PAGE_SIZE;
+  const pageItems = apps.slice(startIdx, startIdx + PAGE_SIZE);
 
+  return (
+    <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
       {notice && (
-        <div className="mb-4 rounded-[10px] bg-brand-tint p-3 text-sm sm:text-base font-semibold text-brand-dark">
+        <div role="status" className="mb-4 rounded-[10px] bg-brand-tint p-3 text-sm font-semibold text-brand-dark sm:text-base">
           {notice}
         </div>
       )}
 
-      {apps.length === 0 ? (
-        <EmptyState title="No applications yet">
-          Applications from the "Become a Technician" page will appear here.
-        </EmptyState>
-      ) : (
-        <div className="bg-white rounded-card border border-line shadow flex flex-col">
-          {apps.map((app, index) => (
-            <div key={app._id} className="p-4 sm:p-5 border-b border-line last:border-0 flex flex-col sm:flex-row gap-4 sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-tint text-brand-dark text-xs font-bold">
-                    {index + 1}
-                  </span>
-                  <h3 className="font-bold text-lg">{app.name}</h3>
-                </div>
-                <p className="text-sm text-ink-muted">{app.email} • {app.phone}</p>
-                <p className="text-sm text-ink-muted mt-1">
-                  <strong>City:</strong> {app.city} • <strong>Experience:</strong> {app.experienceYears} years
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {app.skills.map((s, i) => (
-                    <span key={i} className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">{s}</span>
-                  ))}
-                </div>
-                {app.message && (
-                  <p className="text-sm text-ink-muted mt-2 italic">"{app.message}"</p>
-                )}
-              </div>
-
-              <div className="flex flex-col items-end gap-2 shrink-0">
-                <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                  app.status === 'approved' ? 'bg-green-100 text-green-800' :
-                  app.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                  'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {app.status.toUpperCase()}
-                </span>
-                {app.status === 'pending' && (
-                  <Button
-                    onClick={() => handleApprove(app._id)}
-                    disabled={busyId === app._id}
-                    className="min-h-[36px]"
-                  >
-                    {busyId === app._id ? 'Approving...' : 'Approve'}
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <PageCard title="Technician Applications">
+        {total === 0 ? (
+          <EmptyState title="No applications yet">
+            Applications from the "Become a Technician" page will appear here.
+          </EmptyState>
+        ) : (
+          <>
+            <DataTable
+              minWidth={1100}
+              columns={['S.No', 'Applicant', 'Phone', 'City', 'Experience', 'Skills', 'Message', 'Applied', 'Status', 'Action']}
+            >
+              {pageItems.map((app, i) => (
+                <tr key={app._id} className={rowCls}>
+                  <td className={td}>{startIdx + i + 1}</td>
+                  <td className={td}>
+                    <span className="font-semibold text-gray-800">{app.name}</span>
+                    <span className="block text-gray-500">{app.email}</span>
+                  </td>
+                  <td className={`${td} whitespace-nowrap`}>{app.phone || '—'}</td>
+                  <td className={td}>{app.city || '—'}</td>
+                  <td className={`${td} whitespace-nowrap`}>
+                    {app.experienceYears != null ? `${app.experienceYears} yrs` : '—'}
+                  </td>
+                  <td className={`${td} max-w-[220px]`}>
+                    {app.skills?.length ? (
+                      <div className="flex flex-wrap gap-1">
+                        {app.skills.map((s, idx) => (
+                          <span key={idx} className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
+                  <td className={`${td} max-w-[240px]`}>
+                    {app.message ? (
+                      <span className="line-clamp-3 italic" title={app.message}>"{app.message}"</span>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
+                  <td className={`${td} whitespace-nowrap`}>{fmtDateTime(app.createdAt)}</td>
+                  <td className={td}>
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs font-bold ${
+                        STATUS_STYLE[app.status] || STATUS_STYLE.pending
+                      }`}
+                    >
+                      {String(app.status || 'pending').toUpperCase()}
+                    </span>
+                  </td>
+                  <td className={tdLast}>
+                    {app.status === 'pending' ? (
+                      <button
+                        type="button"
+                        onClick={() => handleApprove(app._id)}
+                        disabled={busyId === app._id}
+                        title="Approve application"
+                        aria-label="Approve application"
+                        className={`${actionBtn} bg-[#5bc0a5]`}
+                      >
+                        <CheckIcon />
+                      </button>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </DataTable>
+            <TableFooter
+              page={current} onPage={setPage} total={total}
+              perPage={PAGE_SIZE} totalPages={totalPages} shown={pageItems.length}
+            />
+          </>
+        )}
+      </PageCard>
     </div>
   );
 }

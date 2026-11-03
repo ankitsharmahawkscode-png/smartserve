@@ -3,10 +3,12 @@ import api from '../../api/client.js';
 import useFetch from '../../hooks/useFetch.js';
 import useAction from '../../hooks/useAction.js';
 import useDebounced from '../../hooks/useDebounced.js';
-import { Button } from '../../components/ui.jsx';
 import Input, { Alert } from '../../components/Input.jsx';
-import Pagination from '../../components/Pagination.jsx';
 import { EmptyState, ErrorState, Spinner } from '../../components/States.jsx';
+import {
+  PageCard, DataTable, TableFooter, serverPaging, fmtDateTime,
+  LockIcon, UnlockIcon, actionBtn, rowCls, td, tdLast,
+} from '../../components/TableParts.jsx';
 
 export default function AdminCustomers() {
   const [q, setQ] = useState('');
@@ -23,41 +25,73 @@ export default function AdminCustomers() {
     }
   };
 
-  // ✅ S.No offset
-  const perPage = data?.perPage ?? data?.limit ?? 10;
-  const offset = (page - 1) * perPage;
+  const items = data?.items || [];
+  const { perPage, total, totalPages } = serverPaging(data, items.length);
+  const startIdx = (page - 1) * perPage;
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-extrabold mb-6">Customers</h1>
-      <div className="max-w-sm mb-6"><Input label="Search by name, email or phone" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} /></div>
-      {notice && <div role="status" className="mb-4 rounded-[10px] bg-brand-tint p-3 font-semibold text-brand-dark">{notice}</div>}
-      {action.error && <div className="mb-4"><Alert>{action.error}</Alert></div>}
-      {loading && <Spinner />}
-      {error && <ErrorState message={error} onRetry={reload} />}
-      {data && data.items.length === 0 && <EmptyState title="No customers found">Customers appear here after they register.</EmptyState>}
-      {data && data.items.length > 0 && (
-        <div className="overflow-x-auto bg-white border border-line rounded-card">
-          <table className="w-full min-w-[720px] text-left">
-            <thead className="text-sm text-ink-muted"><tr>
-              {['S.No', 'Customer', 'Phone', 'Joined', 'Status', 'Action'].map((h) => <th key={h} scope="col" className="p-3">{h}</th>)}
-            </tr></thead>
-            <tbody>
-              {data.items.map((c, index) => (
-                <tr key={c._id} className="border-t border-line">
-                  <td className="p-3 font-semibold text-ink-muted">{offset + index + 1}</td>
-                  <td className="p-3 font-semibold">{c.name}<br /><span className="text-sm font-normal text-ink-muted">{c.email}</span></td>
-                  <td className="p-3">{c.phone || '-'}</td>
-                  <td className="p-3">{new Date(c.createdAt).toLocaleDateString('en-IN')}</td>
-                  <td className="p-3">{c.isActive ? 'Active' : 'Deactivated'}</td>
-                  <td className="p-3"><Button variant="secondary" disabled={action.busy} onClick={() => toggle(c)}>{c.isActive ? 'Deactivate' : 'Activate'}</Button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+      {notice && (
+        <div role="status" className="mb-4 rounded-[10px] bg-brand-tint p-3 font-semibold text-brand-dark">
+          {notice}
         </div>
       )}
-      <Pagination data={data} onPage={setPage} />
+      {action.error && <div className="mb-4"><Alert>{action.error}</Alert></div>}
+
+      <PageCard title="Customers">
+        <div className="mb-5 max-w-sm">
+          <Input
+            label="Search by name, email or phone"
+            value={q}
+            onChange={(e) => { setQ(e.target.value); setPage(1); }}
+          />
+        </div>
+
+        {loading && <Spinner />}
+        {error && <ErrorState message={error} onRetry={reload} />}
+        {data && items.length === 0 && (
+          <EmptyState title="No customers found">Customers appear here after they register.</EmptyState>
+        )}
+
+        {data && items.length > 0 && (
+          <>
+            <DataTable minWidth={760} columns={['S.No', 'Customer', 'Phone', 'Joined', 'Status', 'Action']}>
+              {items.map((c, i) => (
+                <tr key={c._id} className={rowCls}>
+                  <td className={td}>{startIdx + i + 1}</td>
+                  <td className={td}>
+                    <span className="font-semibold text-gray-800">{c.name}</span>
+                    <span className="block text-gray-500">{c.email}</span>
+                  </td>
+                  <td className={`${td} whitespace-nowrap`}>{c.phone || '—'}</td>
+                  <td className={`${td} whitespace-nowrap`}>{fmtDateTime(c.createdAt)}</td>
+                  <td className={td}>
+                    <span className={c.isActive ? 'text-green-700' : 'text-red-600'}>
+                      {c.isActive ? 'Active' : 'Deactivated'}
+                    </span>
+                  </td>
+                  <td className={tdLast}>
+                    <button
+                      type="button"
+                      disabled={action.busy}
+                      onClick={() => toggle(c)}
+                      title={c.isActive ? 'Deactivate account' : 'Activate account'}
+                      aria-label={c.isActive ? 'Deactivate account' : 'Activate account'}
+                      className={`${actionBtn} bg-cyan-400`}
+                    >
+                      {c.isActive ? <LockIcon /> : <UnlockIcon />}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </DataTable>
+            <TableFooter
+              page={page} onPage={setPage} total={total}
+              perPage={perPage} totalPages={totalPages} shown={items.length}
+            />
+          </>
+        )}
+      </PageCard>
     </div>
   );
 }
