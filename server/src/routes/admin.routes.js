@@ -9,6 +9,8 @@ const fin = require('../controllers/admin.finance.controller');
 const blogController = require('../controllers/blog.controller');
 const couponController = require('../controllers/coupon.controller');
 const applicationController = require('../controllers/application.controller');
+const profileCtrl = require('../controllers/profile.controller');
+const { adminProfileSchema } = require('../validators/domain.validators');
 
 router.param('id', validId);
 
@@ -64,7 +66,8 @@ router.post('/blogs', checkPermission('blogs'), validate(S.blogSchema), blogCont
 router.put('/blogs/:id', checkPermission('blogs'), validate(S.blogSchema), blogController.updateBlog);
 router.delete('/blogs/:id', checkPermission('blogs'), blogController.deleteBlog);
 router.get('/blogs', checkPermission('blogs'), blogController.adminListBlogs);
-
+router.get('/profile', profileCtrl.getProfile);
+router.put('/profile', validate(adminProfileSchema), profileCtrl.updateProfile);
 router.post('/coupons', checkPermission('coupons'), couponController.createCoupon);
 router.get('/coupons', checkPermission('coupons'), couponController.listCoupons);
 router.delete('/coupons/:id', checkPermission('coupons'), couponController.deleteCoupon);

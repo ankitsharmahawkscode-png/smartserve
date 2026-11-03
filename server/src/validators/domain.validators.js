@@ -177,3 +177,37 @@ exports.blogSchema = z.object({
     })
     .optional(),
 });
+// ----- admin author profile -----
+const urlOrEmpty = z.union([z.string().trim().url(), z.literal('')]).default('');
+
+exports.adminProfileSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  phone: z.union([phone, z.literal('')]).optional(),
+  slug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .max(60)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers and hyphens'),
+  designation: z.string().trim().min(2).max(80),
+  workplace: z.string().trim().max(100).default(''),
+  location: z.string().trim().max(100).default(''),
+  avatar: z
+    .string()
+    .max(150000)
+    .refine(
+      (v) => v === '' || v.startsWith('data:image/') || /^https?:\/\//.test(v),
+      'Invalid image'
+    )
+    .default(''),
+  about: z.array(z.string().trim().min(1).max(1500)).max(10).default([]),
+  social: z
+    .object({
+      linkedin: urlOrEmpty,
+      twitter: urlOrEmpty,
+      facebook: urlOrEmpty,
+      instagram: urlOrEmpty,
+      website: urlOrEmpty,
+    })
+    .default({}),
+});

@@ -40,8 +40,15 @@ exports.updateProfile = asyncHandler(async (req, res) => {
 
   const user = await User.findByIdAndUpdate(
     req.user._id,
-    { $set: { name, phone: phone || '', profile: { slug, designation, workplace, location, avatar, about, social } } },
+    {
+      $set: {
+        name,
+        phone: phone || '',
+        profile: { slug, designation, workplace, location, avatar, about, social },
+      },
+    },
     { new: true, runValidators: true }
   );
+  if (!user) throw new ApiError(404, 'User not found');
   ok(res, { profile: shape(user) }, 'Profile updated');
 });
