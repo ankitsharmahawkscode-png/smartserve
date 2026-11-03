@@ -1,7 +1,7 @@
 const Booking = require('../models/Booking');
 const email = require('./email.service');
 const { clientUrl, appName, adminNotifyEmail, nodeEnv } = require('../config/env');
-
+const { notifyAdmins } = require('./notify');
 const when = (b) => `${b.date}, ${b.slot.replace('-', ' - ')}`;
 const url = (b, role) => `${clientUrl}/${role}/${role === 'technician' ? 'jobs' : 'bookings'}/${b._id}`;
 const subject = (b, s) => `${appName}: ${s} (${b.bookingNo})`;

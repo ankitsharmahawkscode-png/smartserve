@@ -10,7 +10,7 @@ const payments = require('./payment.service');
 const { ACTIVE_STATUSES, assertTransition } = require('../utils/bookingStatus');
 const { todayIST, addDays, slotStart, isValidDate } = require('../utils/dates');
 const { logAudit } = require('../utils/audit');
-
+const { notifyAdmins } = require('./notify');
 async function getBookableService(serviceId) {
   if (!mongoose.isValidObjectId(serviceId)) throw new ApiError(404, 'Service not found');
   const service = await Service.findById(serviceId).populate('category');

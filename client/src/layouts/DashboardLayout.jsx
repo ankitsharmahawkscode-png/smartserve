@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { company } from '../content.js';
 import useSeo from '../hooks/useSeo.js';
 import ProfileMenu from '../components/ProfileMenu.jsx';
+import NotificationBell from '../components/NotificationBell.jsx';
 
 // Admin ke menus ab object format mein hain taaki permission mapping aasan ho
 const ADMIN_MENUS = [
@@ -35,17 +36,17 @@ export default function DashboardLayout({ role }) {
   const getMenuItems = () => {
     if (role === 'customer') return CUSTOMER_MENUS;
     if (role === 'technician') return TECH_MENUS;
-    
+
     // Admin logic
     if (role === 'admin') {
       if (user?.isSuperAdmin) {
-        return ADMIN_MENUS.map(m => [m.label, m.path]); // Super admin gets all
+        return ADMIN_MENUS.map((m) => [m.label, m.path]); // Super admin gets all
       }
-      
+
       // Sub Admin gets only allowed permissions
       return ADMIN_MENUS
-        .filter(m => m.permission === 'all' || (user?.permissions || []).includes(m.permission))
-        .map(m => [m.label, m.path]);
+        .filter((m) => m.permission === 'all' || (user?.permissions || []).includes(m.permission))
+        .map((m) => [m.label, m.path]);
     }
     return [];
   };
@@ -54,7 +55,7 @@ export default function DashboardLayout({ role }) {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
-      
+
       {/* Phones: Top bar with logo and Menu button */}
       <div className="md:hidden sticky top-0 z-40 flex items-center justify-between gap-3 bg-white border-b border-line px-4 py-2">
         <a href="/" aria-label={`${company.name} website`}><img src="/logo.png" alt={company.name} className="h-9 w-auto" /></a>
@@ -68,7 +69,7 @@ export default function DashboardLayout({ role }) {
       </div>
 
       {/* Sidebar Navigation */}
-      <nav 
+      <nav
         id="dashboard-nav"
         aria-label={`${role} menu`}
         className={`
@@ -84,20 +85,20 @@ export default function DashboardLayout({ role }) {
         <a href="/" className="hidden md:block bg-white rounded-[10px] p-2 mb-6" aria-label={`${company.name} website`}>
           <img src="/logo.png" alt={company.name} className="h-10 w-auto mx-auto" />
         </a>
-        
+
         {/* Dynamically mapped menus based on permissions */}
         {activeMenus.map(([label, path]) => (
-          <NavLink 
-            key={label} 
-            end={path === ''} 
-            to={`/${role}/${path}`} 
+          <NavLink
+            key={label}
+            end={path === ''}
+            to={`/${role}/${path}`}
             onClick={() => setOpen(false)}
             className={({ isActive }) => `px-3 py-3 rounded-[10px] font-semibold transition-colors ${isActive ? 'bg-white text-brand-dark' : 'hover:bg-white/10'}`}
           >
             {label}
           </NavLink>
         ))}
-        
+
         <button onClick={logout} className="md:mt-auto text-left px-3 py-3 font-semibold hover:bg-white/10 rounded-[10px] transition-colors mt-4">
           Log out
         </button>
@@ -105,13 +106,15 @@ export default function DashboardLayout({ role }) {
 
       {/* Main Content Area */}
       <main className="flex-1 min-w-0 h-screen overflow-y-auto overflow-x-hidden bg-gray-50 flex flex-col">
-        
-        {/* Top Header with Profile Menu */}
+
+        {/* Top Header with Notification Bell + Profile Menu */}
         <header className="sticky top-0 z-30 h-16 bg-white border-b flex items-center justify-between px-6 shrink-0">
           <span className="font-semibold text-lg hidden sm:block">Technical Workers</span>
-          {user && (
-            <ProfileMenu user={user} logout={logout} role={role} />
-          )}
+
+          <div className="ml-auto flex items-center gap-3">
+            {role === 'admin' && <NotificationBell />}
+            {user && <ProfileMenu user={user} logout={logout} role={role} />}
+          </div>
         </header>
 
         {/* Page Content */}

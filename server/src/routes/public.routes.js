@@ -10,7 +10,7 @@ const blogController = require('../controllers/blog.controller');
 const couponController = require('../controllers/coupon.controller');
 const applicationController = require('../controllers/application.controller'); // ✅ Naya import
 const authorCtrl = require('../controllers/author.controller');
-
+const { notifyAdmins } = require('../services/notify');
 router.param('id', validId);
 
 router.get('/categories', c.categories);

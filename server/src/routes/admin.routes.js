@@ -11,7 +11,8 @@ const couponController = require('../controllers/coupon.controller');
 const applicationController = require('../controllers/application.controller');
 const profileCtrl = require('../controllers/profile.controller');
 const { adminProfileSchema } = require('../validators/domain.validators');
-
+const notifCtrl = require('../controllers/notification.controller');
+const { notifyAdmins } = require('../services/notify');
 router.param('id', validId);
 
 // Ye routes sabke liye open hain (Super Admin + Sub Admin)
@@ -74,5 +75,7 @@ router.delete('/coupons/:id', checkPermission('coupons'), couponController.delet
 
 router.get('/applications', checkPermission('applications'), applicationController.listApplications);
 router.post('/applications/:id/approve', checkPermission('applications'), applicationController.approveApplication);
-
+router.get('/notifications', notifCtrl.list);
+router.patch('/notifications/read-all', notifCtrl.markAllRead);
+router.patch('/notifications/:id/read', notifCtrl.markRead);
 module.exports = router;
