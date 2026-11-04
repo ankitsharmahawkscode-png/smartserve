@@ -53,5 +53,9 @@ export default defineConfig({
       '/sitemap.xml': { target: 'http://localhost:5000', rewrite: () => '/api/v1/seo/sitemap.xml' },
       '/robots.txt': { target: 'http://localhost:5000', rewrite: () => '/api/v1/seo/robots.txt' },
     },
+  }
+  ,
+    optimizeDeps: {
+    include: ['react-helmet-async'],
   },
 });
