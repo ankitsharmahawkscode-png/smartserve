@@ -78,7 +78,6 @@ export default function App() {
         <Route path="/register" element={<Register />} />
          <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="*" element={<NotFound />} />
         <Route path="/blog" element={<Blog />} />
       <Route path="/what-we-offer" element={<WhatWeOffer />} />
 <Route path="/customized-solutions" element={<CustomizedSolutions />} />
@@ -93,6 +92,7 @@ export default function App() {
 <Route path="/refund-policy" element={<RefundPolicy />} />
 <Route path="/faq" element={<Faq />} />
 <Route path="/author/:slug" element={<Author />} />
+ <Route path="*" element={<NotFound />} />
       </Route>
       {dash('customer', [
         ['bookings', <MyBookings />],
