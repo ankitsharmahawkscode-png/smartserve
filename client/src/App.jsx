@@ -53,7 +53,8 @@ import { PrivacyPolicy, Terms, RefundPolicy } from './pages/public/Legal.jsx';
 import Faq from './pages/public/Faq.jsx';
 import AdminStaff from './pages/admin/AdminStaff.jsx';
 import Careers from './pages/public/Careers.jsx';
-import AcCalculator from './pages/public/AcCalculator.jsx';
+// import AcCalculator from './pages/public/AcCalculator.jsx';
+const AcCalculator = () => <h1 style={{ padding: 50 }}>Route works!</h1>;
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
