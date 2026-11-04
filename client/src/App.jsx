@@ -52,6 +52,7 @@ import Author from './pages/public/Author.jsx';
 import { PrivacyPolicy, Terms, RefundPolicy } from './pages/public/Legal.jsx';
 import Faq from './pages/public/Faq.jsx';
 import AdminStaff from './pages/admin/AdminStaff.jsx';
+import Careers from './pages/public/Careers.jsx';
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -82,7 +83,7 @@ export default function App() {
 <Route path="/customer-support" element={<CustomerSupport />} />
 <Route path="/consultation" element={<Consultation />} />
 <Route path="/become-a-technician" element={<BecomeTechnician />} />
-
+<Route path="/careers" element={<Careers />} />
 <Route path="/blog/:slug" element={<BlogPost />} />
 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 <Route path="/terms" element={<Terms />} />

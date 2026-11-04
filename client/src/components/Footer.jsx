@@ -81,6 +81,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+              <li>
+  <Link to="/careers" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
+    Careers
+  </Link>
+</li>
                 <Link to="/become-a-technician" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
                   Become a Technician
                 </Link>
