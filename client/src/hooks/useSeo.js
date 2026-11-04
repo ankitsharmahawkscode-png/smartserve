@@ -23,7 +23,8 @@ const absolute = (value, origin) => (/^https?:\/\//i.test(value) ? value : `${or
 
 export function applySeo({ title, description, path, image, noindex = false, jsonLd } = {}) {
   const origin = window.location.origin;
-  const url = `${origin}${path ?? window.location.pathname}`;
+  const cleanPath = path ?? window.location.pathname;
+const url = `${origin}${cleanPath.split('?')[0].split('#')[0]}`;
   const fullTitle = title ? (title.includes(company.name) ? title : `${title} | ${company.name}`) : DEFAULT_TITLE;
   const desc = description || DEFAULT_DESCRIPTION;
   const img = absolute(image || '/og-image.png', origin);

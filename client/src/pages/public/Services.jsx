@@ -104,30 +104,18 @@ export default function Services() {
 
   const catName = cats.data?.items.find((c) => c.slug === category)?.name;
 
-  useSeo({
-    title: catName
-      ? /services$/i.test(catName)
-        ? catName
-        : `${catName} services`
-      : 'Home services: AC repair, plumbing, electrical and more',
-    description: catName
-      ? `Book ${catName} online with ${company.name}. Choose a time slot, track your technician and pay in cash or online.`
-      : 'Browse and book AC repair, plumbing, electrical, home cleaning and appliance repair services online.',
-    path: `/services${category ? `?category=${encodeURIComponent(category)}` : ''}`,
-    jsonLd:
-      status === 'idle' && items.length
-        ? {
-            '@context': 'https://schema.org',
-            '@type': 'ItemList',
-            itemListElement: items.map((s, i) => ({
-              '@type': 'ListItem',
-              position: i + 1,
-              url: `${window.location.origin}/services/${s._id}`,
-              name: s.name,
-            })),
-          }
-        : undefined,
-  });
+useSeo({
+  title: catName
+    ? `${catName} services`
+    : 'Home services: AC repair, plumbing, electrical and more',
+
+  description: catName
+    ? `Book ${catName} online with ${company.name}. Choose a time slot, track your technician and pay in cash or online.`
+    : 'Browse and book AC repair, plumbing, electrical, home cleaning and appliance repair services online.',
+
+  path: '/services',
+  noindex: Boolean(category || term),
+});
 
   const setCategory = (slug) => {
     const next = new URLSearchParams(params);
@@ -319,10 +307,11 @@ export default function Services() {
             {items.map((s) => (
               <Card key={s._id} className="flex flex-col min-w-0">
                 {s.image ? (
-                  <img
-                    src={s.image}
-                    alt=""
-                    loading="lazy"
+                 <img
+  src={s.image}
+  alt={`${s.name} service`}
+  loading="lazy"
+
                     className="h-32 sm:h-40 w-full object-cover rounded-[10px] mb-4"
                   />
                 ) : (
