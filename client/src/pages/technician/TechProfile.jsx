@@ -211,7 +211,7 @@ function Editor({ initial, stats, apiMissing }) {
     setIsAvailable(next);
     setToggling(true);
     try {
-     await api.put('/technician/availability', { isAvailable: next });
+    await api.put('/tech/availability', { isAvailable: next });
       if (typeof setUser === 'function') {
         setUser((u) => ({ ...u, technician: { ...u.technician, isAvailable: next } }));
       }
@@ -253,7 +253,7 @@ function Editor({ initial, stats, apiMissing }) {
       avatar: f.avatar,
     };
     try {
-      await api.put('/technician/profile', payload);
+    await api.put('/tech/profile', payload);
       setBase({ ...f, experienceYears: String(years) });
       setF((p) => ({ ...p, experienceYears: String(years) }));
       if (typeof setUser === 'function') {
@@ -520,7 +520,7 @@ function Editor({ initial, stats, apiMissing }) {
 
 export default function TechProfile() {
   const { user } = useAuth();
-  const prof = useFetch('/technician/profile');
+  const prof = useFetch('/tech/profile');
 
   if (prof.loading) {
     return <div className="flex justify-center p-10"><Spinner /></div>;
