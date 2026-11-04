@@ -49,54 +49,40 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <nav aria-label="Quick links">
-            <h2 className="text-lg font-bold mb-5">
-              Quick Links
-            </h2>
+     {/* Quick Links */}
+<nav aria-label="Quick links">
+  <h2 className="text-lg font-bold mb-5">Quick Links</h2>
 
-            <ul className="space-y-3 text-sm text-white/75">
-              <li>
-                <Link to="/" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/services" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
-                  Our Services
-                </Link>
-              </li>
-              <li>
-                <Link to="/faq" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-              <li>
-  <Link to="/careers" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
-    Careers
-  </Link>
-</li>
-                <Link to="/become-a-technician" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
-                  Become a Technician
-                </Link>
-              </li>
-              <li>
-                <Link to="/login" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
-                  Log In
-                </Link>
-              </li>
-            </ul>
-          </nav>
+  <ul className="space-y-3 text-sm text-white/75">
+    <li>
+      <Link to="/" className="inline-block no-underline transition hover:text-white hover:translate-x-1">Home</Link>
+    </li>
+    <li>
+      <Link to="/about" className="inline-block no-underline transition hover:text-white hover:translate-x-1">About Us</Link>
+    </li>
+    <li>
+      <Link to="/services" className="inline-block no-underline transition hover:text-white hover:translate-x-1">Our Services</Link>
+    </li>
+    <li>
+      <Link to="/ac-tonnage-calculator" className="inline-block no-underline transition hover:text-white hover:translate-x-1">AC Tonnage Calculator</Link>
+    </li>
+    <li>
+      <Link to="/faq" className="inline-block no-underline transition hover:text-white hover:translate-x-1">FAQ</Link>
+    </li>
+    <li>
+      <Link to="/contact" className="inline-block no-underline transition hover:text-white hover:translate-x-1">Contact Us</Link>
+    </li>
+    <li>
+      <Link to="/careers" className="inline-block no-underline transition hover:text-white hover:translate-x-1">Careers</Link>
+    </li>
+    <li>
+      <Link to="/become-a-technician" className="inline-block no-underline transition hover:text-white hover:translate-x-1">Become a Technician</Link>
+    </li>
+    <li>
+      <Link to="/login" className="inline-block no-underline transition hover:text-white hover:translate-x-1">Log In</Link>
+    </li>
+  </ul>
+</nav>
 
           {/* What We Offer */}
           <div>
