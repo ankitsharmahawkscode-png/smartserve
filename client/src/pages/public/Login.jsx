@@ -123,26 +123,44 @@ export default function Login() {
 
 <div>
   <div className="relative">
-    <Input
-      label="Password"
-      type={showPassword ? 'text' : 'password'}
-      autoComplete="current-password"
-      placeholder="Enter your password"
-      error={errors.password?.message}
-      onKeyUp={checkCaps}
-      onKeyDown={checkCaps}
-      {...register('password')}
-    />
+    <label className="mb-1 block text-sm font-semibold text-ink-muted">
+      Password
+    </label>
 
-    <button
-      type="button"
-      onClick={() => setShowPassword((prev) => !prev)}
-      aria-label={showPassword ? 'Hide password' : 'Show password'}
-      aria-pressed={showPassword}
-      className="absolute right-3 top-[42px] z-10 inline-flex h-9 items-center justify-center rounded-lg px-2 text-sm font-semibold text-brand-dark hover:bg-brand-tint focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-    >
-      {showPassword ? 'Hide' : 'Show'}
-    </button>
+    <div className="relative">
+      <input
+        type={showPassword ? 'text' : 'password'}
+        autoComplete="current-password"
+        placeholder="Enter your password"
+        aria-invalid={!!errors.password}
+        aria-describedby={errors.password ? 'password-error' : undefined}
+        className={`w-full min-h-[44px] rounded-[10px] border bg-white px-3 pr-16 text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+          errors.password
+            ? 'border-red-700'
+            : 'border-[#AEB9B6]'
+        }`}
+        {...register('password', {
+          onKeyUp: checkCaps,
+          onKeyDown: checkCaps,
+        })}
+      />
+
+      <button
+        type="button"
+        onClick={() => setShowPassword(prev => !prev)}
+        aria-label={showPassword ? 'Hide password' : 'Show password'}
+        aria-pressed={showPassword}
+        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-lg px-2 py-2 text-sm font-semibold text-brand-dark hover:bg-brand-tint focus-visible:ring-2 focus-visible:ring-brand"
+      >
+        {showPassword ? 'Hide' : 'Show'}
+      </button>
+    </div>
+
+    {errors.password && (
+      <p id="password-error" className="mt-1 text-sm text-red-700">
+        {errors.password.message}
+      </p>
+    )}
   </div>
 
   {capsOn && (
