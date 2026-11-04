@@ -119,36 +119,39 @@ export default function Login() {
               {...register('email')}
             />
 
-            <div>
-              <div className="relative">
-                <Input
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  error={errors.password?.message}
-                  onKeyUp={checkCaps}
-                  onKeyDown={checkCaps}
-                  {...register('password')}
-                />
+        
 
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  aria-pressed={showPassword}
-                  className="absolute right-3 top-[34px] inline-flex min-h-10 items-center justify-center rounded-lg px-2 text-sm font-semibold text-brand-dark hover:bg-brand-tint focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-                >
-                  {showPassword ? 'Hide' : 'Show'}
-                </button>
-              </div>
+<div>
+  <div className="relative">
+    <Input
+      label="Password"
+      type={showPassword ? 'text' : 'password'}
+      autoComplete="current-password"
+      placeholder="Enter your password"
+      error={errors.password?.message}
+      onKeyUp={checkCaps}
+      onKeyDown={checkCaps}
+      {...register('password')}
+    />
 
-              {capsOn && (
-                <p role="status" className="mt-2 text-xs font-semibold text-amber-700">
-                  ⚠ Caps Lock is on
-                </p>
-              )}
-            </div>
+    <button
+      type="button"
+      onClick={() => setShowPassword((prev) => !prev)}
+      aria-label={showPassword ? 'Hide password' : 'Show password'}
+      aria-pressed={showPassword}
+      className="absolute right-3 top-[42px] z-10 inline-flex h-9 items-center justify-center rounded-lg px-2 text-sm font-semibold text-brand-dark hover:bg-brand-tint focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+    >
+      {showPassword ? 'Hide' : 'Show'}
+    </button>
+  </div>
+
+  {capsOn && (
+    <p role="status" className="mt-2 text-xs font-semibold text-amber-700">
+      ⚠ Caps Lock is on
+    </p>
+  )}
+</div>
+
 
             <div className="-mt-1 flex justify-end">
               <Link
