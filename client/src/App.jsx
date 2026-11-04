@@ -55,6 +55,7 @@ import AdminStaff from './pages/admin/AdminStaff.jsx';
 import Careers from './pages/public/Careers.jsx';
 // import AcCalculator from './pages/public/AcCalculator.jsx';
 import AcCalculator from './pages/public/AcCalculator.jsx';
+import ScrollToTop from './components/ScrollToTop';
 
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
@@ -68,6 +69,7 @@ const dash = (role, pages, home = <DashboardHome />) => (
 export default function App() {
   return (
     <Routes>
+       <ScrollToTop />
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<Services />} />
