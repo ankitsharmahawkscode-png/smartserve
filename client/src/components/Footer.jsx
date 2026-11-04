@@ -260,6 +260,11 @@ export default function Footer() {
               <Link to="/faq" className="no-underline transition hover:text-white">
                 FAQ
               </Link>
+              <li>
+  <Link to="/ac-tonnage-calculator" className="inline-block no-underline transition hover:text-white hover:translate-x-1">
+    AC Tonnage Calculator
+  </Link>
+</li>
               <Link to="/contact" className="no-underline transition hover:text-white">
                 Support
               </Link>
