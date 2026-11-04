@@ -263,3 +263,15 @@ exports.technicianProfileSchema = z
       .default(''),
   })
   .refine((d) => d.workStart < d.workEnd, { path: ['workEnd'], message: 'End time must be after start time' });
+
+  // ----- technician application (public form) -----
+exports.applicationSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  email: z.string().trim().toLowerCase().email(),
+  phone,
+  city: z.string().trim().min(2).max(80),
+  experienceYears: z.number().int().min(0).max(60),
+  skills: z.array(z.string().trim().min(1).max(40)).min(1).max(10),
+  message: z.string().trim().max(1000).optional(),
+  website: z.string().max(200).optional(), // honeypot
+});

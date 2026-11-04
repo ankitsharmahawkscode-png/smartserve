@@ -30,5 +30,6 @@ router.post('/coupons/validate', couponController.validateCoupon);
 
 // ✅ Technician Application Route
 router.post('/applications', applicationController.submitApplication);
+router.post('/applications', validate(S.applicationSchema), applicationCtrl.submitApplication);
 
 module.exports = router;

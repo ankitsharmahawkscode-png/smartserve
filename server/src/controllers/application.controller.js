@@ -6,10 +6,23 @@ const ApiError = require('../utils/ApiError');
 const { notifyAdmins } = require('../services/notify');
 
 // POST /api/v1/applications
+// POST /api/v1/applications
 exports.submitApplication = asyncHandler(async (req, res) => {
-  const application = await TechnicianApplication.create(req.body);
+  const { name, email, phone, city, experienceYears, skills, message, website } = req.body;
 
-  // 🔔 Admin ko bell notification (await zaroori hai, Vercel par)
+  // A filled spam-trap field means a bot. Answer "success" and save nothing.
+  if (website) return ok(res, null, 'Application submitted successfully', 201);
+
+  // One open application per email
+  if (await TechnicianApplication.findOne({ email, status: 'pending' })) {
+    throw new ApiError(409, 'You already have an application under review. We will contact you soon.');
+  }
+
+  // Only these fields are saved, so nobody can set their own status
+  const application = await TechnicianApplication.create({
+    name, email, phone, city, experienceYears, skills, message,
+  });
+
   await notifyAdmins({
     type: 'application',
     title: 'New technician application',
@@ -18,7 +31,7 @@ exports.submitApplication = asyncHandler(async (req, res) => {
     entityId: application._id,
   });
 
-  ok(res, { application }, 'Application submitted successfully', 201);
+  ok(res, { application: { _id: application._id } }, 'Application submitted successfully', 201);
 });
 
 exports.listApplications = asyncHandler(async (req, res) => {
