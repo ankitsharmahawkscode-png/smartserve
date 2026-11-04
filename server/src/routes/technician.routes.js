@@ -3,6 +3,8 @@ const validate = require('../middleware/validate');
 const validId = require('../middleware/validId');
 const S = require('../validators/domain.validators');
 const c = require('../controllers/tech.controller');
+const techProfile = require('../controllers/techProfile.controller');
+const { technicianProfileSchema, availabilitySchema } = require('../validators/domain.validators');
 
 router.param('id', validId);
 
@@ -17,7 +19,9 @@ router.get('/jobs/:id', c.getJob);
 router.patch('/jobs/:id/respond', validate(S.respondSchema), c.respond);
 router.patch('/jobs/:id/status', validate(S.statusSchema), c.updateStatus);
 router.put('/availability', validate(S.availabilitySchema), c.setAvailability);
-
+router.get('/profile', techProfile.getProfile);
+router.put('/profile', validate(technicianProfileSchema), techProfile.updateProfile);
+router.patch('/profile/availability', validate(availabilitySchema), techProfile.setAvailability);
 // Live location — uses same /jobs/:id path as other endpoints
 router.post('/jobs/:id/location/start', c.startSharing);
 router.post('/jobs/:id/location/stop', c.stopSharing);

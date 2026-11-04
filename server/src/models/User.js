@@ -55,10 +55,19 @@ const userSchema = new mongoose.Schema(
     },
 
     technician: {
-      skills: [String],
-      isAvailable: { type: Boolean, default: true },
-      commissionPct: { type: Number, min: 0, max: 100, default: 0 },
-    },
+  skills: [String],
+  isAvailable: { type: Boolean, default: true },
+  commissionPct: { type: Number, min: 0, max: 100, default: 0 },
+  // 👇 self-service profile fields
+  bio: { type: String, default: '', trim: true, maxlength: 600 },
+  experienceYears: { type: Number, min: 0, max: 60, default: 0 },
+  city: { type: String, default: '', trim: true, maxlength: 80 },
+  serviceAreas: { type: [String], default: [] },
+  workingDays: { type: [String], default: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] },
+  workStart: { type: String, default: '09:00' },
+  workEnd: { type: String, default: '19:00' },
+  avatar: { type: String, default: '' },
+},
   },
   { timestamps: true }
 );

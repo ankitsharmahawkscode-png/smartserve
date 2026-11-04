@@ -238,3 +238,28 @@ exports.staffUpdateSchema = z
   .partial();
 
 exports.staffPasswordSchema = z.object({ password: staffPassword });
+// ----- technician self profile -----
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const timeRe = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+exports.technicianProfileSchema = z
+  .object({
+    phone: z.union([phone, z.literal('')]).default(''),
+    city: z.string().trim().max(80).default(''),
+    bio: z.string().trim().max(600).default(''),
+    experienceYears: z.number().int().min(0).max(60).default(0),
+    skills: z.array(z.string().trim().min(1).max(40)).max(20).default([]),
+    serviceAreas: z.array(z.string().trim().min(1).max(60)).max(20).default([]),
+    workingDays: z.array(z.enum(DAYS)).max(7).default([]),
+    workStart: z.string().regex(timeRe, 'Use HH:MM').default('09:00'),
+    workEnd: z.string().regex(timeRe, 'Use HH:MM').default('19:00'),
+    avatar: z
+      .string()
+      .max(150000)
+      .refine(
+        (v) => v === '' || v.startsWith('data:image/') || /^https?:\/\//.test(v),
+        'Invalid image'
+      )
+      .default(''),
+  })
+  .refine((d) => d.workStart < d.workEnd, { path: ['workEnd'], message: 'End time must be after start time' });
