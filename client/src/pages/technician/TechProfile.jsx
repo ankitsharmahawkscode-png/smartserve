@@ -211,7 +211,7 @@ function Editor({ initial, stats, apiMissing }) {
     setIsAvailable(next);
     setToggling(true);
     try {
-      await api.patch('/technician/profile/availability', { isAvailable: next });
+     await api.put('/technician/availability', { isAvailable: next });
       if (typeof setUser === 'function') {
         setUser((u) => ({ ...u, technician: { ...u.technician, isAvailable: next } }));
       }
