@@ -11,12 +11,17 @@ import { ErrorState, Spinner } from '../../components/States.jsx';
 import { inr, prettyDate, prettyDateTime, prettySlot } from '../../utils/format.js';
 import { socket, connectSocket } from '../../lib/socket.js';
 
-const STEPS = [
-  ['ASSIGNED', 'Assigned'],
-  ['ACCEPTED', 'Accepted'],
-  ['IN_PROGRESS', 'In progress'],
-  ['COMPLETED', 'Completed'],
-];
+const STEPS = ['Assigned', 'Accepted', 'On the way', 'Arrived', 'In progress', 'Completed'];
+
+const stageOf = (b) => {
+  switch (b.status) {
+    case 'COMPLETED': return 5;
+    case 'IN_PROGRESS': return 4;
+    case 'ACCEPTED': return b.arrivedAt ? 3 : b.onTheWayAt ? 2 : 1;
+    case 'ASSIGNED': return 0;
+    default: return -1;
+  }
+};
 
 const Row = ({ label, children }) => (
   <div className="min-w-0 border-b border-line py-3 last:border-0">
@@ -27,28 +32,40 @@ const Row = ({ label, children }) => (
 
 const fullAddress = (a = {}) => [a.line1, a.line2, a.city, a.pincode].filter(Boolean).join(', ');
 
-function Progress({ status }) {
-  const current = STEPS.findIndex(([s]) => s === status);
+// Sockets may be unavailable on the host, so a failed emit must never break the page
+const emit = (event, payload) => {
+  try {
+    socket.emit(event, payload);
+  } catch {
+    /* ignore */
+  }
+};
+
+function Progress({ stage }) {
   return (
     <ol className="flex items-start" aria-label="Job progress">
-      {STEPS.map(([key, label], i) => {
-        const done = current >= 0 && i <= current;
+      {STEPS.map((label, i) => {
+        const done = stage >= 0 && i <= stage;
         return (
-          <li key={key} className="relative flex flex-1 flex-col items-center text-center">
+          <li key={label} className="relative flex flex-1 flex-col items-center text-center">
             {i > 0 && (
               <span
-                className={`absolute right-1/2 top-4 h-0.5 w-full ${i <= current ? 'bg-brand' : 'bg-gray-200'}`}
+                className={`absolute right-1/2 top-3.5 h-0.5 w-full ${i <= stage ? 'bg-brand' : 'bg-gray-200'}`}
                 aria-hidden="true"
               />
             )}
             <span
-              className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
+              className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold ${
                 done ? 'bg-brand text-white' : 'bg-gray-200 text-gray-500'
               }`}
             >
-              {done && i < current ? '✓' : i + 1}
+              {done && i < stage ? '✓' : i + 1}
             </span>
-            <span className={`mt-2 text-[11px] font-semibold sm:text-xs ${done ? 'text-brand-dark' : 'text-gray-400'}`}>
+            <span
+              className={`mt-1.5 text-[10px] font-semibold leading-tight sm:text-xs ${
+                done ? 'text-brand-dark' : 'text-gray-400'
+              }`}
+            >
               {label}
             </span>
           </li>
@@ -64,12 +81,14 @@ export default function JobDetail() {
   const [dialog, setDialog] = useState(null);
   const [reason, setReason] = useState('');
   const [amount, setAmount] = useState('');
+  const [code, setCode] = useState('');
   const [notice, setNotice] = useState('');
   const [geoMsg, setGeoMsg] = useState('');
   const [copied, setCopied] = useState(false);
   const act = useAction();
   const [sharing, setSharing] = useState(false);
   const watchRef = useRef(null);
+  const lastPing = useRef(0);
 
   // Stop the GPS watch if the technician leaves the page
   useEffect(
@@ -77,13 +96,13 @@ export default function JobDetail() {
       if (watchRef.current !== null) {
         navigator.geolocation.clearWatch(watchRef.current);
         watchRef.current = null;
-        socket.emit('tech:stop', { bookingId: id });
+        emit('tech:stop', { bookingId: id });
       }
     },
     [id]
   );
 
-  if (loading) return <div className="flex justify-center p-10"><Spinner /></div>;
+  if (loading && !data) return <div className="flex justify-center p-10"><Spinner /></div>;
   if (error || !data?.booking) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
@@ -100,11 +119,14 @@ export default function JobDetail() {
   const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
   const phone = b.customer?.phone;
   const cancelled = b.status === 'CANCELLED';
+  const stage = stageOf(b);
+  const travelling = b.status === 'ACCEPTED' && b.onTheWayAt && !b.arrivedAt;
 
-  const send = async (call, msg) => {
+  const send = async (call, msg, after) => {
     if (await act.run(call)) {
       setDialog(null);
       setNotice(msg);
+      after?.();
       reload();
     }
   };
@@ -115,7 +137,11 @@ export default function JobDetail() {
       () => api.patch(`/tech/jobs/${id}/respond`, { accept: false, ...(reason.trim() && { reason: reason.trim() }) }),
       'Job rejected'
     );
-  const start = () => send(() => api.patch(`/tech/jobs/${id}/status`, { status: 'IN_PROGRESS' }), 'Job started');
+  const start = () =>
+    send(
+      () => api.patch(`/tech/jobs/${id}/status`, { status: 'IN_PROGRESS', ...(code.trim() && { code: code.trim() }) }),
+      'Job started'
+    );
   const complete = () => {
     if (needsAmount && (amount === '' || Number(amount) < 0)) return act.setError('Enter the final amount');
     return send(
@@ -124,7 +150,8 @@ export default function JobDetail() {
           status: 'COMPLETED',
           ...(amount !== '' && { finalPrice: Number(amount) }),
         }),
-      'Job completed'
+      'Job completed',
+      () => { if (sharing) stopSharing(); }
     );
   };
   const close = () => {
@@ -144,6 +171,7 @@ export default function JobDetail() {
 
   // ---- live location ----
   const startSharing = async () => {
+    if (watchRef.current !== null) return; // already sharing
     setGeoMsg('');
     if (!navigator.geolocation) {
       setGeoMsg('Location is not supported on this device');
@@ -151,11 +179,20 @@ export default function JobDetail() {
     }
     try {
       await api.post(`/tech/jobs/${id}/location/start`);
-      connectSocket();
-      socket.emit('tech:join', { bookingId: b._id, techId: b.technician?._id ?? b.technician });
+      try { connectSocket(); } catch { /* ignore */ }
+      emit('tech:join', { bookingId: b._id, techId: b.technician?._id ?? b.technician });
 
       watchRef.current = navigator.geolocation.watchPosition(
-        (pos) => socket.emit('tech:location', { bookingId: b._id, lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        (pos) => {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          emit('tech:location', { bookingId: b._id, lat, lng });
+          // The customer's screen reads from the server, so save a position every 10 seconds
+          const now = Date.now();
+          if (now - lastPing.current > 10000) {
+            lastPing.current = now;
+            api.post(`/tech/jobs/${id}/location/ping`, { lat, lng }).catch(() => {});
+          }
+        },
         (err) => setGeoMsg(err.code === 1 ? 'Location permission was denied' : 'Could not read your location'),
         { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
       );
@@ -168,13 +205,31 @@ export default function JobDetail() {
   const stopSharing = async () => {
     if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current);
     watchRef.current = null;
-    socket.emit('tech:stop', { bookingId: b._id });
+    lastPing.current = 0;
+    emit('tech:stop', { bookingId: b._id });
     try {
       await api.post(`/tech/jobs/${id}/location/stop`);
     } catch (e) {
       console.error(e);
     }
     setSharing(false);
+  };
+
+  // ---- taxi-style steps ----
+  const onTheWay = async () => {
+    if (await act.run(() => api.post(`/tech/jobs/${id}/progress`, { step: 'on_the_way' }))) {
+      setNotice('The customer can now see you on the way');
+      reload();
+      startSharing();
+    }
+  };
+
+  const arrived = async () => {
+    if (await act.run(() => api.post(`/tech/jobs/${id}/progress`, { step: 'arrived' }))) {
+      if (sharing) await stopSharing();
+      setNotice('The customer knows you have arrived');
+      reload();
+    }
   };
 
   return (
@@ -212,7 +267,7 @@ export default function JobDetail() {
           {cancelled ? (
             <p className="text-sm font-semibold text-red-700">This job was cancelled.</p>
           ) : (
-            <Progress status={b.status} />
+            <Progress stage={stage} />
           )}
         </Card>
 
@@ -308,7 +363,23 @@ export default function JobDetail() {
                     <Button variant="secondary" onClick={() => setDialog('reject')}>Reject job</Button>
                   </>
                 )}
-                {b.status === 'ACCEPTED' && <Button onClick={start} disabled={act.busy}>Start job</Button>}
+
+                {b.status === 'ACCEPTED' && !b.onTheWayAt && (
+                  <Button onClick={onTheWay} disabled={act.busy}>I'm on my way</Button>
+                )}
+                {b.status === 'ACCEPTED' && b.onTheWayAt && !b.arrivedAt && (
+                  <Button onClick={arrived} disabled={act.busy}>I've arrived</Button>
+                )}
+                {b.status === 'ACCEPTED' && (
+                  <Button
+                    variant={b.arrivedAt ? undefined : 'secondary'}
+                    onClick={() => { setCode(''); act.setError(''); setDialog('start'); }}
+                    disabled={act.busy}
+                  >
+                    Start job
+                  </Button>
+                )}
+
                 {b.status === 'IN_PROGRESS' && (
                   <Button
                     onClick={() => {
@@ -338,6 +409,11 @@ export default function JobDetail() {
                   <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" /> Sharing your live location
                 </p>
               )}
+              {travelling && !sharing && (
+                <p className="mt-3 rounded-lg bg-amber-50 p-3 text-xs font-semibold leading-relaxed text-amber-800">
+                  Location sharing is off. Tap "Share live location" so the customer can see you on the map.
+                </p>
+              )}
             </Card>
           </aside>
         </div>
@@ -354,6 +430,28 @@ export default function JobDetail() {
           {act.error && <div className="mb-3"><Alert>{act.error}</Alert></div>}
           <p className="mb-3 text-sm text-ink-muted">The admin will be able to assign it to someone else.</p>
           <Textarea label="Reason (optional)" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} />
+        </ConfirmDialog>
+
+        <ConfirmDialog
+          open={dialog === 'start'}
+          title="Start this job"
+          confirmLabel="Start job"
+          cancelLabel="Not yet"
+          onConfirm={start}
+          onCancel={close}
+          busy={act.busy}
+        >
+          {act.error && <div className="mb-3"><Alert>{act.error}</Alert></div>}
+          <p className="mb-3 text-sm text-ink-muted">
+            Ask the customer for the 4-digit start code shown in their app.
+          </p>
+          <Input
+            label="Start code"
+            inputMode="numeric"
+            maxLength={4}
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+          />
         </ConfirmDialog>
 
         <ConfirmDialog

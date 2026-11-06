@@ -10,10 +10,11 @@ import { ErrorState, Spinner } from '../../components/States.jsx';
 import { payWithRazorpay } from '../../utils/razorpay.js';
 import { inr, prettyDate, prettyDateTime, prettySlot } from '../../utils/format.js';
 import { company } from '../../content.js';
-import LiveTracker from '../../components/LiveTracker.jsx';
+import BookingTracker from '../../components/BookingTracker.jsx';
 
 const CANCELLABLE = ['PENDING', 'CONFIRMED', 'ASSIGNED', 'ACCEPTED'];
 const PAYMENT_LABEL = { unpaid: 'Unpaid', paid: 'Paid', refund_pending: 'Refund pending', refunded: 'Refunded' };
+
 const Row = ({ label, children }) => (
   <div className="py-3 border-b border-line last:border-b-0 min-w-0">
     <dt className="text-xs sm:text-sm text-ink-muted mb-1">{label}</dt>
@@ -35,8 +36,15 @@ export default function BookingDetail() {
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState('');
 
-  if (loading) return <Spinner />;
-  if (error) return <div className="max-w-3xl mx-auto p-6"><ErrorState message={error} onRetry={reload} /></div>;
+  // Spinner only on the first load, so a background refresh does not reset the live map
+  if (loading && !data) return <div className="flex justify-center p-10"><Spinner /></div>;
+  if (error || !data?.booking) {
+    return (
+      <div className="max-w-3xl mx-auto p-6">
+        <ErrorState message={error || 'Booking not found'} onRetry={reload} />
+      </div>
+    );
+  }
 
   const b = data.booking;
   const policy = cfg.data?.settings.cancellation;
@@ -117,6 +125,13 @@ export default function BookingDetail() {
         <StatusBadge status={b.status} />
       </div>
 
+      {/* Live status, map, technician card and start code */}
+      {b.status !== 'CANCELLED' && (
+        <div className="mb-5">
+          <BookingTracker booking={b} onStatusChange={() => reload()} />
+        </div>
+      )}
+
       <Card className="mb-5 p-4 sm:p-6 lg:p-7 rounded-2xl border border-line shadow-sm">
         <h2 className="text-lg sm:text-xl font-extrabold mb-4 pb-3 border-b border-line">
           Booking information
@@ -125,7 +140,7 @@ export default function BookingDetail() {
           <Row label="Service">{b.service?.name}</Row>
           <Row label="When">{prettyDate(b.date)}, {prettySlot(b.slot)}</Row>
           <Row label="Address">
-            {[b.address.line1, b.address.line2, b.address.city, b.address.pincode].filter(Boolean).join(', ')}
+            {[b.address?.line1, b.address?.line2, b.address?.city, b.address?.pincode].filter(Boolean).join(', ')}
           </Row>
           <Row label="Technician">
             {b.technician ? `${b.technician.name}${b.technician.phone ? ` (${b.technician.phone})` : ''}` : 'Not assigned yet'}
@@ -145,23 +160,6 @@ export default function BookingDetail() {
           </p>
         )}
       </Card>
-
-      {/* Technician live location — only for active bookings */}
-      {['ASSIGNED', 'ACCEPTED', 'IN_PROGRESS'].includes(b.status) && (
-        <Card className="mb-5 p-4 sm:p-6 lg:p-7 rounded-2xl border border-line shadow-sm">
-          <h2 className="text-lg sm:text-xl font-extrabold mb-4 pb-3 border-b border-line">
-            Technician location
-          </h2>
-          <LiveTracker
-            bookingId={b._id}
-            initialCenter={
-              b.address?.lat && b.address?.lng
-                ? [b.address.lat, b.address.lng]
-                : [28.6139, 77.209]
-            }
-          />
-        </Card>
-      )}
 
       {canPay && (
         <Card className="mb-5 p-5 sm:p-6 rounded-2xl border border-line shadow-sm">
@@ -192,7 +190,7 @@ export default function BookingDetail() {
           Booking progress
         </h2>
         <ol className="flex flex-col gap-4">
-          {b.statusHistory.map((h, i) => (
+          {(b.statusHistory || []).map((h, i) => (
             <li key={i} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 rounded-xl bg-gray-50 p-3 sm:p-4">
               <StatusBadge status={h.to} />
               <span className="text-sm text-ink-muted">{prettyDateTime(h.at)}</span>
