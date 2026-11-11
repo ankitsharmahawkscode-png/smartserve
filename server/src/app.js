@@ -23,6 +23,6 @@ app.use('/api/v1', routes);
 app.use(notFound);
 app.use(errorHandler);
 app.use('/uploads', express.static('uploads'));
-
+app.get('/api/v1/version', (req, res) => res.json({ build: 'tracking-3' }));
 
 module.exports = app;
