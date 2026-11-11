@@ -275,3 +275,9 @@ exports.applicationSchema = z.object({
   message: z.string().trim().max(1000).optional(),
   website: z.string().max(200).optional(), // honeypot
 });
+// ----- live job tracking -----
+exports.pingSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+});
+exports.progressSchema = z.object({ step: z.enum(['on_the_way', 'arrived']) });

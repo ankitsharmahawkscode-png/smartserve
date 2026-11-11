@@ -36,6 +36,11 @@ const schema = new Schema(
   lng: { type: Number },
   updatedAt: { type: Date },
   isSharing: { type: Boolean, default: false },
+  startCode: { type: String, select: false },
+startCodeTries: { type: Number, default: 0, select: false },
+onTheWayAt: Date,
+arrivedAt: Date,
+liveLocation: { lat: Number, lng: Number, at: Date },
 },
 locationHistory: [
   {

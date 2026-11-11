@@ -5,6 +5,7 @@ const S = require('../validators/domain.validators');
 const c = require('../controllers/tech.controller');
 const techProfile = require('../controllers/techProfile.controller');
 const { technicianProfileSchema, availabilitySchema } = require('../validators/domain.validators');
+const tracking = require('../controllers/jobTracking.controller');
 
 router.param('id', validId);
 
@@ -17,7 +18,11 @@ router.get('/earnings', require('../controllers/tech.earnings.controller').earni
 router.get('/jobs', c.listJobs);
 router.get('/jobs/:id', c.getJob);
 router.patch('/jobs/:id/respond', validate(S.respondSchema), c.respond);
-router.patch('/jobs/:id/status', validate(S.statusSchema), c.updateStatus);
+
+router.post('/jobs/:id/location/ping', validate(S.pingSchema), tracking.ping);
+router.post('/jobs/:id/progress', validate(S.progressSchema), tracking.progress);
+
+router.patch('/jobs/:id/status', tracking.requireStartCode, validate(S.statusSchema), c.updateStatus);
 router.put('/availability', validate(S.availabilitySchema), c.setAvailability);
 router.get('/profile', techProfile.getProfile);
 router.put('/profile', validate(technicianProfileSchema), techProfile.updateProfile);
