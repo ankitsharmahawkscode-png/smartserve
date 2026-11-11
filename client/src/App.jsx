@@ -13,6 +13,19 @@ import ForgotPassword from './pages/public/ForgotPassword.jsx';
 import ResetPassword from './pages/public/ResetPassword.jsx';
 import Services from './pages/public/Services.jsx';
 import ServiceDetail from './pages/public/ServiceDetail.jsx';
+import CategoryPage from './pages/public/CategoryPage.jsx';
+import Blog from './pages/public/Blog.jsx';
+import BlogPost from './pages/public/BlogPost.jsx';
+import WhatWeOffer from './pages/public/WhatWeOffer.jsx';
+import CustomizedSolutions from './pages/public/CustomizedSolutions.jsx';
+import CustomerSupport from './pages/public/CustomerSupport.jsx';
+import Consultation from './pages/public/Consultation.jsx';
+import BecomeTechnician from './pages/public/BecomeTechnician.jsx';
+import Careers from './pages/public/Careers.jsx';
+import Faq from './pages/public/Faq.jsx';
+import { PrivacyPolicy, Terms, RefundPolicy } from './pages/public/Legal.jsx';
+import AcCalculator from './pages/public/AcCalculator.jsx';
+import Author from './pages/public/Author.jsx';
 import Book from './pages/customer/Book.jsx';
 import MyBookings from './pages/customer/MyBookings.jsx';
 import BookingDetail from './pages/customer/BookingDetail.jsx';
@@ -30,32 +43,16 @@ import AdminReviews from './pages/admin/AdminReviews.jsx';
 import AdminMessages from './pages/admin/AdminMessages.jsx';
 import AdminAudit from './pages/admin/AdminAudit.jsx';
 import AdminSettings from './pages/admin/AdminSettings.jsx';
+import AdminApplications from './pages/admin/AdminApplications.jsx';
+import AdminBlog from './pages/admin/AdminBlog.jsx';
+import AdminCoupons from './pages/admin/AdminCoupons.jsx';
+import AdminProfile from './pages/admin/AdminProfile.jsx';
+import AdminStaff from './pages/admin/AdminStaff.jsx';
 import TechOverview from './pages/technician/TechOverview.jsx';
 import JobList from './pages/technician/JobList.jsx';
 import JobDetail from './pages/technician/JobDetail.jsx';
 import Earnings from './pages/technician/Earnings.jsx';
 import TechProfile from './pages/technician/TechProfile.jsx';
-import CategoryPage from './pages/public/CategoryPage.jsx';
-import AdminApplications from './pages/admin/AdminApplications.jsx';
-
-import AdminBlog from './pages/admin/AdminBlog.jsx';
-import Blog from './pages/public/Blog.jsx';
-import BlogPost from './pages/public/BlogPost.jsx';
-import AdminCoupons from './pages/admin/AdminCoupons.jsx';
-import WhatWeOffer from './pages/public/WhatWeOffer.jsx';
-import CustomizedSolutions from './pages/public/CustomizedSolutions.jsx';
-import CustomerSupport from './pages/public/CustomerSupport.jsx';
-import Consultation from './pages/public/Consultation.jsx';
-import BecomeTechnician from './pages/public/BecomeTechnician.jsx';
-import AdminProfile from './pages/admin/AdminProfile.jsx';
-import Author from './pages/public/Author.jsx';
-import { PrivacyPolicy, Terms, RefundPolicy } from './pages/public/Legal.jsx';
-import Faq from './pages/public/Faq.jsx';
-import AdminStaff from './pages/admin/AdminStaff.jsx';
-import Careers from './pages/public/Careers.jsx';
-// import AcCalculator from './pages/public/AcCalculator.jsx';
-import AcCalculator from './pages/public/AcCalculator.jsx';
-import ScrollToTop from './components/ScrollToTop';
 
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
@@ -69,34 +66,34 @@ const dash = (role, pages, home = <DashboardHome />) => (
 export default function App() {
   return (
     <Routes>
-       <ScrollToTop />
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<Services />} />
         <Route path="/services/:id" element={<ServiceDetail />} />
-          <Route path="/category/:slug" element={<CategoryPage />} /> 
+        <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/blog" element={<Blog />} />
-      <Route path="/what-we-offer" element={<WhatWeOffer />} />
-<Route path="/customized-solutions" element={<CustomizedSolutions />} />
-<Route path="/customer-support" element={<CustomerSupport />} />
-<Route path="/consultation" element={<Consultation />} />
-<Route path="/become-a-technician" element={<BecomeTechnician />} />
-<Route path="/careers" element={<Careers />} />
-<Route path="/blog/:slug" element={<BlogPost />} />
-<Route path="/ac-tonnage-calculator" element={<AcCalculator />} />
-<Route path="/privacy-policy" element={<PrivacyPolicy />} />
-<Route path="/terms" element={<Terms />} />
-<Route path="/refund-policy" element={<RefundPolicy />} />
-<Route path="/faq" element={<Faq />} />
-<Route path="/author/:slug" element={<Author />} />
- <Route path="*" element={<NotFound />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
+        <Route path="/author/:slug" element={<Author />} />
+        <Route path="/what-we-offer" element={<WhatWeOffer />} />
+        <Route path="/customized-solutions" element={<CustomizedSolutions />} />
+        <Route path="/customer-support" element={<CustomerSupport />} />
+        <Route path="/consultation" element={<Consultation />} />
+        <Route path="/become-a-technician" element={<BecomeTechnician />} />
+        <Route path="/careers" element={<Careers />} />
+        <Route path="/faq" element={<Faq />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/ac-tonnage-calculator" element={<AcCalculator />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
+
       {dash('customer', [
         ['bookings', <MyBookings />],
         ['book/:serviceId', <Book />],
@@ -105,6 +102,7 @@ export default function App() {
         ['reviews', <Reviews />],
         ['profile', <Profile />],
       ])}
+
       {dash('technician', [
         ['jobs', <JobList />],
         ['jobs/:id', <JobDetail />],
@@ -112,25 +110,24 @@ export default function App() {
         ['earnings', <Earnings />],
         ['profile', <TechProfile />],
       ], <TechOverview />)}
-      {dash('admin', [
-  ['bookings', <AdminBookings />],
-  ['services', <AdminServices />],
-  ['categories', <AdminCategories />],
-  ['technicians', <AdminTechnicians />],
-  ['customers', <AdminCustomers />],
-  ['payments', <AdminPayments />],
-  ['reviews', <AdminReviews />],
-  ['messages', <AdminMessages />],
-  ['audit', <AdminAudit />],
-  ['settings', <AdminSettings />],
-  ['blogs', <AdminBlog />],   // 👈 THIS
-  ['coupons', <AdminCoupons />],
-['applications', <AdminApplications />],
-['profile' ,<AdminProfile /> ],
 
-  ['staff', <AdminStaff />],
-], <AdminOverview />)}
-     
+      {dash('admin', [
+        ['bookings', <AdminBookings />],
+        ['services', <AdminServices />],
+        ['categories', <AdminCategories />],
+        ['technicians', <AdminTechnicians />],
+        ['customers', <AdminCustomers />],
+        ['payments', <AdminPayments />],
+        ['reviews', <AdminReviews />],
+        ['messages', <AdminMessages />],
+        ['audit', <AdminAudit />],
+        ['settings', <AdminSettings />],
+        ['blogs', <AdminBlog />],
+        ['coupons', <AdminCoupons />],
+        ['applications', <AdminApplications />],
+        ['profile', <AdminProfile />],
+        ['staff', <AdminStaff />],
+      ], <AdminOverview />)}
     </Routes>
   );
 }
