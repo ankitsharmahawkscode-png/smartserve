@@ -53,7 +53,11 @@ import JobList from './pages/technician/JobList.jsx';
 import JobDetail from './pages/technician/JobDetail.jsx';
 import Earnings from './pages/technician/Earnings.jsx';
 import TechProfile from './pages/technician/TechProfile.jsx';
-
+import { PrivacyPolicy, Terms, RefundPolicy, CookiePolicy } from './pages/public/Legal.jsx';
+import LoginHelp from './pages/public/LoginHelp.jsx';
+import HelpCenter from './pages/public/HelpCenter.jsx';
+import Pricing from './pages/public/Pricing.jsx';
+import SitemapPage from './pages/public/SitemapPage.jsx';
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -92,6 +96,11 @@ export default function App() {
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/ac-tonnage-calculator" element={<AcCalculator />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/login-help" element={<LoginHelp />} />
+<Route path="/help" element={<HelpCenter />} />
+<Route path="/pricing" element={<Pricing />} />
+<Route path="/cookie-policy" element={<CookiePolicy />} />
+<Route path="/sitemap" element={<SitemapPage />} />
       </Route>
 
       {dash('customer', [

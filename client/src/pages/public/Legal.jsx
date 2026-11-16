@@ -266,3 +266,53 @@ export function RefundPolicy() {
     />
   );
 }
+export function CookiePolicy() {
+  return (
+    <LegalPage
+      title="Cookie Policy"
+      description={`How ${NAME} uses cookies and similar storage.`}
+      path="/cookie-policy"
+      updated={UPDATED}
+      intro={`This page explains how ${NAME} uses cookies and local storage in your browser, and the choices you have.`}
+      sections={[
+        {
+          id: 'what',
+          heading: 'What are cookies?',
+          body: ['Cookies are small files a website stores in your browser. Local storage is a similar space the site can use to remember information on your device.'],
+        },
+        {
+          id: 'use',
+          heading: 'How we use them',
+          body: [
+            { list: [
+              'Keeping you logged in and protecting your account.',
+              'Remembering things you chose, such as an address lookup or a calculator result.',
+              'Making the site load faster by keeping a saved copy of pages on your device.',
+              'Understanding how the site is used, if analytics are turned on.',
+            ] },
+            'We do not sell the information these tools collect.',
+          ],
+        },
+        {
+          id: 'third',
+          heading: 'Third-party services',
+          body: [
+            'Some features load from other services, for example Razorpay for payments, OpenStreetMap for maps, and Google Fonts for text styles. They may set their own cookies under their own policies.',
+          ],
+        },
+        {
+          id: 'control',
+          heading: 'Your choices',
+          body: [
+            'You can block or delete cookies in your browser settings. Some parts of the site, such as staying logged in, may stop working if you do.',
+          ],
+        },
+        {
+          id: 'contact',
+          heading: 'Contact',
+          body: [{ list: [`Email: ${EMAIL}`, `Phone: ${PHONE}`] }],
+        },
+      ]}
+    />
+  );
+}
