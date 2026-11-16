@@ -23,9 +23,13 @@ import Consultation from './pages/public/Consultation.jsx';
 import BecomeTechnician from './pages/public/BecomeTechnician.jsx';
 import Careers from './pages/public/Careers.jsx';
 import Faq from './pages/public/Faq.jsx';
-import { PrivacyPolicy, Terms, RefundPolicy } from './pages/public/Legal.jsx';
+import { PrivacyPolicy, Terms, RefundPolicy, CookiePolicy } from './pages/public/Legal.jsx';
 import AcCalculator from './pages/public/AcCalculator.jsx';
 import Author from './pages/public/Author.jsx';
+import LoginHelp from './pages/public/LoginHelp.jsx';
+import HelpCenter from './pages/public/HelpCenter.jsx';
+import Pricing from './pages/public/Pricing.jsx';
+import SitemapPage from './pages/public/SitemapPage.jsx';
 import Book from './pages/customer/Book.jsx';
 import MyBookings from './pages/customer/MyBookings.jsx';
 import BookingDetail from './pages/customer/BookingDetail.jsx';
@@ -53,11 +57,7 @@ import JobList from './pages/technician/JobList.jsx';
 import JobDetail from './pages/technician/JobDetail.jsx';
 import Earnings from './pages/technician/Earnings.jsx';
 import TechProfile from './pages/technician/TechProfile.jsx';
-import { PrivacyPolicy, Terms, RefundPolicy, CookiePolicy } from './pages/public/Legal.jsx';
-import LoginHelp from './pages/public/LoginHelp.jsx';
-import HelpCenter from './pages/public/HelpCenter.jsx';
-import Pricing from './pages/public/Pricing.jsx';
-import SitemapPage from './pages/public/SitemapPage.jsx';
+
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -75,12 +75,14 @@ export default function App() {
         <Route path="/services" element={<Services />} />
         <Route path="/services/:id" element={<ServiceDetail />} />
         <Route path="/category/:slug" element={<CategoryPage />} />
+        <Route path="/pricing" element={<Pricing />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/login-help" element={<LoginHelp />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/author/:slug" element={<Author />} />
@@ -90,17 +92,15 @@ export default function App() {
         <Route path="/consultation" element={<Consultation />} />
         <Route path="/become-a-technician" element={<BecomeTechnician />} />
         <Route path="/careers" element={<Careers />} />
+        <Route path="/help" element={<HelpCenter />} />
         <Route path="/faq" element={<Faq />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/cookie-policy" element={<CookiePolicy />} />
         <Route path="/ac-tonnage-calculator" element={<AcCalculator />} />
+        <Route path="/sitemap" element={<SitemapPage />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/login-help" element={<LoginHelp />} />
-<Route path="/help" element={<HelpCenter />} />
-<Route path="/pricing" element={<Pricing />} />
-<Route path="/cookie-policy" element={<CookiePolicy />} />
-<Route path="/sitemap" element={<SitemapPage />} />
       </Route>
 
       {dash('customer', [
