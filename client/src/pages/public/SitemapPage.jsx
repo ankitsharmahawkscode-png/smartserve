@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 import useSeo from '../../hooks/useSeo.js';
 
 const GROUPS = [
-  { title: 'Services', links: [['Our services', '/services'], ['Pricing', '/pricing'], ['AC tonnage calculator', '/ac-tonnage-calculator'], ['What we offer', '/what-we-offer'], ['Customized solutions', '/customized-solutions'], ['Consultation', '/consultation']] },
-  { title: 'Company', links: [['Home', '/'], ['About us', '/about'], ['Blog', '/blog'], ['Careers', '/careers'], ['Become a technician', '/become-a-technician'], ['Contact', '/contact']] },
-  { title: 'Help', links: [['Help center', '/help'], ['FAQ', '/faq'], ['Customer support', '/customer-support'], ['Login help', '/login-help']] },
+  { title: 'Services', links: [['Our services', '/services'], ['Pricing', '/pricing'], ['AC tonnage calculator', '/ac-tonnage-calculator'], ['What we offer', '/what-we-offer'], ['Customized solutions', '/customized-solutions'], ['Consultation', '/consultation'],['Free tools', '/tools'], ['AC electricity bill calculator', '/ac-electricity-bill-calculator'], ['Water tank calculator', '/water-tank-calculator'],] },
+  { title: 'Company', links: [['Home', '/'], ['About us', '/about'], ['Blog', '/blog'], ['Careers', '/careers'], ['Become a technician', '/become-a-technician'], ['Contact', '/contact'],['For business', '/for-business'],] },
+  { title: 'Help', links: [['Help center', '/help'], ['FAQ', '/faq'], ['Customer support', '/customer-support'], ['Login help', '/login-help'],['Install the app', '/install'],] },
   { title: 'Account', links: [['Log in', '/login'], ['Create an account', '/register'], ['Forgot password', '/forgot-password']] },
   { title: 'Legal', links: [['Privacy policy', '/privacy-policy'], ['Terms & conditions', '/terms'], ['Refund & cancellation', '/refund-policy'], ['Cookie policy', '/cookie-policy']] },
 ];

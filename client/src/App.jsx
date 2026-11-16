@@ -57,7 +57,11 @@ import JobList from './pages/technician/JobList.jsx';
 import JobDetail from './pages/technician/JobDetail.jsx';
 import Earnings from './pages/technician/Earnings.jsx';
 import TechProfile from './pages/technician/TechProfile.jsx';
-
+import AcBillCalculator from './pages/public/AcBillCalculator.jsx';
+import WaterTankCalculator from './pages/public/WaterTankCalculator.jsx';
+import Tools from './pages/public/Tools.jsx';
+import InstallApp from './pages/public/InstallApp.jsx';
+import ForBusiness from './pages/public/ForBusiness.jsx';
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -100,6 +104,11 @@ export default function App() {
         <Route path="/cookie-policy" element={<CookiePolicy />} />
         <Route path="/ac-tonnage-calculator" element={<AcCalculator />} />
         <Route path="/sitemap" element={<SitemapPage />} />
+        <Route path="/tools" element={<Tools />} />
+<Route path="/ac-electricity-bill-calculator" element={<AcBillCalculator />} />
+<Route path="/water-tank-calculator" element={<WaterTankCalculator />} />
+<Route path="/install" element={<InstallApp />} />
+<Route path="/for-business" element={<ForBusiness />} />
         <Route path="*" element={<NotFound />} />
       </Route>
 
