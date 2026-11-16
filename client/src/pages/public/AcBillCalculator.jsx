@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { FaBolt } from 'react-icons/fa';
 import ToolShell from '../../components/ToolShell.jsx';
 import Input from '../../components/Input.jsx';
 import { Select } from '../../components/Fields.jsx';
@@ -173,7 +174,9 @@ export default function AcBillCalculator() {
               </div>
             ) : (
               <div className="p-8 text-center">
-                <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-brand-tint text-2xl" aria-hidden="true">⚡</div>
+                <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-brand-tint text-2xl" aria-hidden="true">
+                  <FaBolt />
+                </div>
                 <p className="font-bold">Fill in all the fields</p>
                 <p className="mt-1 text-sm text-ink-muted">Your estimated monthly cost appears here.</p>
               </div>
