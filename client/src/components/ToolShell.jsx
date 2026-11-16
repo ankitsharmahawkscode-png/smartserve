@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
+import { FaSnowflake, FaBolt, FaTint } from 'react-icons/fa';
 import useSeo from '../hooks/useSeo.js';
 import LinkButton from './LinkButton.jsx';
 
 export const TOOLS = [
-  { to: '/ac-tonnage-calculator', icon: '❄️', title: 'AC tonnage calculator', text: 'Find the right AC size for your room.' },
-  { to: '/ac-electricity-bill-calculator', icon: '⚡', title: 'AC electricity bill calculator', text: 'Estimate what your AC costs to run each month.' },
-  { to: '/water-tank-calculator', icon: '💧', title: 'Water tank size calculator', text: 'Work out the tank size your home needs.' },
+  { to: '/ac-tonnage-calculator', icon: FaSnowflake, title: 'AC tonnage calculator', text: 'Find the right AC size for your room.' },
+  { to: '/ac-electricity-bill-calculator', icon: FaBolt, title: 'AC electricity bill calculator', text: 'Estimate what your AC costs to run each month.' },
+  { to: '/water-tank-calculator', icon: FaTint, title: 'Water tank size calculator', text: 'Work out the tank size your home needs.' },
 ];
 
 export default function ToolShell({ seo, eyebrow = 'Free tool', title, intro, faqs = [], cta, children }) {
@@ -58,19 +59,24 @@ export default function ToolShell({ seo, eyebrow = 'Free tool', title, intro, fa
       <section className="mx-auto mt-14 max-w-5xl px-4 sm:px-6" aria-labelledby="more-tools">
         <h2 id="more-tools" className="mb-4 text-xl font-extrabold">More free tools</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          {others.map((t) => (
-            <Link
-              key={t.to}
-              to={t.to}
-              className="group flex items-center gap-4 rounded-xl border border-line p-4 transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-md"
-            >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-tint text-xl" aria-hidden="true">{t.icon}</span>
-              <span>
-                <span className="block font-bold group-hover:text-brand-dark">{t.title}</span>
-                <span className="block text-sm text-ink-muted">{t.text}</span>
-              </span>
-            </Link>
-          ))}
+          {others.map((t) => {
+            const Icon = t.icon;
+            return (
+              <Link
+                key={t.to}
+                to={t.to}
+                className="group flex items-center gap-4 rounded-xl border border-line p-4 transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-md"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-tint text-xl text-brand" aria-hidden="true">
+                  <Icon />
+                </span>
+                <span>
+                  <span className="block font-bold group-hover:text-brand-dark">{t.title}</span>
+                  <span className="block text-sm text-ink-muted">{t.text}</span>
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
