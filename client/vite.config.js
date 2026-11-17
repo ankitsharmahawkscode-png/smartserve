@@ -25,18 +25,18 @@ export default defineConfig({
         display: 'standalone', // App ki tarah khulega
         start_url: '/',
        icons: [
-  {
-    src: 'pwa-192x192.png',
-    sizes: '192x192',
-    type: 'image/png'
-  },
-  {
-    src: 'pwa-512x512.png',
-    sizes: '512x512',
-    type: 'image/png',
-    purpose: 'any maskable'
-  }
-]
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'], // Offline support
@@ -53,9 +53,9 @@ export default defineConfig({
       '/sitemap.xml': { target: 'http://localhost:5000', rewrite: () => '/api/v1/seo/sitemap.xml' },
       '/robots.txt': { target: 'http://localhost:5000', rewrite: () => '/api/v1/seo/robots.txt' },
     },
-  }
-  ,
-    optimizeDeps: {
-    include: ['react-helmet-async'],
+  },
+  // 👇 FIXED: Added react-icons here to fix the Rollup build error
+  optimizeDeps: {
+    include: ['react-helmet-async', 'react-icons'],
   },
 });
