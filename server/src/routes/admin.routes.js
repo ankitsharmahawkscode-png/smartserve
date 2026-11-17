@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const validate = require('../middleware/validate');
 const validId = require('../middleware/validId');
-const checkPermission = require('../middleware/checkPermission'); // 👈 Import kiya
+const checkPermission = require('../middleware/checkPermission');
+const { requireSuperAdmin, requirePermission } = require('../middleware/permissions');
 const S = require('../validators/domain.validators');
 const cat = require('../controllers/admin.catalog.controller');
 const ops = require('../controllers/admin.ops.controller');
@@ -10,22 +11,21 @@ const blogController = require('../controllers/blog.controller');
 const couponController = require('../controllers/coupon.controller');
 const applicationController = require('../controllers/application.controller');
 const profileCtrl = require('../controllers/profile.controller');
-const { adminProfileSchema } = require('../validators/domain.validators');
 const notifCtrl = require('../controllers/notification.controller');
-const { notifyAdmins } = require('../services/notify');
 const staffCtrl = require('../controllers/staff.controller');
-const { requireSuperAdmin, requirePermission } = require('../middleware/permissions');
-const { staffCreateSchema, staffUpdateSchema, staffPasswordSchema } = require('../validators/domain.validators');
+const mediaCtrl = require('../controllers/media.controller');
 
 router.param('id', validId);
 
-// Ye routes sabke liye open hain (Super Admin + Sub Admin)
+// Open to every admin (super admin and sub-admins)
 router.get('/ping', (req, res) => res.json({ success: true, data: { role: req.user.role }, message: 'admin ok' }));
 router.get('/stats', require('../controllers/admin.stats.controller').stats);
+
+// Server-side lock: each section needs its matching permission
 ['bookings', 'services', 'categories', 'blogs', 'technicians', 'customers',
  'payments', 'reviews', 'messages', 'audit', 'settings', 'coupons', 'applications',
 ].forEach((p) => router.use(`/${p}`, requirePermission(p)));
-// 👇 AB HAR ROUTE PE PERMISSION LAGAYI HAI 👇
+
 router.get('/audit', checkPermission('audit'), require('../controllers/admin.audit.controller').list);
 router.get('/messages', checkPermission('messages'), require('../controllers/contact.controller').list);
 
@@ -57,7 +57,7 @@ router.patch('/technicians/:id', checkPermission('technicians'), validate(S.tech
 router.get('/customers', checkPermission('customers'), ops.listCustomers);
 router.patch('/customers/:id/status', checkPermission('customers'), validate(S.statusToggleSchema), ops.setCustomerStatus);
 
-// 👇 NAYA ROUTE: Super Admin kisi ki bhi permissions change kar sakta hai
+// Super Admin can change anyone's permissions
 router.patch('/users/:id/access', ops.updateUserAccess);
 
 router.get('/payments', checkPermission('payments'), fin.listPayments);
@@ -69,24 +69,35 @@ router.route('/settings')
   .get(checkPermission('settings'), ops.getSettings)
   .put(checkPermission('settings'), validate(S.settingsSchema), ops.putSettings);
 
+// Blog
 router.post('/blogs', checkPermission('blogs'), validate(S.blogSchema), blogController.createBlog);
 router.put('/blogs/:id', checkPermission('blogs'), validate(S.blogSchema), blogController.updateBlog);
 router.delete('/blogs/:id', checkPermission('blogs'), blogController.deleteBlog);
 router.get('/blogs', checkPermission('blogs'), blogController.adminListBlogs);
+
+// Image upload for blog covers (JPG, PNG or SVG)
+router.post('/media', requirePermission('blogs'), validate(S.mediaUploadSchema), mediaCtrl.upload);
+
+// Own profile (every admin)
 router.get('/profile', profileCtrl.getProfile);
-router.put('/profile', validate(adminProfileSchema), profileCtrl.updateProfile);
+router.put('/profile', validate(S.adminProfileSchema), profileCtrl.updateProfile);
+
 router.post('/coupons', checkPermission('coupons'), couponController.createCoupon);
 router.get('/coupons', checkPermission('coupons'), couponController.listCoupons);
 router.delete('/coupons/:id', checkPermission('coupons'), couponController.deleteCoupon);
 
 router.get('/applications', checkPermission('applications'), applicationController.listApplications);
 router.post('/applications/:id/approve', checkPermission('applications'), applicationController.approveApplication);
+
+// Notification bell (every admin)
 router.get('/notifications', notifCtrl.list);
 router.patch('/notifications/read-all', notifCtrl.markAllRead);
 router.patch('/notifications/:id/read', notifCtrl.markRead);
+
+// Staff management (super admin only)
 router.get('/staff', requireSuperAdmin, staffCtrl.list);
-router.post('/staff', requireSuperAdmin, validate(staffCreateSchema), staffCtrl.create);
-router.patch('/staff/:id', requireSuperAdmin, validate(staffUpdateSchema), staffCtrl.update);
-router.patch('/staff/:id/password', requireSuperAdmin, validate(staffPasswordSchema), staffCtrl.resetPassword);
+router.post('/staff', requireSuperAdmin, validate(S.staffCreateSchema), staffCtrl.create);
+router.patch('/staff/:id', requireSuperAdmin, validate(S.staffUpdateSchema), staffCtrl.update);
+router.patch('/staff/:id/password', requireSuperAdmin, validate(S.staffPasswordSchema), staffCtrl.resetPassword);
 
 module.exports = router;

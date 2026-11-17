@@ -5,6 +5,17 @@ import { prettyPostDate } from '../../utils/format.js';
 import useSeo from '../../hooks/useSeo.js';
 import { company } from '../../content.js';
 
+// An uploaded image has a relative address (/api/v1/media/...). Google and social
+// sites need the full address, so this turns it into one.
+const absUrl = (u) => {
+  if (!u) return undefined;
+  try {
+    return new URL(u, window.location.origin).href;
+  } catch {
+    return undefined;
+  }
+};
+
 // Social Share Icons (SVG)
 const SocialIcons = ({ title }) => {
   const url = typeof window !== 'undefined' ? window.location.href : '';
@@ -34,16 +45,18 @@ export default function BlogPost() {
   const { data, loading, error } = useFetch(`/blogs/${slug}`);
 
   const blog = data?.blog;
+  const cover = blog ? absUrl(blog.coverImage) : undefined;
 
   useSeo({
     title: blog?.seo?.title || (blog ? `${blog.title} | SmartServe` : 'Blog'),
     description: blog?.seo?.description || blog?.excerpt || '',
     path: `/blog/${slug}`,
+    image: cover,
     jsonLd: blog ? {
       '@context': 'https://schema.org',
       '@type': 'Article',
       headline: blog.title,
-      image: blog.coverImage ? [blog.coverImage] : undefined,
+      image: cover ? [cover] : undefined,
       datePublished: blog.publishedAt,
       dateModified: blog.updatedAt,
       author: [{
@@ -117,6 +130,7 @@ export default function BlogPost() {
                 src={blog.coverImage}
                 alt={blog.title}
                 className="w-full h-auto object-cover rounded-sm"
+                onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }}
               />
             </figure>
           )}

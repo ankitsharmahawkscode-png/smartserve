@@ -167,7 +167,15 @@ exports.blogSchema = z.object({
   slug: z.string().trim().optional(),
   content: z.string().trim().min(50), // Require at least some content
   excerpt: z.string().trim().max(300).optional(),
-  coverImage: z.string().url().optional(),
+  coverImage: z
+  .string()
+  .trim()
+  .max(500)
+  .refine(
+    (v) => v === '' || /^https?:\/\//i.test(v) || /^\/api\/v1\/media\/[0-9a-f]{24}$/.test(v),
+    'Invalid image'
+  )
+  .optional(),
   isPublished: z.boolean().optional(),
   seo: z
     .object({
@@ -281,3 +289,9 @@ exports.pingSchema = z.object({
   lng: z.number().min(-180).max(180),
 });
 exports.progressSchema = z.object({ step: z.enum(['on_the_way', 'arrived']) });
+// ----- image upload -----
+exports.mediaUploadSchema = z.object({
+  name: z.string().trim().max(120).default('image'),
+  type: z.enum(['image/jpeg', 'image/png', 'image/svg+xml']),
+  data: z.string().min(100).max(950000).regex(/^[A-Za-z0-9+/=]+$/, 'Invalid image data'),
+});

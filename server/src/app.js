@@ -3,7 +3,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
-const { clientUrl, nodeEnv, isProd, trustProxyHops } = require('./config/env');
+const { nodeEnv, isProd, trustProxyHops } = require('./config/env');
 const routes = require('./routes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const { apiLimiter, writeLimiter, rejectOperatorKeys, noStore } = require('./middleware/security');
@@ -20,8 +20,11 @@ app.use(express.json({ limit: '1mb', verify: (req, res, buf) => { req.rawBody = 
 app.use(cookieParser());
 if (nodeEnv !== 'test') app.use(morgan(isProd ? 'combined' : 'dev'));
 
-// TEMPORARY: open /api/v1/version to see which build is live. Delete after the test.
-app.get('/api/v1/version', (req, res) => res.json({ build: 'tracking-3' }));
+// Temporary: open /api/v1/version to see which build is live. Delete after the test.
+app.get('/api/v1/version', (req, res) => res.json({ build: 'media-1' }));
+
+// Public images: cached for a year, so they skip the limiters and the no-store header
+app.use('/api/v1/media', require('./routes/media.routes'));
 
 app.use('/api', noStore, apiLimiter, writeLimiter, rejectOperatorKeys);
 app.use('/api/v1', routes);

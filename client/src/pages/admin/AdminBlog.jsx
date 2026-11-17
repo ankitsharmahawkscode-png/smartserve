@@ -5,6 +5,7 @@ import { Button } from '../../components/ui.jsx';
 import Input from '../../components/Input.jsx';
 import { Textarea, Checkbox } from '../../components/Fields.jsx';
 import { EmptyState, ErrorState, Spinner } from '../../components/States.jsx';
+import ImageUploadField from '../../components/ImageUploadField.jsx';
 
 const PAGE_SIZE = 10;
 
@@ -66,7 +67,8 @@ export default function AdminBlog() {
     });
   };
 
-  // Builds the clean payload the API accepts
+  // Builds the clean payload the API accepts.
+  // Empty values are sent too, so clearing a field (or removing the image) really clears it.
   const buildPayload = (src, overrides = {}) => {
     const kws = (Array.isArray(src.seo?.keywords) ? src.seo.keywords : [])
       .flatMap((k) => String(k).split(','))
@@ -78,10 +80,12 @@ export default function AdminBlog() {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
 
-    const payload = {
+    return {
       title: src.title?.trim(),
       slug: src.slug?.trim() || autoSlug,
       content: src.content,
+      excerpt: src.excerpt?.trim() || '',
+      coverImage: src.coverImage?.trim() || '',
       isPublished: !!src.isPublished,
       seo: {
         title: src.seo?.title || '',
@@ -90,9 +94,6 @@ export default function AdminBlog() {
       },
       ...overrides,
     };
-    if (src.excerpt?.trim()) payload.excerpt = src.excerpt.trim();
-    if (src.coverImage?.trim()) payload.coverImage = src.coverImage.trim();
-    return payload;
   };
 
   const showApiError = (err, fallback) => {
@@ -181,7 +182,8 @@ export default function AdminBlog() {
   const to = Math.min(totalPages, from + 4);
   for (let i = from; i <= to; i++) pageNumbers.push(i);
 
-  if (loading) {
+  // Only show the full-page spinner on the first load, so an open form is not hidden on refresh
+  if (loading && !data) {
     return (
       <div className="w-full max-w-6xl mx-auto p-6">
         <Spinner />
@@ -189,7 +191,7 @@ export default function AdminBlog() {
     );
   }
 
-  if (error) {
+  if (error && !data) {
     return (
       <div className="w-full max-w-6xl mx-auto p-6">
         <ErrorState message={error} onRetry={reload} />
@@ -200,7 +202,7 @@ export default function AdminBlog() {
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       {notice && (
-        <div className="mb-4 rounded-[10px] bg-brand-tint p-3 text-sm sm:text-base font-semibold text-brand-dark">
+        <div role="status" className="mb-4 rounded-[10px] bg-brand-tint p-3 text-sm sm:text-base font-semibold text-brand-dark">
           {notice}
         </div>
       )}
@@ -227,27 +229,12 @@ export default function AdminBlog() {
               placeholder="Auto-generated from title"
             />
 
-            {/* Cover Image URL Field */}
-            <div>
-              <Input
-                label="Cover Image URL (optional)"
-                value={form.coverImage || ''}
-                onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
-                placeholder="https://example.com/image.jpg"
-              />
-              {form.coverImage && (
-                <div className="mt-2">
-                  <p className="text-xs text-ink-muted mb-1">Preview:</p>
-                  <img
-                    src={form.coverImage}
-                    alt="Cover preview"
-                    className="h-32 w-auto object-cover rounded-lg border border-line"
-                    onError={(e) => { e.target.style.display = 'none'; }}
-                    onLoad={(e) => { e.target.style.display = 'block'; }}
-                  />
-                </div>
-              )}
-            </div>
+            {/* Cover image: upload a JPG, PNG or SVG, or paste a link */}
+            <ImageUploadField
+              label="Cover image (optional)"
+              value={form.coverImage || ''}
+              onChange={(url) => setForm((f) => ({ ...f, coverImage: url }))}
+            />
 
             <Textarea
               label="Content (HTML or plain text)"
@@ -290,7 +277,7 @@ export default function AdminBlog() {
                   maxLength={160}
                 />
 
-                {/* Keywords — chip input */}
+                {/* Keywords: chip input */}
                 <div>
                   <label className="block text-sm font-semibold text-ink-muted mb-1">
                     Keywords
@@ -407,8 +394,23 @@ export default function AdminBlog() {
                         <td className="border-r border-gray-200 px-3 py-3 align-top">
                           {startIdx + i + 1}
                         </td>
-                        <td className="border-r border-gray-200 px-3 py-3 align-top max-w-[340px]">
-                          {post.title}
+                        <td className="border-r border-gray-200 px-3 py-3 align-top max-w-[360px]">
+                          <div className="flex items-start gap-3">
+                            {post.coverImage ? (
+                              <img
+                                src={post.coverImage}
+                                alt=""
+                                loading="lazy"
+                                className="h-10 w-14 shrink-0 rounded border border-gray-200 bg-white object-cover"
+                                onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+                              />
+                            ) : (
+                              <span className="flex h-10 w-14 shrink-0 items-center justify-center rounded border border-dashed border-gray-300 text-[10px] text-gray-400">
+                                No image
+                              </span>
+                            )}
+                            <span className="min-w-0 break-words">{post.title}</span>
+                          </div>
                         </td>
                         <td className="border-r border-gray-200 px-3 py-3 align-top whitespace-nowrap">
                           {fmtDateTime(post.createdAt)}
