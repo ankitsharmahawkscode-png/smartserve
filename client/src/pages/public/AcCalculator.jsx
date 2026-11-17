@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaRulerCombined, FaSnowflake, FaWrench, FaSoap } from 'react-icons/fa';
 import useSeo from '../../hooks/useSeo.js';
 import LinkButton from '../../components/LinkButton.jsx';
 import Input from '../../components/Input.jsx';
@@ -122,10 +121,26 @@ const FAQS = [
 ];
 
 const TIPS = [
-  { icon: FaRulerCombined, title: 'Measure the room, not the flat', text: 'Use the size of the room the AC will cool, and keep its door closed when it runs.' },
-  { icon: FaSnowflake, title: 'Pick a good indoor spot', text: 'Place the indoor unit where air can flow across the room, away from direct sun and furniture.' },
-  { icon: FaWrench, title: 'Get it fitted properly', text: 'Pipe length, drain slope and a firm stand decide how well it cools and whether it leaks.' },
-  { icon: FaSoap, title: 'Service before summer', text: 'Clean filters and coils help the AC cool better and avoid breakdowns in peak heat.' },
+  {
+    icon: '📏',
+    title: 'Measure the room, not the flat',
+    text: 'Use the size of the room the AC will cool, and keep its door closed when it runs.',
+  },
+  {
+    icon: '❄️',
+    title: 'Pick a good indoor spot',
+    text: 'Place the indoor unit where air can flow across the room, away from direct sun and furniture.',
+  },
+  {
+    icon: '🔧',
+    title: 'Get it fitted properly',
+    text: 'Pipe length, drain slope and a firm stand decide how well it cools and whether it leaks.',
+  },
+  {
+    icon: '🧼',
+    title: 'Service before summer',
+    text: 'Clean filters and coils help the AC cool better and avoid breakdowns in peak heat.',
+  },
 ];
 
 const REASONS = [
@@ -428,7 +443,7 @@ export default function AcCalculator() {
               ) : (
                 <div className="p-8 text-center">
                   <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-brand-tint text-2xl text-brand" aria-hidden="true">
-                    <FaSnowflake />
+                   ❄️
                   </div>
                   <p className="font-bold text-[#111]">Enter your room size</p>
                   <p className="mt-1 text-sm text-ink-muted">
@@ -492,20 +507,22 @@ export default function AcCalculator() {
       <section className="mx-auto mt-14 max-w-5xl px-4 sm:px-6" aria-labelledby="ac-tips">
         <h2 id="ac-tips" className="text-2xl font-extrabold sm:text-3xl">Tips for a cooler room</h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          {TIPS.map((t) => {
-            const Icon = t.icon;
-            return (
-              <div key={t.title} className="flex gap-4 rounded-xl border border-line p-5">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-tint text-xl text-brand" aria-hidden="true">
-                  <Icon />
-                </span>
-                <div>
-                  <h3 className="font-bold">{t.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-muted">{t.text}</p>
-                </div>
-              </div>
-            );
-          })}
+          {TIPS.map((t) => (
+  <div key={t.title} className="flex gap-4 rounded-xl border border-line p-5">
+    <span
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-tint text-xl text-brand"
+      aria-hidden="true"
+    >
+      {t.icon}
+    </span>
+    <div>
+      <h3 className="font-bold">{t.title}</h3>
+      <p className="mt-1 text-sm leading-relaxed text-ink-muted">
+        {t.text}
+      </p>
+    </div>
+  </div>
+))}
         </div>
       </section>
 
