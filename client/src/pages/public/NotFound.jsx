@@ -4,21 +4,35 @@ import LinkButton from '../../components/LinkButton.jsx';
 import useSeo from '../../hooks/useSeo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 
+// Import Font Awesome icons
+import { 
+  FaTools, 
+  FaWrench, 
+  FaLightbulb, 
+  FaShower, 
+  FaSnowflake,
+  FaHome,
+  FaNewspaper,
+  FaQuestionCircle,
+  FaBriefcase,
+  FaComments
+} from 'react-icons/fa';
+
 const QUICK_LINKS = [
-  { to: '/services', icon: '🛠️', title: 'Services', text: 'Browse and book a service' },
-  { to: '/blog', icon: '📰', title: 'Blog', text: 'Tips and guides for your home' },
-  { to: '/faq', icon: '❓', title: 'FAQ', text: 'Quick answers to common questions' },
-  { to: '/about', icon: '🏠', title: 'About us', text: 'Who we are and how we work' },
-  { to: '/careers', icon: '💼', title: 'Careers', text: 'Join us as a technician' },
-  { to: '/contact', icon: '💬', title: 'Contact', text: 'Talk to our team' },
+  { to: '/services', icon: <FaTools />, title: 'Services', text: 'Browse and book a service' },
+  { to: '/blog', icon: <FaNewspaper />, title: 'Blog', text: 'Tips and guides for your home' },
+  { to: '/faq', icon: <FaQuestionCircle />, title: 'FAQ', text: 'Quick answers to common questions' },
+  { to: '/about', icon: <FaHome />, title: 'About us', text: 'Who we are and how we work' },
+  { to: '/careers', icon: <FaBriefcase />, title: 'Careers', text: 'Join us as a technician' },
+  { to: '/contact', icon: <FaComments />, title: 'Contact', text: 'Talk to our team' },
 ];
 
 // Small tools that float around the illustration
 const FLOATERS = [
-  { icon: '🔧', cls: 'left-0 top-2 sm:-left-6', delay: '0s' },
-  { icon: '💡', cls: 'right-2 top-0 sm:-right-4', delay: '1.2s' },
-  { icon: '🚿', cls: 'bottom-2 left-2 sm:-left-2', delay: '2.1s' },
-  { icon: '❄️', cls: 'bottom-0 right-0 sm:-right-6', delay: '0.7s' },
+  { icon: <FaWrench />, cls: 'left-0 top-2 sm:-left-6', delay: '0s' },
+  { icon: <FaLightbulb />, cls: 'right-2 top-0 sm:-right-4', delay: '1.2s' },
+  { icon: <FaShower />, cls: 'bottom-2 left-2 sm:-left-2', delay: '2.1s' },
+  { icon: <FaSnowflake />, cls: 'bottom-0 right-0 sm:-right-6', delay: '0.7s' },
 ];
 
 export default function NotFound() {
@@ -60,10 +74,10 @@ export default function NotFound() {
       <section className="relative mx-auto w-full max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-16 lg:py-20">
         {/* Illustration */}
         <div className="relative mx-auto mb-8 inline-flex items-center justify-center px-10 py-6 sm:px-16">
-          {FLOATERS.map((f) => (
+          {FLOATERS.map((f, index) => (
             <span
-              key={f.icon}
-              className={`nf-float absolute text-2xl sm:text-3xl ${f.cls}`}
+              key={index}
+              className={`nf-float absolute flex items-center justify-center text-xl sm:text-2xl text-brand-dark/70 ${f.cls}`}
               style={{ animationDelay: f.delay }}
               aria-hidden="true"
             >
@@ -159,7 +173,7 @@ export default function NotFound() {
                 className="group flex items-center gap-3 rounded-xl border border-line bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <span
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-tint text-xl"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-tint text-xl text-brand-dark group-hover:bg-brand group-hover:text-white transition-colors"
                   aria-hidden="true"
                 >
                   {l.icon}
