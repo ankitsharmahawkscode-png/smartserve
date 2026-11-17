@@ -46,6 +46,11 @@ export default defineConfig({
       }
     })
   ],
+   build: {
+    rollupOptions: {
+      external: ['react-icons/fa'] // Add this line
+    }
+  },
   server: {
     port: 5173,
     // So http://localhost:5173/sitemap.xml and /robots.txt work in development too.
@@ -58,4 +63,6 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react-helmet-async', 'react-icons'],
   },
+
+
 });
