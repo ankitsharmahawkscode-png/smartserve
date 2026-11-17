@@ -45,6 +45,14 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+  rollupOptions: {
+    output: {
+      entryFileNames: 'assets/app-[hash].js',
+      chunkFileNames: 'assets/chunk-[hash].js',
+    },
+  },
+},
   server: {
     port: 5173,
     // So http://localhost:5173/sitemap.xml and /robots.txt work in development too.
