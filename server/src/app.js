@@ -24,6 +24,7 @@ if (nodeEnv !== 'test') app.use(morgan(isProd ? 'combined' : 'dev'));
 app.get('/api/v1/version', (req, res) => res.json({ build: 'media-1' }));
 
 // Public images: cached for a year, so they skip the limiters and the no-store header
+app.get('/api/v1/ping-media', (req, res) => res.json({ ok: true, build: 'media-2', at: new Date().toISOString() }));
 app.use('/api/v1/media', require('./routes/media.routes'));
 
 app.use('/api', noStore, apiLimiter, writeLimiter, rejectOperatorKeys);
