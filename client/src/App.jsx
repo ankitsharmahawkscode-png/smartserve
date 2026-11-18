@@ -114,7 +114,7 @@ export default function App() {
 <Route path="/install" element={<InstallApp />} />
 <Route path="/for-business" element={<ForBusiness />} />
         <Route path="*" element={<NotFound />} />
-        </>
+        
       </Route>
 
       {dash('customer', [
@@ -152,5 +152,6 @@ export default function App() {
         ['staff', <AdminStaff />],
       ], <AdminOverview />)}
     </Routes>
+    </>
   );
 }
