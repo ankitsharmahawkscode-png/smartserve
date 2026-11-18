@@ -1,22 +1,24 @@
-module.exports = (requiredPermission) => {
-  return (req, res, next) => {
-    // 1. Check if user is logged in and is an admin
+const User = require('../models/User');
+
+module.exports = (requiredPermission) => async (req, res, next) => {
+  try {
     if (!req.user || req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, message: "Access Denied. Admin only." });
+      return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
     }
 
-    // 2. Super Admin gets a free pass to everything
-    if (req.user.isSuperAdmin) {
-      return next();
+    // Read the current rights from the database, not from the login token
+    const me = await User.findById(req.user._id).select('isSuperAdmin permissions isActive');
+    if (!me || !me.isActive) {
+      return res.status(403).json({ success: false, message: 'Your account is not active.' });
     }
 
-    // 3. Check if Sub-Admin has the specific permission
-    // Using optional chaining in case permissions array is empty/undefined
-    if (req.user.permissions && req.user.permissions.includes(requiredPermission)) {
-      return next();
-    }
+    if (me.isSuperAdmin || (me.permissions || []).includes(requiredPermission)) return next();
 
-    // 4. Block if no permission
-    return res.status(403).json({ success: false, message: `Access Denied. You don't have permission for ${requiredPermission}.` });
-  };
+    return res.status(403).json({
+      success: false,
+      message: `Access denied. You don't have permission for ${requiredPermission}.`,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
