@@ -62,6 +62,8 @@ import WaterTankCalculator from './pages/public/WaterTankCalculator.jsx';
 import Tools from './pages/public/Tools.jsx';
 import InstallApp from './pages/public/InstallApp.jsx';
 import ForBusiness from './pages/public/ForBusiness.jsx';
+import ScrollToTop from './components/ScrollToTop';
+
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -73,6 +75,8 @@ const dash = (role, pages, home = <DashboardHome />) => (
 
 export default function App() {
   return (
+    <>
+    <ScrollToTop />
     <Routes>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
@@ -110,6 +114,7 @@ export default function App() {
 <Route path="/install" element={<InstallApp />} />
 <Route path="/for-business" element={<ForBusiness />} />
         <Route path="*" element={<NotFound />} />
+        </>
       </Route>
 
       {dash('customer', [
