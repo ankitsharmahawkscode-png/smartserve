@@ -15,15 +15,24 @@ const createCodeIfMissing = (id) =>
 
 // ---- Customer: GET /bookings/:id/tracking ----
 exports.tracking = asyncHandler(async (req, res) => {
-  let b = await Booking.findOne({ _id: req.params.id, customer: req.user._id })
+  const b = await Booking.findOne({ _id: req.params.id, customer: req.user._id })
     .select('+startCode')
     .populate('technician', 'name phone');
   if (!b) throw new ApiError(404, 'Booking not found');
 
+  // Make sure an accepted booking always has a start code
   let code = b.startCode;
   if (b.status === 'ACCEPTED' && !code) {
-    await createCodeIfMissing(b._id);
-    code = (await Booking.findById(b._id).select('+startCode'))?.startCode;
+    code = newCode();
+    b.startCode = code;
+    try {
+      await b.save({ validateBeforeSave: false });
+    } catch (e) {
+      console.error('Could not save start code:', e.message);
+    }
+    // Read it back, so we only show a code that is really stored
+    const stored = await Booking.findById(b._id).select('+startCode');
+    code = stored?.startCode || null;
   }
 
   const showTech = b.technician && ['ACCEPTED', 'IN_PROGRESS', 'COMPLETED'].includes(b.status);
@@ -44,7 +53,7 @@ exports.tracking = asyncHandler(async (req, res) => {
       arrivedAt: b.arrivedAt || null,
       technician: showTech ? { name: b.technician.name, phone: b.technician.phone || '' } : null,
       location: showLoc ? { lat: loc.lat, lng: loc.lng, at: loc.at || null, stale: ageMs > FRESH_MS } : null,
-      startCode: b.status === 'ACCEPTED' ? code || null : null, // hidden once the job starts
+      startCode: b.status === 'ACCEPTED' ? code : null, // hidden once the job starts
     },
   });
 });
