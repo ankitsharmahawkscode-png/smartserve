@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const Booking = require('../models/Booking');
 const User = require('../models/User');
 const ApiError = require('../utils/ApiError');
@@ -41,6 +42,16 @@ exports.getJob = asyncHandler(async (req, res) => {
 exports.respond = asyncHandler(async (req, res) => {
   const job = await findMine(req);
   const booking = await svc.respondToJob(job, req.user, req.body.accept, req.body.reason);
+
+  // When the technician accepts, create the 4-digit code the customer reads out on arrival.
+  // Done with a single atomic update, so it never overwrites a code that already exists.
+  if (req.body.accept) {
+    await Booking.updateOne(
+      { _id: job._id, startCode: { $exists: false } },
+      { $set: { startCode: String(crypto.randomInt(1000, 10000)) } }
+    );
+  }
+
   ok(res, { booking }, req.body.accept ? 'Job accepted' : 'Job rejected');
 });
 
@@ -51,7 +62,11 @@ exports.updateStatus = asyncHandler(async (req, res) => {
 });
 
 exports.setAvailability = asyncHandler(async (req, res) => {
-  const user = await User.findByIdAndUpdate(req.user._id, { $set: { 'technician.isAvailable': req.body.isAvailable } }, { new: true });
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: { 'technician.isAvailable': req.body.isAvailable } },
+    { new: true }
+  );
   ok(res, { user }, 'Availability updated');
 });
 
@@ -65,18 +80,19 @@ exports.startSharing = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Can only share location for active jobs');
   }
 
-  job.liveLocation = { isSharing: true, updatedAt: new Date() };
-  await job.save();
+  // Change only the flag, so the saved latitude and longitude are not erased
+  await Booking.updateOne({ _id: job._id }, { $set: { 'liveLocation.isSharing': true } });
+  const booking = await Booking.findById(job._id);
 
-  ok(res, { booking: job }, 'Location sharing started');
+  ok(res, { booking }, 'Location sharing started');
 });
 
 // POST /api/v1/tech/jobs/:id/location/stop
 exports.stopSharing = asyncHandler(async (req, res) => {
   const job = await findMine(req);
 
-  job.liveLocation = { isSharing: false };
-  await job.save();
+  await Booking.updateOne({ _id: job._id }, { $set: { 'liveLocation.isSharing': false } });
+  const booking = await Booking.findById(job._id);
 
   const io = req.app.get('io');
   if (io) {
@@ -85,8 +101,9 @@ exports.stopSharing = asyncHandler(async (req, res) => {
     });
   }
 
-  ok(res, { booking: job }, 'Location sharing stopped');
+  ok(res, { booking }, 'Location sharing stopped');
 });
+
 // GET /api/v1/tech/jobs/:id/location
 exports.getLocation = asyncHandler(async (req, res) => {
   const job = await findMine(req);
