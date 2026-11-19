@@ -318,7 +318,7 @@ export default function BookingTracker({ booking, onStatusChange }) {
         </div>
       )}
 
-      {(tech || t.startCode) && (
+      {(tech || t.status === 'ACCEPTED') && (
         <div className="grid gap-4 p-5 sm:grid-cols-2">
           {/* Technician */}
           {tech && (
@@ -353,21 +353,27 @@ export default function BookingTracker({ booking, onStatusChange }) {
             </div>
           )}
 
-          {/* Start code */}
-          {t.startCode && (
-            <div className="rounded-xl border-2 border-dashed border-[#d97706] bg-[#fff8eb] p-4 text-center">
-              <p className="text-xs font-bold uppercase tracking-wide text-[#b45309]">Start code</p>
-              <p
-                className="mt-1 font-mono text-4xl font-extrabold tracking-[0.35em] text-[#111]"
-                aria-label={`Start code ${t.startCode.split('').join(' ')}`}
-              >
-                {t.startCode}
-              </p>
-              <p className="mt-2 text-xs leading-relaxed text-gray-600">
-                Tell this code to the technician when they reach you so they can start the job. Do not share it before.
-              </p>
-            </div>
-          )}
+         {/* Start code */}
+{t.status === 'ACCEPTED' && (
+  <div className="rounded-xl border-2 border-dashed border-[#d97706] bg-[#fff8eb] p-4 text-center">
+    <p className="text-xs font-bold uppercase tracking-wide text-[#b45309]">Start code</p>
+    {t.startCode ? (
+      <>
+        <p
+          className="mt-1 font-mono text-4xl font-extrabold tracking-[0.35em] text-[#111]"
+          aria-label={`Start code ${t.startCode.split('').join(' ')}`}
+        >
+          {t.startCode}
+        </p>
+        <p className="mt-2 text-xs leading-relaxed text-gray-600">
+          Tell this code to the technician when they reach you so they can start the job. Do not share it before.
+        </p>
+      </>
+    ) : (
+      <p className="mt-2 text-sm text-gray-600">Your code will appear here in a moment.</p>
+    )}
+  </div>
+)}
         </div>
       )}
     </section>
