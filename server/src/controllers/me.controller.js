@@ -61,3 +61,61 @@ exports.changePassword = asyncHandler(async (req, res) => {
   res.clearCookie('refreshToken', { httpOnly: true, secure: isProd, sameSite: cookieSameSite, path: '/api/v1/auth' });
   ok(res, null, 'Password changed. Please log in again.');
 });
+const bcrypt = require('bcryptjs');
+const User = require('../models/user.model');
+
+exports.changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password and new password are required',
+      });
+    }
+
+    if (
+      newPassword.length < 8 ||
+      newPassword.length > 72 ||
+      !/[A-Za-z]/.test(newPassword) ||
+      !/\d/.test(newPassword)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must contain at least 8 characters, a letter and a number',
+      });
+    }
+
+    const user = await User.findById(req.user.id).select('+password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    const isMatch = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password is incorrect',
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password changed successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
