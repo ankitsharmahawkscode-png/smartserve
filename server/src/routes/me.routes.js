@@ -12,7 +12,14 @@ router.route('/')
   .get(c.get)
   .put(validate(S.profileSchema), c.update);
 
-// Change password
+// Change password (support both API paths)
+router.put(
+  '/password',
+  strictLimiter,
+  validate(S.changePasswordSchema),
+  c.changePassword
+);
+
 router.post(
   '/change-password',
   strictLimiter,
@@ -21,10 +28,16 @@ router.post(
 );
 
 // Addresses
-router.post('/addresses', validate(S.addressSchema), c.addAddress);
+router.post(
+  '/addresses',
+  validate(S.addressSchema),
+  c.addAddress
+);
 
 router.route('/addresses/:addressId')
   .put(validate(S.addressUpdateSchema), c.updateAddress)
   .delete(c.removeAddress);
+
+console.log('ME ROUTES LOADED');
 
 module.exports = router;
