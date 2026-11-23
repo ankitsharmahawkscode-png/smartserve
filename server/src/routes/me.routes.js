@@ -1,43 +1,21 @@
+const User = require('../models/User');
+const asyncHandler = require('../utils/asyncHandler');
+const ApiError = require('../utils/ApiError');
+const { ok } = require('../utils/respond');
 
-const router = require('express').Router();
-const validate = require('../middleware/validate');
-const validId = require('../middleware/validId');
-const { strictLimiter } = require('../middleware/security');
-const S = require('../validators/domain.validators');
-const c = require('../controllers/me.controller');
+exports.changePassword = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select('+passwordHash +refreshTokens');
+  if (!user) throw new ApiError(404, 'User not found');
 
-router.param('addressId', validId);
+  // 400, not 401: a 401 makes the site's login handler sign the person out
+  if (!(await user.verifyPassword(req.body.currentPassword))) {
+    throw new ApiError(400, 'Your current password is wrong');
+  }
 
-router.route('/')
-  .get(c.get)
-  .put(validate(S.profileSchema), c.update);
+  user.passwordHash = await User.hashPassword(req.body.newPassword);
+  user.tokenVersion = (user.tokenVersion || 0) + 1; // signs out other devices
+  user.refreshTokens = [];
+  await user.save();
 
-// Change password (support both API paths)
-router.put(
-  '/password',
-  strictLimiter,
-  validate(S.changePasswordSchema),
-  c.changePassword
-);
-
-router.post(
-  '/change-password',
-  strictLimiter,
-  validate(S.changePasswordSchema),
-  c.changePassword
-);
-
-// Addresses
-router.post(
-  '/addresses',
-  validate(S.addressSchema),
-  c.addAddress
-);
-
-router.route('/addresses/:addressId')
-  .put(validate(S.addressUpdateSchema), c.updateAddress)
-  .delete(c.removeAddress);
-
-console.log('ME ROUTES LOADED');
-
-module.exports = router;
+  ok(res, null, 'Password changed');
+});
