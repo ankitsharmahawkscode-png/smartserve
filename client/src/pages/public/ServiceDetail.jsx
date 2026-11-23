@@ -1,5 +1,16 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCheckCircle,
+  faCalendarCheck,
+  faShieldAlt,
+  faCreditCard,
+  faWrench,
+  faClock,
+  faStar,
+  faQuestionCircle,
+} from '@fortawesome/free-solid-svg-icons';
 import useFetch from '../../hooks/useFetch.js';
 import useSeo from '../../hooks/useSeo.js';
 import Stars from '../../components/Stars.jsx';
@@ -165,10 +176,10 @@ export default function ServiceDetail() {
           : 'Choose how to pay when you book';
 
   const trust = [
-    ['✅', 'Approved technicians', 'Every technician is reviewed by our team.'],
-    ['📅', 'Pick your own slot', 'Choose the date and time that works for you.'],
-    ['🛡️', 'Clear cancellation', cancelText],
-    ['💳', 'Flexible payment', payText],
+    [faCheckCircle, 'Approved technicians', 'Every technician is reviewed by our team.'],
+    [faCalendarCheck, 'Pick your own slot', 'Choose the date and time that works for you.'],
+    [faShieldAlt, 'Clear cancellation', cancelText],
+    [faCreditCard, 'Flexible payment', payText],
   ];
 
   const faqs = [
@@ -234,7 +245,9 @@ export default function ServiceDetail() {
           <div className="min-w-0">
             {/* Hero image */}
             <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-gradient-to-br from-brand-tint to-white ring-1 ring-line">
-              <div className="absolute inset-0 flex items-center justify-center text-7xl opacity-60" aria-hidden="true">🛠️</div>
+              <div className="absolute inset-0 flex items-center justify-center text-7xl text-brand opacity-60" aria-hidden="true">
+                <FontAwesomeIcon icon={faWrench} />
+              </div>
               {service.image && (
                 <img
                   src={service.image}
@@ -271,7 +284,7 @@ export default function ServiceDetail() {
                 )}
                 {service.durationMins ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 font-semibold text-gray-700">
-                    ⏱ About {durationLabel(service.durationMins)}
+                    <FontAwesomeIcon icon={faClock} className="text-gray-500" /> About {durationLabel(service.durationMins)}
                   </span>
                 ) : null}
                 <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 font-semibold text-gray-700">
@@ -308,8 +321,8 @@ export default function ServiceDetail() {
             <section aria-label="What you get" className="mt-8 grid gap-3 sm:grid-cols-2">
               {trust.map(([icon, title, text]) => (
                 <div key={title} className="flex gap-3 rounded-xl border border-line p-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-tint text-lg" aria-hidden="true">
-                    {icon}
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-tint text-lg text-brand-dark" aria-hidden="true">
+                    <FontAwesomeIcon icon={icon} />
                   </span>
                   <div className="min-w-0">
                     <p className="font-bold">{title}</p>
@@ -353,7 +366,9 @@ export default function ServiceDetail() {
 
               {reviewInfo.list.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-line-strong p-8 text-center">
-                  <p className="text-3xl" aria-hidden="true">⭐</p>
+                  <p className="text-3xl text-brand" aria-hidden="true">
+                    <FontAwesomeIcon icon={faStar} />
+                  </p>
                   <p className="mt-2 font-bold">No reviews yet</p>
                   <p className="mt-1 text-sm text-ink-muted">Reviews appear here after customers complete a booking.</p>
                 </div>
@@ -467,11 +482,23 @@ export default function ServiceDetail() {
 
                 <ul className="mt-5 space-y-3 border-t border-line pt-5 text-sm">
                   {service.durationMins ? (
-                    <li className="flex gap-3"><span aria-hidden="true">⏱</span><span>About {durationLabel(service.durationMins)}</span></li>
+                    <li className="flex gap-3">
+                      <FontAwesomeIcon icon={faClock} className="mt-0.5 text-brand" />
+                      <span>About {durationLabel(service.durationMins)}</span>
+                    </li>
                   ) : null}
-                  <li className="flex gap-3"><span aria-hidden="true">🛡️</span><span>{cancelText}</span></li>
-                  <li className="flex gap-3"><span aria-hidden="true">💳</span><span>{payText}</span></li>
-                  <li className="flex gap-3"><span aria-hidden="true">✅</span><span>Approved technicians</span></li>
+                  <li className="flex gap-3">
+                    <FontAwesomeIcon icon={faShieldAlt} className="mt-0.5 text-brand" />
+                    <span>{cancelText}</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <FontAwesomeIcon icon={faCreditCard} className="mt-0.5 text-brand" />
+                    <span>{payText}</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <FontAwesomeIcon icon={faCheckCircle} className="mt-0.5 text-brand" />
+                    <span>Approved technicians</span>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -490,7 +517,9 @@ export default function ServiceDetail() {
                   className="group overflow-hidden rounded-xl border border-line bg-white transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-md"
                 >
                   <div className="relative aspect-[16/10] bg-gradient-to-br from-brand-tint to-white">
-                    <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-60" aria-hidden="true">🛠️</div>
+                    <div className="absolute inset-0 flex items-center justify-center text-4xl text-brand opacity-60" aria-hidden="true">
+                      <FontAwesomeIcon icon={faWrench} />
+                    </div>
                     {x.image && (
                       <img
                         src={x.image}
