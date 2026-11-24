@@ -63,7 +63,7 @@ import Tools from './pages/public/Tools.jsx';
 import InstallApp from './pages/public/InstallApp.jsx';
 import ForBusiness from './pages/public/ForBusiness.jsx';
 import ScrollToTop from './components/ScrollToTop';
-
+import BookingConfirmed from './pages/customer/BookingConfirmed.jsx';
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -123,7 +123,7 @@ export default function App() {
         ['bookings/:id', <BookingDetail />],
         ['payments', <Payments />],
         ['reviews', <Reviews />],
-        ['profile', <Profile />],
+        ['profile', <Profile />],['booked', <BookingConfirmed />],
       ])}
 
       {dash('technician', [
