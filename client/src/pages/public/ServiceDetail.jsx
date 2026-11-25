@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   faCheckCircle,
   faCalendarCheck,
@@ -10,6 +11,16 @@ import {
   faClock,
   faStar,
   faQuestionCircle,
+  faChevronRight,
+  faPlus,
+  faMinus,
+  faCheck,
+  faShareNodes,
+  faLink,
+  faCommentDots,
+  faArrowRight,
+  faThumbsUp,
+  faUserCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import useFetch from '../../hooks/useFetch.js';
 import useSeo from '../../hooks/useSeo.js';
@@ -42,6 +53,39 @@ const STEPS = [
   ['Job done', 'Pay for the job and share your feedback.'],
 ];
 
+/* ---------- Animated icon wrapper ---------- */
+const MotionIcon = ({ icon, className = '', animation = 'pulse', delay = 0 }) => {
+  const variants = {
+    pulse: {
+      scale: [1, 1.15, 1],
+      transition: { duration: 1.6, repeat: Infinity, ease: 'easeInOut', delay },
+    },
+    wiggle: {
+      rotate: [0, -8, 8, -8, 0],
+      transition: { duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay },
+    },
+    float: {
+      y: [0, -3, 0],
+      transition: { duration: 2, repeat: Infinity, ease: 'easeInOut', delay },
+    },
+    spinSlow: {
+      rotate: 360,
+      transition: { duration: 8, repeat: Infinity, ease: 'linear', delay },
+    },
+  };
+
+  return (
+    <motion.span
+      className={`inline-flex items-center justify-center ${className}`}
+      variants={variants}
+      animate={animation}
+      style={{ willChange: 'transform' }}
+    >
+      <FontAwesomeIcon icon={icon} />
+    </motion.span>
+  );
+};
+
 function Price({ service, big = false }) {
   const fixed = service.pricingType === 'fixed';
   return (
@@ -68,12 +112,15 @@ function BookButton({ service, className = '' }) {
     );
   }
   return (
-    <Link
-      to={`/customer/book/${service._id}`}
-      className={`flex min-h-[48px] items-center justify-center rounded-xl bg-brand px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-dark ${className}`}
-    >
-      Book now
-    </Link>
+    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className={className}>
+      <Link
+        to={`/customer/book/${service._id}`}
+        className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-brand px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-dark"
+      >
+        <FontAwesomeIcon icon={faCalendarCheck} />
+        Book now
+      </Link>
+    </motion.div>
   );
 }
 
@@ -89,7 +136,6 @@ export default function ServiceDetail() {
   const service = svc.data?.service;
   const settings = cfg.data?.settings;
 
-  // Reviews: works whether the API returns { items }, { reviews } or a plain list
   const reviewInfo = useMemo(() => {
     const d = rev.data?.data ?? rev.data ?? {};
     const list = Array.isArray(d.items) ? d.items : Array.isArray(d.reviews) ? d.reviews : Array.isArray(d) ? d : [];
@@ -158,7 +204,6 @@ export default function ServiceDetail() {
     );
   }
 
-  // ----- facts that come from your own settings -----
   const free = settings?.cancellation?.freeHoursBefore;
   const fee = settings?.cancellation?.feePercent;
   const cancelText =
@@ -176,7 +221,7 @@ export default function ServiceDetail() {
           : 'Choose how to pay when you book';
 
   const trust = [
-    [faCheckCircle, 'Approved technicians', 'Every technician is reviewed by our team.'],
+    [faUserCheck, 'Approved technicians', 'Every technician is reviewed by our team.'],
     [faCalendarCheck, 'Pick your own slot', 'Choose the date and time that works for you.'],
     [faShieldAlt, 'Clear cancellation', cancelText],
     [faCreditCard, 'Flexible payment', payText],
@@ -227,15 +272,21 @@ export default function ServiceDetail() {
         <nav aria-label="Breadcrumb" className="py-4 text-sm text-ink-muted">
           <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <li><Link to="/" className="hover:text-brand-dark hover:underline">Home</Link></li>
-            <li aria-hidden="true">›</li>
+            <li aria-hidden="true">
+              <FontAwesomeIcon icon={faChevronRight} className="text-[10px]" />
+            </li>
             <li><Link to="/services" className="hover:text-brand-dark hover:underline">Services</Link></li>
             {service.category?.name && (
               <>
-                <li aria-hidden="true">›</li>
+                <li aria-hidden="true">
+                  <FontAwesomeIcon icon={faChevronRight} className="text-[10px]" />
+                </li>
                 <li><Link to={categoryLink} className="hover:text-brand-dark hover:underline">{service.category.name}</Link></li>
               </>
             )}
-            <li aria-hidden="true">›</li>
+            <li aria-hidden="true">
+              <FontAwesomeIcon icon={faChevronRight} className="text-[10px]" />
+            </li>
             <li aria-current="page" className="font-semibold text-[#111]">{service.name}</li>
           </ol>
         </nav>
@@ -246,7 +297,7 @@ export default function ServiceDetail() {
             {/* Hero image */}
             <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-gradient-to-br from-brand-tint to-white ring-1 ring-line">
               <div className="absolute inset-0 flex items-center justify-center text-7xl text-brand opacity-60" aria-hidden="true">
-                <FontAwesomeIcon icon={faWrench} />
+                <MotionIcon icon={faWrench} animation="wiggle" />
               </div>
               {service.image && (
                 <img
@@ -258,9 +309,14 @@ export default function ServiceDetail() {
               )}
               <div className="absolute left-3 top-3 flex flex-wrap gap-2">
                 {service.category?.name && (
-                  <span className="rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-brand-dark shadow-sm">
+                  <motion.span
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-brand-dark shadow-sm"
+                  >
                     {service.category.name}
-                  </span>
+                  </motion.span>
                 )}
                 {!service.isAvailable && (
                   <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
@@ -292,43 +348,56 @@ export default function ServiceDetail() {
                 </span>
               </div>
 
-              {/* Mobile price and button (desktop uses the side card) */}
+              {/* Mobile price and button */}
               <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-line bg-gray-50 p-4 lg:hidden">
                 <Price service={service} />
                 <BookButton service={service} className="shrink-0" />
               </div>
 
               <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-                <a
+                <motion.a
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
                   href={`https://wa.me/?text=${encodeURIComponent(`${service.name}: ${pageUrl}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold text-brand underline underline-offset-4 hover:text-brand-dark"
+                  className="inline-flex items-center gap-1.5 font-semibold text-brand underline underline-offset-4 hover:text-brand-dark"
                 >
+                  <FontAwesomeIcon icon={faShareNodes} />
                   Share on WhatsApp
-                </a>
-                <button
+                </motion.a>
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
                   type="button"
                   onClick={copyLink}
-                  className="font-semibold text-brand underline underline-offset-4 hover:text-brand-dark"
+                  className="inline-flex items-center gap-1.5 font-semibold text-brand underline underline-offset-4 hover:text-brand-dark"
                 >
-                  {copied ? 'Link copied ✓' : 'Copy link'}
-                </button>
+                  <FontAwesomeIcon icon={copied ? faCheck : faLink} />
+                  {copied ? 'Link copied' : 'Copy link'}
+                </motion.button>
               </div>
             </header>
 
             {/* Trust points */}
             <section aria-label="What you get" className="mt-8 grid gap-3 sm:grid-cols-2">
-              {trust.map(([icon, title, text]) => (
-                <div key={title} className="flex gap-3 rounded-xl border border-line p-4">
+              {trust.map(([icon, title, text], i) => (
+                <motion.div
+                  key={title}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.35, delay: i * 0.07 }}
+                  className="flex gap-3 rounded-xl border border-line p-4"
+                >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-tint text-lg text-brand-dark" aria-hidden="true">
-                    <FontAwesomeIcon icon={icon} />
+                    <MotionIcon icon={icon} animation="float" delay={i * 0.15} />
                   </span>
                   <div className="min-w-0">
                     <p className="font-bold">{title}</p>
                     <p className="mt-0.5 text-sm leading-relaxed text-ink-muted">{text}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </section>
 
@@ -349,13 +418,20 @@ export default function ServiceDetail() {
               <h2 id="how-it-works" className="mb-4 text-xl font-extrabold sm:text-2xl">How it works</h2>
               <ol className="grid gap-3 sm:grid-cols-3">
                 {STEPS.map(([title, text], i) => (
-                  <li key={title} className="rounded-xl bg-gray-50 p-4">
+                  <motion.li
+                    key={title}
+                    initial={{ opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.35, delay: i * 0.1 }}
+                    className="rounded-xl bg-gray-50 p-4"
+                  >
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-dark text-sm font-bold text-white">
                       {i + 1}
                     </span>
                     <p className="mt-3 font-bold">{title}</p>
                     <p className="mt-1 text-sm leading-relaxed text-ink-muted">{text}</p>
-                  </li>
+                  </motion.li>
                 ))}
               </ol>
             </section>
@@ -367,7 +443,7 @@ export default function ServiceDetail() {
               {reviewInfo.list.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-line-strong p-8 text-center">
                   <p className="text-3xl text-brand" aria-hidden="true">
-                    <FontAwesomeIcon icon={faStar} />
+                    <MotionIcon icon={faStar} animation="pulse" />
                   </p>
                   <p className="mt-2 font-bold">No reviews yet</p>
                   <p className="mt-1 text-sm text-ink-muted">Reviews appear here after customers complete a booking.</p>
@@ -387,9 +463,18 @@ export default function ServiceDetail() {
                         const pct = reviewInfo.rated ? Math.round((row.c / reviewInfo.rated) * 100) : 0;
                         return (
                           <li key={row.n} className="flex items-center gap-3 text-sm">
-                            <span className="w-8 shrink-0 font-semibold">{row.n} ★</span>
+                            <span className="flex w-8 shrink-0 items-center gap-1 font-semibold">
+                              {row.n}
+                              <FontAwesomeIcon icon={faStar} className="text-xs text-[#d97706]" />
+                            </span>
                             <span className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
-                              <span className="block h-full rounded-full bg-[#d97706]" style={{ width: `${pct}%` }} />
+                              <motion.span
+                                className="block h-full rounded-full bg-[#d97706]"
+                                initial={{ width: 0 }}
+                                whileInView={{ width: `${pct}%` }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.8, ease: 'easeOut' }}
+                              />
                             </span>
                             <span className="w-8 shrink-0 text-right text-ink-muted">{row.c}</span>
                           </li>
@@ -399,43 +484,56 @@ export default function ServiceDetail() {
                   </div>
 
                   <ul className="mt-5 flex flex-col gap-3">
-                    {shownReviews.map((r, i) => {
-                      const full = r.customer?.name || r.customerName || r.user?.name || 'Customer';
-                      const parts = String(full).trim().split(/\s+/);
-                      const short = parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1][0]}.` : parts[0];
-                      return (
-                        <li key={r._id || i} className="rounded-xl border border-line p-4">
-                          <div className="flex items-start gap-3">
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0B1F3A] text-sm font-bold text-white" aria-hidden="true">
-                              {parts[0][0]?.toUpperCase()}
-                            </span>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                                <p className="font-bold">{short}</p>
-                                <p className="text-xs text-ink-muted">{prettyPostDate(r.createdAt)}</p>
+                    <AnimatePresence>
+                      {shownReviews.map((r, i) => {
+                        const full = r.customer?.name || r.customerName || r.user?.name || 'Customer';
+                        const parts = String(full).trim().split(/\s+/);
+                        const short = parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1][0]}.` : parts[0];
+                        return (
+                          <motion.li
+                            key={r._id || i}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                            transition={{ duration: 0.25, delay: i * 0.05 }}
+                            className="rounded-xl border border-line p-4"
+                          >
+                            <div className="flex items-start gap-3">
+                              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0B1F3A] text-sm font-bold text-white" aria-hidden="true">
+                                {parts[0][0]?.toUpperCase()}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                                  <p className="font-bold">{short}</p>
+                                  <p className="text-xs text-ink-muted">{prettyPostDate(r.createdAt)}</p>
+                                </div>
+                                <div className="mt-1 flex flex-wrap items-center gap-2">
+                                  <Stars value={r.rating} />
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700">
+                                    <FontAwesomeIcon icon={faCheckCircle} className="text-[10px]" />
+                                    Verified booking
+                                  </span>
+                                </div>
+                                {r.comment && <p className="mt-2 break-words text-sm leading-relaxed text-gray-700">{r.comment}</p>}
                               </div>
-                              <div className="mt-1 flex flex-wrap items-center gap-2">
-                                <Stars value={r.rating} />
-                                <span className="rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700">
-                                  Verified booking
-                                </span>
-                              </div>
-                              {r.comment && <p className="mt-2 break-words text-sm leading-relaxed text-gray-700">{r.comment}</p>}
                             </div>
-                          </div>
-                        </li>
-                      );
-                    })}
+                          </motion.li>
+                        );
+                      })}
+                    </AnimatePresence>
                   </ul>
 
                   {reviewInfo.list.length > 4 && (
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
                       type="button"
                       onClick={() => setShowAll((s) => !s)}
-                      className="mt-4 rounded-full border border-line-strong px-5 py-2 text-sm font-bold hover:bg-gray-50"
+                      className="mt-4 inline-flex items-center gap-2 rounded-full border border-line-strong px-5 py-2 text-sm font-bold hover:bg-gray-50"
                     >
+                      <FontAwesomeIcon icon={showAll ? faMinus : faPlus} className="text-xs" />
                       {showAll ? 'Show fewer reviews' : `Show all ${reviewInfo.list.length} reviews`}
-                    </button>
+                    </motion.button>
                   )}
                 </>
               )}
@@ -449,15 +547,18 @@ export default function ServiceDetail() {
                   <details key={f.q} className="group px-5 py-4">
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold [&::-webkit-details-marker]:hidden">
                       {f.q}
-                      <span className="text-xl text-brand transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+                      <span className="text-brand transition-transform group-open:rotate-45" aria-hidden="true">
+                        <FontAwesomeIcon icon={faPlus} />
+                      </span>
                     </summary>
                     <p className="mt-3 pr-6 leading-relaxed text-ink-muted">{f.a}</p>
                   </details>
                 ))}
               </div>
               <p className="mt-3 text-sm">
-                <Link to="/faq" className="font-semibold text-brand underline underline-offset-4">
-                  More questions about booking and payments →
+                <Link to="/faq" className="inline-flex items-center gap-1 font-semibold text-brand underline underline-offset-4">
+                  More questions about booking and payments
+                  <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
                 </Link>
               </p>
             </section>
@@ -465,7 +566,12 @@ export default function ServiceDetail() {
 
           {/* ================= RIGHT: booking card (desktop) ================= */}
           <aside className="hidden lg:sticky lg:top-24 lg:block" aria-label="Book this service">
-            <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-lg">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="overflow-hidden rounded-2xl border border-line bg-white shadow-lg"
+            >
               <div className="bg-brand-dark px-6 py-3 text-xs font-bold uppercase tracking-widest text-white/80">
                 Book this service
               </div>
@@ -473,12 +579,15 @@ export default function ServiceDetail() {
                 <Price service={service} big />
 
                 <BookButton service={service} className="mt-5 w-full" />
-                <Link
-                  to="/contact"
-                  className="mt-3 flex min-h-[44px] items-center justify-center rounded-xl border border-line-strong text-sm font-bold hover:bg-gray-50"
-                >
-                  Ask a question
-                </Link>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="mt-3">
+                  <Link
+                    to="/contact"
+                    className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-line-strong text-sm font-bold hover:bg-gray-50"
+                  >
+                    <FontAwesomeIcon icon={faCommentDots} />
+                    Ask a question
+                  </Link>
+                </motion.div>
 
                 <ul className="mt-5 space-y-3 border-t border-line pt-5 text-sm">
                   {service.durationMins ? (
@@ -496,12 +605,12 @@ export default function ServiceDetail() {
                     <span>{payText}</span>
                   </li>
                   <li className="flex gap-3">
-                    <FontAwesomeIcon icon={faCheckCircle} className="mt-0.5 text-brand" />
+                    <FontAwesomeIcon icon={faUserCheck} className="mt-0.5 text-brand" />
                     <span>Approved technicians</span>
                   </li>
                 </ul>
               </div>
-            </div>
+            </motion.div>
           </aside>
         </div>
 
@@ -510,34 +619,41 @@ export default function ServiceDetail() {
           <section className="mt-14" aria-labelledby="related-title">
             <h2 id="related-title" className="mb-4 text-xl font-extrabold sm:text-2xl">You may also need</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {related.map((x) => (
-                <Link
+              {related.map((x, i) => (
+                <motion.div
                   key={x._id}
-                  to={`/services/${x._id}`}
-                  className="group overflow-hidden rounded-xl border border-line bg-white transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-md"
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.35, delay: i * 0.07 }}
                 >
-                  <div className="relative aspect-[16/10] bg-gradient-to-br from-brand-tint to-white">
-                    <div className="absolute inset-0 flex items-center justify-center text-4xl text-brand opacity-60" aria-hidden="true">
-                      <FontAwesomeIcon icon={faWrench} />
+                  <Link
+                    to={`/services/${x._id}`}
+                    className="group block overflow-hidden rounded-xl border border-line bg-white transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-md"
+                  >
+                    <div className="relative aspect-[16/10] bg-gradient-to-br from-brand-tint to-white">
+                      <div className="absolute inset-0 flex items-center justify-center text-4xl text-brand opacity-60" aria-hidden="true">
+                        <FontAwesomeIcon icon={faWrench} />
+                      </div>
+                      {x.image && (
+                        <img
+                          src={x.image}
+                          alt=""
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      )}
                     </div>
-                    {x.image && (
-                      <img
-                        src={x.image}
-                        alt=""
-                        loading="lazy"
-                        className="absolute inset-0 h-full w-full object-cover"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                      />
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <p className="font-bold group-hover:text-brand-dark">{x.name}</p>
-                    <p className="mt-1 text-sm text-ink-muted">
-                      {x.pricingType === 'fixed' ? '' : 'From '}
-                      <span className="font-bold text-brand-dark">{inr(x.basePrice)}</span>
-                    </p>
-                  </div>
-                </Link>
+                    <div className="p-4">
+                      <p className="font-bold group-hover:text-brand-dark">{x.name}</p>
+                      <p className="mt-1 text-sm text-ink-muted">
+                        {x.pricingType === 'fixed' ? '' : 'From '}
+                        <span className="font-bold text-brand-dark">{inr(x.basePrice)}</span>
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </section>
@@ -545,19 +661,28 @@ export default function ServiceDetail() {
 
         {/* Closing call to action */}
         <section className="mt-14">
-          <div className="rounded-2xl bg-brand-dark px-6 py-10 text-center text-white sm:px-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+            className="rounded-2xl bg-brand-dark px-6 py-10 text-center text-white sm:px-10"
+          >
             <h2 className="text-2xl font-extrabold sm:text-3xl">Ready to book {service.name}?</h2>
             <p className="mx-auto mt-3 max-w-xl text-white/80">
               Pick a time slot that suits you. We will confirm your booking and send an approved technician.
             </p>
             <div className="mx-auto mt-6 flex max-w-sm flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center">
               {service.isAvailable ? (
-                <Link
-                  to={`/customer/book/${service._id}`}
-                  className="flex min-h-[48px] items-center justify-center rounded-xl bg-white px-8 text-sm font-bold text-brand-dark transition hover:bg-gray-200"
-                >
-                  Book now
-                </Link>
+                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                  <Link
+                    to={`/customer/book/${service._id}`}
+                    className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-white px-8 text-sm font-bold text-brand-dark transition hover:bg-gray-200"
+                  >
+                    <FontAwesomeIcon icon={faCalendarCheck} />
+                    Book now
+                  </Link>
+                </motion.div>
               ) : (
                 <Link
                   to="/services"
@@ -566,14 +691,17 @@ export default function ServiceDetail() {
                   See other services
                 </Link>
               )}
-              <Link
-                to="/contact"
-                className="flex min-h-[48px] items-center justify-center rounded-xl border border-white/40 px-8 text-sm font-bold text-white transition hover:bg-white/10"
-              >
-                Contact us
-              </Link>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                <Link
+                  to="/contact"
+                  className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-white/40 px-8 text-sm font-bold text-white transition hover:bg-white/10"
+                >
+                  <FontAwesomeIcon icon={faCommentDots} />
+                  Contact us
+                </Link>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </section>
       </div>
     </main>
