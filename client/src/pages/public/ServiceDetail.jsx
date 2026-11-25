@@ -1,27 +1,27 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  faCheckCircle,
-  faCalendarCheck,
-  faShieldAlt,
-  faCreditCard,
-  faWrench,
-  faClock,
-  faStar,
-  faQuestionCircle,
-  faChevronRight,
-  faPlus,
-  faMinus,
-  faCheck,
-  faShareNodes,
-  faLink,
-  faCommentDots,
-  faArrowRight,
-  faThumbsUp,
-  faUserCheck,
-} from '@fortawesome/free-solid-svg-icons';
+
+// REPLACED @fortawesome WITH react-icons
+import { 
+  FaCheckCircle, 
+  FaCalendarCheck, 
+  FaShieldAlt, 
+  FaCreditCard, 
+  FaWrench, 
+  FaClock, 
+  FaStar, 
+  FaChevronRight, 
+  FaPlus, 
+  FaMinus, 
+  FaCheck, 
+  FaLink, 
+  FaCommentDots, 
+  FaArrowRight, 
+  FaUserCheck 
+} from 'react-icons/fa';
+import { FaShareNodes } from 'react-icons/fa6';
+
 import useFetch from '../../hooks/useFetch.js';
 import useSeo from '../../hooks/useSeo.js';
 import Stars from '../../components/Stars.jsx';
@@ -54,7 +54,7 @@ const STEPS = [
 ];
 
 /* ---------- Animated icon wrapper ---------- */
-const MotionIcon = ({ icon, className = '', animation = 'pulse', delay = 0 }) => {
+const MotionIcon = ({ icon: Icon, className = '', animation = 'pulse', delay = 0 }) => {
   const variants = {
     pulse: {
       scale: [1, 1.15, 1],
@@ -81,7 +81,7 @@ const MotionIcon = ({ icon, className = '', animation = 'pulse', delay = 0 }) =>
       animate={animation}
       style={{ willChange: 'transform' }}
     >
-      <FontAwesomeIcon icon={icon} />
+      <Icon />
     </motion.span>
   );
 };
@@ -117,7 +117,7 @@ function BookButton({ service, className = '' }) {
         to={`/customer/book/${service._id}`}
         className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-brand px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-dark"
       >
-        <FontAwesomeIcon icon={faCalendarCheck} />
+        <FaCalendarCheck />
         Book now
       </Link>
     </motion.div>
@@ -221,10 +221,10 @@ export default function ServiceDetail() {
           : 'Choose how to pay when you book';
 
   const trust = [
-    [faUserCheck, 'Approved technicians', 'Every technician is reviewed by our team.'],
-    [faCalendarCheck, 'Pick your own slot', 'Choose the date and time that works for you.'],
-    [faShieldAlt, 'Clear cancellation', cancelText],
-    [faCreditCard, 'Flexible payment', payText],
+    [FaUserCheck, 'Approved technicians', 'Every technician is reviewed by our team.'],
+    [FaCalendarCheck, 'Pick your own slot', 'Choose the date and time that works for you.'],
+    [FaShieldAlt, 'Clear cancellation', cancelText],
+    [FaCreditCard, 'Flexible payment', payText],
   ];
 
   const faqs = [
@@ -273,19 +273,19 @@ export default function ServiceDetail() {
           <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <li><Link to="/" className="hover:text-brand-dark hover:underline">Home</Link></li>
             <li aria-hidden="true">
-              <FontAwesomeIcon icon={faChevronRight} className="text-[10px]" />
+              <FaChevronRight className="text-[10px]" />
             </li>
             <li><Link to="/services" className="hover:text-brand-dark hover:underline">Services</Link></li>
             {service.category?.name && (
               <>
                 <li aria-hidden="true">
-                  <FontAwesomeIcon icon={faChevronRight} className="text-[10px]" />
+                  <FaChevronRight className="text-[10px]" />
                 </li>
                 <li><Link to={categoryLink} className="hover:text-brand-dark hover:underline">{service.category.name}</Link></li>
               </>
             )}
             <li aria-hidden="true">
-              <FontAwesomeIcon icon={faChevronRight} className="text-[10px]" />
+              <FaChevronRight className="text-[10px]" />
             </li>
             <li aria-current="page" className="font-semibold text-[#111]">{service.name}</li>
           </ol>
@@ -297,7 +297,7 @@ export default function ServiceDetail() {
             {/* Hero image */}
             <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-gradient-to-br from-brand-tint to-white ring-1 ring-line">
               <div className="absolute inset-0 flex items-center justify-center text-7xl text-brand opacity-60" aria-hidden="true">
-                <MotionIcon icon={faWrench} animation="wiggle" />
+                <MotionIcon icon={FaWrench} animation="wiggle" />
               </div>
               {service.image && (
                 <img
@@ -340,7 +340,7 @@ export default function ServiceDetail() {
                 )}
                 {service.durationMins ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 font-semibold text-gray-700">
-                    <FontAwesomeIcon icon={faClock} className="text-gray-500" /> About {durationLabel(service.durationMins)}
+                    <FaClock className="text-gray-500" /> About {durationLabel(service.durationMins)}
                   </span>
                 ) : null}
                 <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 font-semibold text-gray-700">
@@ -363,7 +363,7 @@ export default function ServiceDetail() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 font-semibold text-brand underline underline-offset-4 hover:text-brand-dark"
                 >
-                  <FontAwesomeIcon icon={faShareNodes} />
+                  <FaShareNodes />
                   Share on WhatsApp
                 </motion.a>
                 <motion.button
@@ -373,7 +373,7 @@ export default function ServiceDetail() {
                   onClick={copyLink}
                   className="inline-flex items-center gap-1.5 font-semibold text-brand underline underline-offset-4 hover:text-brand-dark"
                 >
-                  <FontAwesomeIcon icon={copied ? faCheck : faLink} />
+                  {copied ? <FaCheck /> : <FaLink />}
                   {copied ? 'Link copied' : 'Copy link'}
                 </motion.button>
               </div>
@@ -443,7 +443,7 @@ export default function ServiceDetail() {
               {reviewInfo.list.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-line-strong p-8 text-center">
                   <p className="text-3xl text-brand" aria-hidden="true">
-                    <MotionIcon icon={faStar} animation="pulse" />
+                    <MotionIcon icon={FaStar} animation="pulse" />
                   </p>
                   <p className="mt-2 font-bold">No reviews yet</p>
                   <p className="mt-1 text-sm text-ink-muted">Reviews appear here after customers complete a booking.</p>
@@ -465,7 +465,7 @@ export default function ServiceDetail() {
                           <li key={row.n} className="flex items-center gap-3 text-sm">
                             <span className="flex w-8 shrink-0 items-center gap-1 font-semibold">
                               {row.n}
-                              <FontAwesomeIcon icon={faStar} className="text-xs text-[#d97706]" />
+                              <FaStar className="text-xs text-[#d97706]" />
                             </span>
                             <span className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
                               <motion.span
@@ -510,7 +510,7 @@ export default function ServiceDetail() {
                                 <div className="mt-1 flex flex-wrap items-center gap-2">
                                   <Stars value={r.rating} />
                                   <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-semibold text-green-700">
-                                    <FontAwesomeIcon icon={faCheckCircle} className="text-[10px]" />
+                                    <FaCheckCircle className="text-[10px]" />
                                     Verified booking
                                   </span>
                                 </div>
@@ -531,7 +531,7 @@ export default function ServiceDetail() {
                       onClick={() => setShowAll((s) => !s)}
                       className="mt-4 inline-flex items-center gap-2 rounded-full border border-line-strong px-5 py-2 text-sm font-bold hover:bg-gray-50"
                     >
-                      <FontAwesomeIcon icon={showAll ? faMinus : faPlus} className="text-xs" />
+                      {showAll ? <FaMinus className="text-xs" /> : <FaPlus className="text-xs" />}
                       {showAll ? 'Show fewer reviews' : `Show all ${reviewInfo.list.length} reviews`}
                     </motion.button>
                   )}
@@ -548,7 +548,7 @@ export default function ServiceDetail() {
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold [&::-webkit-details-marker]:hidden">
                       {f.q}
                       <span className="text-brand transition-transform group-open:rotate-45" aria-hidden="true">
-                        <FontAwesomeIcon icon={faPlus} />
+                        <FaPlus />
                       </span>
                     </summary>
                     <p className="mt-3 pr-6 leading-relaxed text-ink-muted">{f.a}</p>
@@ -558,7 +558,7 @@ export default function ServiceDetail() {
               <p className="mt-3 text-sm">
                 <Link to="/faq" className="inline-flex items-center gap-1 font-semibold text-brand underline underline-offset-4">
                   More questions about booking and payments
-                  <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
+                  <FaArrowRight className="text-xs" />
                 </Link>
               </p>
             </section>
@@ -584,7 +584,7 @@ export default function ServiceDetail() {
                     to="/contact"
                     className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-line-strong text-sm font-bold hover:bg-gray-50"
                   >
-                    <FontAwesomeIcon icon={faCommentDots} />
+                    <FaCommentDots />
                     Ask a question
                   </Link>
                 </motion.div>
@@ -592,20 +592,20 @@ export default function ServiceDetail() {
                 <ul className="mt-5 space-y-3 border-t border-line pt-5 text-sm">
                   {service.durationMins ? (
                     <li className="flex gap-3">
-                      <FontAwesomeIcon icon={faClock} className="mt-0.5 text-brand" />
+                      <FaClock className="mt-0.5 text-brand" />
                       <span>About {durationLabel(service.durationMins)}</span>
                     </li>
                   ) : null}
                   <li className="flex gap-3">
-                    <FontAwesomeIcon icon={faShieldAlt} className="mt-0.5 text-brand" />
+                    <FaShieldAlt className="mt-0.5 text-brand" />
                     <span>{cancelText}</span>
                   </li>
                   <li className="flex gap-3">
-                    <FontAwesomeIcon icon={faCreditCard} className="mt-0.5 text-brand" />
+                    <FaCreditCard className="mt-0.5 text-brand" />
                     <span>{payText}</span>
                   </li>
                   <li className="flex gap-3">
-                    <FontAwesomeIcon icon={faUserCheck} className="mt-0.5 text-brand" />
+                    <FaUserCheck className="mt-0.5 text-brand" />
                     <span>Approved technicians</span>
                   </li>
                 </ul>
@@ -633,7 +633,7 @@ export default function ServiceDetail() {
                   >
                     <div className="relative aspect-[16/10] bg-gradient-to-br from-brand-tint to-white">
                       <div className="absolute inset-0 flex items-center justify-center text-4xl text-brand opacity-60" aria-hidden="true">
-                        <FontAwesomeIcon icon={faWrench} />
+                        <FaWrench />
                       </div>
                       {x.image && (
                         <img
@@ -679,7 +679,7 @@ export default function ServiceDetail() {
                     to={`/customer/book/${service._id}`}
                     className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-white px-8 text-sm font-bold text-brand-dark transition hover:bg-gray-200"
                   >
-                    <FontAwesomeIcon icon={faCalendarCheck} />
+                    <FaCalendarCheck />
                     Book now
                   </Link>
                 </motion.div>
@@ -696,7 +696,7 @@ export default function ServiceDetail() {
                   to="/contact"
                   className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-white/40 px-8 text-sm font-bold text-white transition hover:bg-white/10"
                 >
-                  <FontAwesomeIcon icon={faCommentDots} />
+                  <FaCommentDots />
                   Contact us
                 </Link>
               </motion.div>
