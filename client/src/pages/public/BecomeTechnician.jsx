@@ -34,7 +34,8 @@ export default function BecomeTechnician() {
   const [done, setDone] = useState(null); // holds the applicant's name after success
 
   useSeo({
-    title: 'Become a Technician | Join SmartServe',
+    // UPDATED: Added "India" for better local SEO
+    title: 'Become a Technician in India | Join SmartServe',
     description: 'Join SmartServe as a professional technician. Get more jobs, flexible hours and grow your career. Apply today!',
     path: '/become-a-technician',
   });
@@ -101,7 +102,7 @@ export default function BecomeTechnician() {
   };
 
   return (
-    <main className="w-full bg-white">
+    <main className="w-full bg-white relative">
       {/* Hero */}
       <section className="bg-brand-dark text-white py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
@@ -153,7 +154,7 @@ export default function BecomeTechnician() {
 
       {/* Form or success */}
       <section id="apply" className="scroll-mt-20 px-4 pb-14 sm:px-6 lg:px-8 max-w-3xl mx-auto">
-        <div className="bg-white p-6 sm:p-10 rounded-2xl shadow-lg border border-line">
+        <div className="bg-white p-6 sm:p-10 rounded-2xl shadow-lg border border-line relative">
           {done ? (
             <div className="text-center" role="status">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl text-green-700" aria-hidden="true">
