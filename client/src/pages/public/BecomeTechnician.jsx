@@ -8,11 +8,11 @@ import { Textarea } from '../../components/Fields.jsx';
 
 const SKILL_OPTIONS = ['AC Repair', 'Plumbing', 'Electrical', 'Appliance Repair', 'Carpentry', 'Home Cleaning', 'Pest Control', 'Painting'];
 
-// Make sure every claim below is true for your business before you publish
+// UPDATED: Replaced emojis with Font Awesome class names
 const BENEFITS = [
-  { icon: '💼', title: 'More Jobs', text: 'Get access to a constant stream of service requests in your city.' },
-  { icon: '💰', title: 'Weekly Payouts', text: 'Transparent and timely payments directly to your bank account.' },
-  { icon: '📚', title: 'Free Training', text: 'Upgrade your skills with our free training and certification programs.' },
+  { icon: 'fa-solid fa-briefcase', title: 'More Jobs', text: 'Get access to a constant stream of service requests in your city.' },
+  { icon: 'fa-solid fa-indian-rupee-sign', title: 'Weekly Payouts', text: 'Transparent and timely payments directly to your bank account.' },
+  { icon: 'fa-solid fa-book-open', title: 'Free Training', text: 'Upgrade your skills with our free training and certification programs.' },
 ];
 
 const STEPS = [
@@ -31,10 +31,9 @@ export default function BecomeTechnician() {
   const [errs, setErrs] = useState({});
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(null); // holds the applicant's name after success
+  const [done, setDone] = useState(null);
 
   useSeo({
-    // UPDATED: Added "India" for better local SEO
     title: 'Become a Technician in India | Join SmartServe',
     description: 'Join SmartServe as a professional technician. Get more jobs, flexible hours and grow your career. Apply today!',
     path: '/become-a-technician',
@@ -87,7 +86,7 @@ export default function BecomeTechnician() {
         experienceYears: Number(form.experienceYears),
         skills: form.skills,
         ...(form.message.trim() && { message: form.message.trim() }),
-        website: form.website, // hidden spam trap, stays empty for real people
+        website: form.website, // hidden spam trap
       });
       setDone(form.name.trim().split(/\s+/)[0]);
       setForm(EMPTY);
@@ -126,8 +125,9 @@ export default function BecomeTechnician() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           {BENEFITS.map((b) => (
             <div key={b.title} className="bg-white p-6 rounded-xl shadow-sm border border-line text-center">
+              {/* UPDATED: Replaced text emoji with Font Awesome <i> tag */}
               <div className="w-12 h-12 mx-auto bg-brand-tint text-brand-dark rounded-full flex items-center justify-center mb-4 text-xl" aria-hidden="true">
-                {b.icon}
+                <i className={b.icon}></i>
               </div>
               <h3 className="font-bold mb-2">{b.title}</h3>
               <p className="text-sm text-ink-muted">{b.text}</p>
@@ -158,7 +158,7 @@ export default function BecomeTechnician() {
           {done ? (
             <div className="text-center" role="status">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl text-green-700" aria-hidden="true">
-                ✓
+                <i className="fa-solid fa-check"></i>
               </div>
               <h2 className="text-2xl font-extrabold">Thank you, {done}!</h2>
               <p className="mx-auto mt-3 max-w-md leading-relaxed text-ink-muted">
@@ -224,7 +224,8 @@ export default function BecomeTechnician() {
                             on ? 'bg-brand text-white border-brand' : 'bg-white text-ink-muted border-line-strong hover:border-brand'
                           }`}
                         >
-                          {on && '✓ '}{skill}
+                          {on && <i className="fa-solid fa-check mr-2"></i>}
+                          {skill}
                         </button>
                       );
                     })}
