@@ -16,5 +16,5 @@ router.use('/payments', require('./payment.routes'));
 router.use('/reviews', protect, authorize('customer'), require('./review.routes'));
 router.use('/admin', protect, authorize('admin'), require('./admin.routes'));
 router.use('/tech', protect, authorize('technician'), require('./technician.routes'));
-
+router.use('/me', protect, require('./password.routes'));
 module.exports = router;
