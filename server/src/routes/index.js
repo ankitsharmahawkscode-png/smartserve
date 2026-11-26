@@ -24,6 +24,7 @@ router.use('/tech', protect, authorize('technician'), require('./technician.rout
 router.use('/me', protect, require('./password.routes'));
 router.use('/corporate', corporateRoutes);
 router.use('/gift-cards', giftCardRoutes);
-router.use('/shop', require('./shopRoutes'));
+router.use('/shop', require('./shopRoutes')); 
+
 
 module.exports = router;
