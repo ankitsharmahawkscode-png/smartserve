@@ -3,7 +3,8 @@ console.log("✅ SHOP ROUTES FILE IS LOADING");
 const express = require('express');
 const router = express.Router();
 const { getProducts, getProductById, createOrder, getMyOrders } = require('../controllers/shopController');
-const { protect } = require('../middleware/authMiddleware'); // Your existing auth middleware
+const { protect } = require('../middleware/authMiddleware');
+// Your existing auth middleware
 
 // Public routes
 router.get('/products', getProducts);
