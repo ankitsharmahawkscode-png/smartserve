@@ -2,24 +2,37 @@ const router = require('express').Router();
 const { protect, authorize } = require('../middleware/auth');
 const seoRoutes = require('../utils/seo.routes');
 
+// 👇 Import all route files at the top 👇
+const publicRoutes = require('./public.routes');
+const authRoutes = require('./auth.routes');
+const meRoutes = require('./me.routes');
+const bookingRoutes = require('./booking.routes');
+const paymentRoutes = require('./payment.routes');
+const reviewRoutes = require('./review.routes');
+const adminRoutes = require('./admin.routes');
+const technicianRoutes = require('./technician.routes');
+const passwordRoutes = require('./password.routes');
+const corporateRoutes = require('./corporateRoutes');
+const giftCardRoutes = require('./giftCardRoutes');
+const shopRoutes = require('./shopRoutes'); // 👈 Make sure this is here
+
 router.get('/health', (req, res) =>
   res.json({ success: true, data: { status: 'ok', uptime: process.uptime() }, message: 'SmartServe API is running' })
 );
 
-router.use(require('./public.routes'));
+// 👇 Mount them 👇
+router.use(publicRoutes);
 router.use('/seo', seoRoutes);
-router.use('/auth', require('./auth.routes'));
-router.use('/me', protect, require('./me.routes'));
-router.use('/bookings', protect, authorize('customer'), require('./booking.routes'));
-router.use('/payments', require('./payment.routes'));
-router.use('/reviews', protect, authorize('customer'), require('./review.routes'));
-router.use('/admin', protect, authorize('admin'), require('./admin.routes'));
-router.use('/tech', protect, authorize('technician'), require('./technician.routes'));
-router.use('/me', protect, require('./password.routes'));
-
-// 👇 New Routes 👇
-router.use('/corporate', require('./corporateRoutes'));
-router.use('/gift-cards', require('./giftCardRoutes'));
-router.use('/shop', require('./shopRoutes')); 
+router.use('/auth', authRoutes);
+router.use('/me', protect, meRoutes);
+router.use('/bookings', protect, authorize('customer'), bookingRoutes);
+router.use('/payments', paymentRoutes);
+router.use('/reviews', protect, authorize('customer'), reviewRoutes);
+router.use('/admin', protect, authorize('admin'), adminRoutes);
+router.use('/tech', protect, authorize('technician'), technicianRoutes);
+router.use('/me', protect, passwordRoutes);
+router.use('/corporate', corporateRoutes);
+router.use('/gift-cards', giftCardRoutes);
+router.use('/shop', shopRoutes);
 
 module.exports = router;
