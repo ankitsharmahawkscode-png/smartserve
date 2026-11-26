@@ -27,7 +27,8 @@ console.log("3. Loading Auth");
 router.use('/auth', authRoutes);
 
 console.log("4. Loading Me");
-router.use('/me', protect, meRoutes);
+router.use('/me', meRoutes);
+
 
 console.log("5. Loading Bookings");
 router.use('/bookings', protect, authorize('customer'), bookingRoutes);
