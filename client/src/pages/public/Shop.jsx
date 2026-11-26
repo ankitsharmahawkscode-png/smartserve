@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import useSeo from '../../hooks/useSeo.js';
 import useFetch from '../../hooks/useFetch.js'; // 👈 Import your fetch hook
 import { useAuth } from '../../context/AuthContext.jsx'; // 👈 Import auth to check if logged in
+import { useState, useEffect } from 'react'; // 👈 Add useEffect
+import api from '../../api/client.js'; // 👈 Import your axios client
 import { 
   FaShoppingCart, 
   FaStar, 
@@ -23,10 +25,27 @@ export default function Shop() {
   const { user } = useAuth(); // Check if user is logged in
 
   // 👇 Fetch products from backend API 👇
-  const { data, loading, error } = useFetch('/shop/products');
-  
-  // Extract products safely based on your API response format
-  const products = data?.data?.data || data?.data || [];
+const [products, setProducts] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState('');
+
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      // Direct call to your Render backend
+      const res = await api.get('/shop/products');
+      // Set the data exactly as your API returns it
+      setProducts(res.data.data || res.data || []); 
+    } catch (err) {
+      console.error("API Error:", err);
+      setError(err.message || 'Failed to load products.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchProducts();
+}, []);
 
 
   useSeo({
