@@ -18,7 +18,11 @@ const giftCardRoutes = require('./routes/giftCardRoutes');
 app.set('trust proxy', trustProxyHops);
 app.disable('x-powered-by');
 app.use(helmet());
-app.use(cors({ origin: 'https://smartserve-wine.vercel.app', credentials: true }));
+const { clientUrl } = require('./config/env');
+app.use(cors({ 
+  origin: ['http://localhost:5173', 'https://smartserve-wine.vercel.app', clientUrl].filter(Boolean), 
+  credentials: true 
+}));
 
 // rawBody is kept so the Razorpay webhook signature can be checked against the exact bytes received.
 app.use(express.json({ limit: '1mb', verify: (req, res, buf) => { req.rawBody = buf; } }));
