@@ -9,6 +9,7 @@ const CITIES = [
   { name: 'Mumbai', slug: 'mumbai', state: 'Maharashtra', desc: 'Trusted home services and appliance repair in Mumbai.' },
   { name: 'Delhi NCR', slug: 'delhi-ncr', state: 'Delhi', desc: 'Same-day plumbing, cleaning, and AC repair in Delhi.' },
   { name: 'Hyderabad', slug: 'hyderabad', state: 'Telangana', desc: 'Book verified technicians for home repairs in Hyderabad.' },
+  { name: 'Jaipur', slug: 'jaipur', state: 'Rajasthan', desc: 'Book verified technicians for home repairs in Jaipur.' },
 ];
 
 export default function Locations() {
