@@ -3,22 +3,19 @@ const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
-const { nodeEnv, isProd, trustProxyHops } = require('./config/env');
+const { nodeEnv, isProd, trustProxyHops, clientUrl } = require('./config/env');
 const routes = require('./routes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const { apiLimiter, writeLimiter, rejectOperatorKeys, noStore } = require('./middleware/security');
-const express = require('express');
+
 const app = express();
 
-const express = require('express');
-
-const corporateRoutes = require('./routes/corporateRoutes');
-const giftCardRoutes = require('./routes/giftCardRoutes');
 // Behind Render/Vercel proxies, so rate limits see the real client IP
 app.set('trust proxy', trustProxyHops);
 app.disable('x-powered-by');
 app.use(helmet());
-const { clientUrl } = require('./config/env');
+
+// CORS setup
 app.use(cors({ 
   origin: ['http://localhost:5173', 'https://smartserve-wine.vercel.app', clientUrl].filter(Boolean), 
   credentials: true 
@@ -29,19 +26,20 @@ app.use(express.json({ limit: '1mb', verify: (req, res, buf) => { req.rawBody = 
 app.use(cookieParser());
 if (nodeEnv !== 'test') app.use(morgan(isProd ? 'combined' : 'dev'));
 
-// Temporary: open /api/v1/version to see which build is live. Delete after the test.
+// Temporary: open /api/v1/version to see which build is live.
 app.get('/api/v1/version', (req, res) => res.json({ build: 'media-1' }));
 
-// Public images: cached for a year, so they skip the limiters and the no-store header
+// Public images
 app.get('/api/v1/ping-media', (req, res) => res.json({ ok: true, build: 'media-2', at: new Date().toISOString() }));
 app.use('/api/v1/media', require('./routes/media.routes'));
 
 app.use('/api', noStore, apiLimiter, writeLimiter, rejectOperatorKeys);
-app.use('/api/v1', routes);
-app.use('/uploads', express.static('uploads'));
 
-app.use('/api/corporate', corporateRoutes);
-app.use('/api/gift-cards', giftCardRoutes);
+// 👇 THIS IS THE ONLY LINE NEEDED FOR YOUR ROUTES 👇
+// It automatically picks up /shop, /corporate, /gift-cards from routes/index.js
+app.use('/api/v1', routes); 
+
+app.use('/uploads', express.static('uploads'));
 
 // These two must stay last
 app.use(notFound);
