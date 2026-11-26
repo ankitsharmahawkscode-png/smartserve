@@ -17,6 +17,8 @@ const EMPTY_FORM = {
   stock: '',
   image: '',
   features: '', // We'll split this by comma on submit
+    isActive: true, // 👈 Add this
+
 };
 
 export default function AdminProducts() {
@@ -85,6 +87,7 @@ export default function AdminProducts() {
         originalPrice: Number(form.originalPrice),
         stock: Number(form.stock),
         features: form.features.split(',').map(f => f.trim()).filter(Boolean),
+        isActive: form.isActive, // 👈 Add this
       };
 
       if (editingId) {
@@ -124,6 +127,18 @@ export default function AdminProducts() {
           <h1 className="text-2xl font-bold text-gray-900">Shop Products</h1>
           <p className="text-sm text-gray-500">Manage your appliance inventory.</p>
         </div>
+        <div className="flex items-center gap-2 mt-2">
+  <input 
+    type="checkbox" 
+    id="isActive" 
+    checked={form.isActive} 
+    onChange={(e) => setForm({ ...form, isActive: e.target.checked })} 
+    className="w-4 h-4 text-brand rounded border-gray-300 focus:ring-brand"
+  />
+  <label htmlFor="isActive" className="text-sm font-semibold text-gray-700">
+    Product is active (visible in the shop)
+  </label>
+</div>
         <Button onClick={() => openModal()} className="flex items-center gap-2">
           <FaPlus /> Add Product
         </Button>
