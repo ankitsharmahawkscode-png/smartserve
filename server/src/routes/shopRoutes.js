@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getProducts, getProductById, createOrder, getMyOrders } = require('../controllers/shopController');
 
-// 👇 Import both 'protect' and 'authorize', and import the Product model 👇
+// Import both 'protect' and 'authorize', and import the Product model
 const { protect, authorize } = require('../middleware/auth'); 
 const Product = require('../models/Product'); 
 
@@ -15,6 +15,17 @@ router.post('/orders', protect, authorize('customer'), createOrder);
 router.get('/orders/myorders', protect, getMyOrders);
 
 // --- ADMIN ROUTES ---
+
+// 👇 ADDED: Get ALL products for the Admin Panel (including hidden ones) 👇
+router.get('/admin/products', protect, authorize('admin'), async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, count: products.length, data: products });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Create a product
 router.post('/admin/products', protect, authorize('admin'), async (req, res) => {
   try {

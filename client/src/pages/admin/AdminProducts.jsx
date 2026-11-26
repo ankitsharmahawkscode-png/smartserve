@@ -16,9 +16,8 @@ const EMPTY_FORM = {
   originalPrice: '',
   stock: '',
   image: '',
-  features: '', // We'll split this by comma on submit
-    isActive: true, // 👈 Add this
-
+  features: '',
+  isActive: true, // Default to active
 };
 
 export default function AdminProducts() {
@@ -28,18 +27,16 @@ export default function AdminProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
-  // 1. Fetch Products
-  const fetchProducts = async () => {
+ const fetchProducts = async () => {
     try {
       setLoading(true);
-      // Note: This fetches all products, including inactive ones (you may need an admin endpoint for this)
-      const res = await api.get('/shop/products');
+      // 👇 Change this from '/shop/products' to '/shop/admin/products' 👇
+      const res = await api.get('/shop/admin/products');
       setProducts(res.data.data);
     } catch (err) {
       setError('Failed to load products.');
@@ -53,7 +50,11 @@ export default function AdminProducts() {
   }, []);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setForm({ 
+      ...form, 
+      [name]: type === 'checkbox' ? checked : value 
+    });
   };
 
   const openModal = (product = null) => {
@@ -68,6 +69,7 @@ export default function AdminProducts() {
         stock: product.stock,
         image: product.image,
         features: product.features?.join(', ') || '',
+        isActive: product.isActive !== undefined ? product.isActive : true, // 👈 Load existing status
       });
     } else {
       setEditingId(null);
@@ -76,7 +78,6 @@ export default function AdminProducts() {
     setIsModalOpen(true);
   };
 
-  // 2. Save Product (Create or Update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -87,17 +88,17 @@ export default function AdminProducts() {
         originalPrice: Number(form.originalPrice),
         stock: Number(form.stock),
         features: form.features.split(',').map(f => f.trim()).filter(Boolean),
-        isActive: form.isActive, // 👈 Add this
+        isActive: form.isActive, // 👈 Include in payload
       };
 
       if (editingId) {
-       await api.put(`/shop/admin/products/${editingId}`, payload);
+        await api.put(`/shop/admin/products/${editingId}`, payload);
       } else {
         await api.post('/shop/admin/products', payload);
       }
       
       setIsModalOpen(false);
-      fetchProducts(); // Refresh list
+      fetchProducts();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to save product.');
     } finally {
@@ -105,12 +106,10 @@ export default function AdminProducts() {
     }
   };
 
-  // 3. Delete Product
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
       await api.delete(`/shop/admin/products/${id}`);
-
       fetchProducts();
     } catch (err) {
       alert('Failed to delete product.');
@@ -127,24 +126,13 @@ export default function AdminProducts() {
           <h1 className="text-2xl font-bold text-gray-900">Shop Products</h1>
           <p className="text-sm text-gray-500">Manage your appliance inventory.</p>
         </div>
-        <div className="flex items-center gap-2 mt-2">
-  <input 
-    type="checkbox" 
-    id="isActive" 
-    checked={form.isActive} 
-    onChange={(e) => setForm({ ...form, isActive: e.target.checked })} 
-    className="w-4 h-4 text-brand rounded border-gray-300 focus:ring-brand"
-  />
-  <label htmlFor="isActive" className="text-sm font-semibold text-gray-700">
-    Product is active (visible in the shop)
-  </label>
-</div>
+        
+        {/* 👇 Removed the checkbox from here 👇 */}
         <Button onClick={() => openModal()} className="flex items-center gap-2">
           <FaPlus /> Add Product
         </Button>
       </div>
 
-      {/* Products Table */}
       <div className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 border-b border-line text-gray-600">
@@ -153,6 +141,7 @@ export default function AdminProducts() {
               <th className="p-4 font-semibold">Name</th>
               <th className="p-4 font-semibold">Category</th>
               <th className="p-4 font-semibold">Price</th>
+              <th className="p-4 font-semibold">Status</th>
               <th className="p-4 font-semibold">Stock</th>
               <th className="p-4 font-semibold text-right">Actions</th>
             </tr>
@@ -167,7 +156,12 @@ export default function AdminProducts() {
                 <td className="p-4 text-gray-500">{p.category}</td>
                 <td className="p-4">
                   <span className="font-bold">₹{p.price.toLocaleString('en-IN')}</span>
-                  <span className="text-xs text-gray-400 line-through ml-2">₹{p.originalPrice.toLocaleString('en-IN')}</span>
+                </td>
+                <td className="p-4">
+                  {/* 👇 Visual indicator of active/hidden status 👇 */}
+                  <span className={`px-2 py-1 rounded text-xs font-bold ${p.isActive !== false ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                    {p.isActive !== false ? 'Active' : 'Hidden'}
+                  </span>
                 </td>
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded text-xs font-bold ${p.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -182,14 +176,13 @@ export default function AdminProducts() {
             ))}
             {products.length === 0 && (
               <tr>
-                <td colSpan="6" className="p-8 text-center text-gray-500">No products found. Add your first product!</td>
+                <td colSpan="7" className="p-8 text-center text-gray-500">No products found. Add your first product!</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -220,6 +213,21 @@ export default function AdminProducts() {
               <Textarea label="Description" name="description" value={form.description} onChange={handleChange} rows={3} required />
               
               <Input label="Features (Comma separated)" name="features" value={form.features} onChange={handleChange} placeholder="Copper Condenser, Turbo Cooling, 4-in-1 Mode" />
+
+              {/* 👇 MOVED CHECKBOX HERE 👇 */}
+              <div className="flex items-center gap-2 mt-2 bg-gray-50 p-4 rounded-xl border border-line">
+                <input 
+                  type="checkbox" 
+                  id="isActive" 
+                  name="isActive"
+                  checked={form.isActive} 
+                  onChange={handleChange} 
+                  className="w-5 h-5 text-brand rounded border-gray-300 focus:ring-brand cursor-pointer"
+                />
+                <label htmlFor="isActive" className="text-sm font-semibold text-gray-800 cursor-pointer">
+                  Product is active (visible to customers in the shop)
+                </label>
+              </div>
 
               <div className="flex justify-end gap-3 mt-4">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-gray-300 font-semibold hover:bg-gray-50">Cancel</button>
