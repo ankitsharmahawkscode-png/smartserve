@@ -66,7 +66,8 @@ import ScrollToTop from './components/ScrollToTop';
 import BookingConfirmed from './pages/customer/BookingConfirmed.jsx';
 import Locations from './pages/public/Locations';
 import CityDetail from './pages/public/CityDetail';
-
+import Corporate from './pages/public/Corporate';
+import GiftCards from './pages/public/GiftCards';
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -119,6 +120,9 @@ export default function App() {
 <Route path="/install" element={<InstallApp />} />
 <Route path="/for-business" element={<ForBusiness />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/corporate" element={<Corporate />} />
+<Route path="/gift-cards" element={<GiftCards />} />
+
         
       </Route>
 
