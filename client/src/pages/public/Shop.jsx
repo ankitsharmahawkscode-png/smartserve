@@ -1,11 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useSeo from '../../hooks/useSeo.js';
-import useFetch from '../../hooks/useFetch.js'; // 👈 Import your fetch hook
-import { useAuth } from '../../context/AuthContext.jsx'; // 👈 Import auth to check if logged in
-import { useState, useEffect } from 'react'; // 👈 Add useEffect
-import api from '../../api/client.js'; // 👈 Import your axios client
+import api from '../../api/client.js'; 
+import { useAuth } from '../../context/AuthContext.jsx';
 import { 
   FaShoppingCart, 
   FaStar, 
@@ -22,31 +20,36 @@ export default function Shop() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-  const { user } = useAuth(); // Check if user is logged in
+  const { user } = useAuth();
 
-  // 👇 Fetch products from backend API 👇
-const [products, setProducts] = useState([]);
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState('');
+  // State for products
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-useEffect(() => {
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      // Direct call to your Render backend
-      const res = await api.get('/shop/products');
-      // Set the data exactly as your API returns it
-      setProducts(res.data.data || res.data || []); 
-    } catch (err) {
-      console.error("API Error:", err);
-      setError(err.message || 'Failed to load products.');
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchProducts();
-}, []);
-
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        // Direct call to Render backend
+        const res = await api.get('/shop/products');
+        
+        // The backend returns { success: true, count: 2, data: [...] }
+        // So we extract res.data.data
+        if (res.data && Array.isArray(res.data.data)) {
+            setProducts(res.data.data);
+        } else {
+            setProducts([]);
+        }
+      } catch (err) {
+        console.error("API Error:", err);
+        setError(err.message || 'Failed to load products.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   useSeo({
     title: 'Buy Home Appliances Online | AC, Fridge, Washing Machine | SmartServe',
@@ -54,27 +57,36 @@ useEffect(() => {
     path: '/shop',
   });
 
-  // Filter using backend data (note: using 'category' from DB)
+  // Filter logic (safe guarded against nulls)
   const filteredProducts = products.filter((p) => {
+    if (!p) return false;
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = p.name?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
   const handleBuyClick = (productId) => {
     if (!user) {
-      // If not logged in, send to login page with a redirect back to shop
       navigate('/login?redirect=/shop');
       return;
     }
-    // If logged in, navigate to a checkout page (You will need to build this page)
-    // For now, let's just alert
     alert(`Proceeding to checkout for product: ${productId}`);
-    // navigate(`/checkout/${productId}`);
   };
 
   return (
     <main className="bg-gray-50 min-h-screen pb-16">
+      {/* Debug Box - REMOVE THIS ONCE IT WORKS */}
+      <div style={{ background: 'yellow', padding: '20px', margin: '20px', border: '2px solid red', color: 'black', zIndex: 9999, position: 'relative' }}>
+        <h3>Debug Info:</h3>
+        <p><strong>Loading:</strong> {loading ? 'Yes' : 'No'}</p>
+        <p><strong>Error:</strong> {error ? String(error) : 'None'}</p>
+        <p><strong>Total Products in State:</strong> {products.length}</p>
+        <p><strong>Filtered Products:</strong> {filteredProducts.length}</p>
+        <pre style={{ maxHeight: '200px', overflow: 'auto', background: '#fff', padding: '10px', fontSize: '12px' }}>
+          {JSON.stringify(products, null, 2)}
+        </pre>
+      </div>
+
       {/* Hero Section */}
       <section className="bg-white border-b border-line py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
@@ -88,7 +100,6 @@ useEffect(() => {
             </p>
           </div>
           
-          {/* Search Bar */}
           <div className="w-full md:w-auto flex-1 max-w-md">
             <div className="relative">
               <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -124,7 +135,6 @@ useEffect(() => {
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           
-          {/* Sidebar Filters */}
           <aside className="w-full lg:w-64 shrink-0">
             <div className="bg-white rounded-2xl border border-line p-5 sticky top-24">
               <div className="flex items-center gap-2 font-bold mb-4 text-gray-900">
@@ -149,7 +159,6 @@ useEffect(() => {
             </div>
           </aside>
 
-          {/* Product Grid */}
           <div className="flex-1">
             <div className="mb-6 flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-900">
@@ -158,14 +167,12 @@ useEffect(() => {
               <span className="text-sm text-ink-muted">{filteredProducts.length} results</span>
             </div>
 
-            {/* 👇 Loading State 👇 */}
             {loading && (
               <div className="text-center py-20">
                 <p className="text-lg font-semibold text-gray-600">Loading products...</p>
               </div>
             )}
 
-            {/* 👇 Error State 👇 */}
             {error && (
               <div className="text-center py-20 bg-red-50 rounded-2xl border border-red-200">
                 <p className="text-lg font-semibold text-red-700 mb-2">Failed to load products</p>
@@ -173,7 +180,6 @@ useEffect(() => {
               </div>
             )}
 
-            {/* 👇 Product Grid 👇 */}
             {!loading && !error && (
               filteredProducts.length === 0 ? (
                 <div className="text-center py-20 bg-white rounded-2xl border border-line">
@@ -184,13 +190,12 @@ useEffect(() => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                   {filteredProducts.map((product, i) => (
                     <motion.div
-                      key={product._id} // 👈 Use _id from MongoDB
+                      key={product._id}
                       initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: i * 0.05 }}
                       className="bg-white rounded-2xl border border-line overflow-hidden hover:shadow-lg transition-shadow flex flex-col"
                     >
-                      {/* Image */}
                       <div className="relative aspect-square bg-gray-50 p-4">
                         <img
                           src={product.image}
@@ -202,7 +207,6 @@ useEffect(() => {
                         </span>
                       </div>
 
-                      {/* Details */}
                       <div className="p-5 flex flex-col flex-1">
                         <p className="text-xs font-semibold text-brand mb-1">{product.category}</p>
                         <h3 className="font-bold text-gray-900 leading-snug mb-2 line-clamp-2">
