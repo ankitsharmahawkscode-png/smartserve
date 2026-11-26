@@ -1,3 +1,5 @@
+console.log("✅ SHOP ROUTES FILE IS LOADING");
+
 const express = require('express');
 const router = express.Router();
 const { getProducts, getProductById, createOrder, getMyOrders } = require('../controllers/shopController');
