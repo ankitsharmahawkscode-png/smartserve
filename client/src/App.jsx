@@ -69,6 +69,7 @@ import CityDetail from './pages/public/CityDetail';
 import Corporate from './pages/public/Corporate';
 import GiftCards from './pages/public/GiftCards';
 import Shop from './pages/public/Shop';
+import AdminProducts from './pages/admin/AdminProducts.jsx';
 
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
@@ -160,6 +161,7 @@ export default function App() {
         ['blogs', <AdminBlog />],
         ['coupons', <AdminCoupons />],
         ['applications', <AdminApplications />],
+        ['products', <AdminProducts />], 
         ['profile', <AdminProfile />],
         ['staff', <AdminStaff />],
       ], <AdminOverview />)}

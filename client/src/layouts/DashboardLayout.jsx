@@ -7,11 +7,17 @@ import ProfileMenu from '../components/ProfileMenu.jsx';
 import NotificationBell from '../components/NotificationBell.jsx';
 
 // Admin ke menus ab object format mein hain taaki permission mapping aasan ho
+// Inside DashboardLayout.jsx
+
 const ADMIN_MENUS = [
   { label: 'Overview', path: '', permission: 'all' },
   { label: 'Bookings', path: 'bookings', permission: 'bookings' },
   { label: 'Services', path: 'services', permission: 'services' },
   { label: 'Categories', path: 'categories', permission: 'categories' },
+  
+  // 👇 ADD THIS LINE 👇
+  { label: 'Shop Products', path: 'products', permission: 'services' }, 
+  
   { label: 'Blog', path: 'blogs', permission: 'blogs' },
   { label: 'Technicians', path: 'technicians', permission: 'technicians' },
   { label: 'Customers', path: 'customers', permission: 'customers' },
