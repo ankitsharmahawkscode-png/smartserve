@@ -64,6 +64,9 @@ import InstallApp from './pages/public/InstallApp.jsx';
 import ForBusiness from './pages/public/ForBusiness.jsx';
 import ScrollToTop from './components/ScrollToTop';
 import BookingConfirmed from './pages/customer/BookingConfirmed.jsx';
+import Locations from './pages/public/Locations';
+import CityDetail from './pages/public/CityDetail';
+
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -86,6 +89,8 @@ export default function App() {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+           <Route path="/locations" element={<Locations />} />
+        <Route path="/locations/:city" element={<CityDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
