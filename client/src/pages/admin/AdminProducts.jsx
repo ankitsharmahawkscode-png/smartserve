@@ -88,9 +88,9 @@ export default function AdminProducts() {
       };
 
       if (editingId) {
-        await api.put(`/admin/shop/products/${editingId}`, payload);
+       await api.put(`/shop/admin/products/${editingId}`, payload);
       } else {
-        await api.post('/admin/shop/products', payload);
+        await api.post('/shop/admin/products', payload);
       }
       
       setIsModalOpen(false);
@@ -106,7 +106,8 @@ export default function AdminProducts() {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
-      await api.delete(`/admin/shop/products/${id}`);
+      await api.delete(`/shop/admin/products/${id}`);
+
       fetchProducts();
     } catch (err) {
       alert('Failed to delete product.');

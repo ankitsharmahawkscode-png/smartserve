@@ -16,7 +16,7 @@ router.get('/orders/myorders', protect, getMyOrders);
 
 // --- ADMIN ROUTES ---
 // Create a product
-router.post('/admin/products', protect, authorize('admin'), async (req, res) => {
+router.post('/products', protect, authorize('admin'), async (req, res) => {
   try {
     const product = await Product.create(req.body);
     res.status(201).json({ success: true, data: product });
