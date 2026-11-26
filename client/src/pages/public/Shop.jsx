@@ -26,7 +26,8 @@ export default function Shop() {
   const { data, loading, error } = useFetch('/shop/products');
   
   // Extract products safely based on your API response format
-  const products = data?.data || [];
+  const products = data?.data?.data || data?.data || [];
+
 
   useSeo({
     title: 'Buy Home Appliances Online | AC, Fridge, Washing Machine | SmartServe',
