@@ -68,6 +68,8 @@ import Locations from './pages/public/Locations';
 import CityDetail from './pages/public/CityDetail';
 import Corporate from './pages/public/Corporate';
 import GiftCards from './pages/public/GiftCards';
+import Shop from './pages/public/Shop';
+
 const dash = (role, pages, home = <DashboardHome />) => (
   <Route element={<ProtectedRoute role={role} />}>
     <Route path={`/${role}`} element={<DashboardLayout role={role} />}>
@@ -122,6 +124,7 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
         <Route path="/corporate" element={<Corporate />} />
 <Route path="/gift-cards" element={<GiftCards />} />
+<Route path="/shop" element={<Shop />} />
 
         
       </Route>
