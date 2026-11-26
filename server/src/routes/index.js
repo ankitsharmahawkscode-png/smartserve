@@ -1,16 +1,10 @@
 const router = require('express').Router();
 const { protect, authorize } = require('../middleware/auth');
 const seoRoutes = require('../utils/seo.routes');
-const corporateRoutes = require('./corporateRoutes');
-const giftCardRoutes = require('./giftCardRoutes');
-
-const express = require('express');
-
 
 router.get('/health', (req, res) =>
   res.json({ success: true, data: { status: 'ok', uptime: process.uptime() }, message: 'SmartServe API is running' })
 );
-
 
 router.use(require('./public.routes'));
 router.use('/seo', seoRoutes);
@@ -22,9 +16,10 @@ router.use('/reviews', protect, authorize('customer'), require('./review.routes'
 router.use('/admin', protect, authorize('admin'), require('./admin.routes'));
 router.use('/tech', protect, authorize('technician'), require('./technician.routes'));
 router.use('/me', protect, require('./password.routes'));
-router.use('/corporate', corporateRoutes);
-router.use('/gift-cards', giftCardRoutes);
-router.use('/shop', require('./shopRoutes')); 
 
+// 👇 New Routes 👇
+router.use('/corporate', require('./corporateRoutes'));
+router.use('/gift-cards', require('./giftCardRoutes'));
+router.use('/shop', require('./shopRoutes')); 
 
 module.exports = router;
