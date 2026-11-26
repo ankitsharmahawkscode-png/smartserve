@@ -76,17 +76,6 @@ export default function Shop() {
   return (
     <main className="bg-gray-50 min-h-screen pb-16">
       {/* Debug Box - REMOVE THIS ONCE IT WORKS */}
-      <div style={{ background: 'yellow', padding: '20px', margin: '20px', border: '2px solid red', color: 'black', zIndex: 9999, position: 'relative' }}>
-        <h3>Debug Info:</h3>
-        <p><strong>Loading:</strong> {loading ? 'Yes' : 'No'}</p>
-        <p><strong>Error:</strong> {error ? String(error) : 'None'}</p>
-        <p><strong>Total Products in State:</strong> {products.length}</p>
-        <p><strong>Filtered Products:</strong> {filteredProducts.length}</p>
-        <pre style={{ maxHeight: '200px', overflow: 'auto', background: '#fff', padding: '10px', fontSize: '12px' }}>
-          {JSON.stringify(products, null, 2)}
-        </pre>
-      </div>
-
       {/* Hero Section */}
       <section className="bg-white border-b border-line py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
