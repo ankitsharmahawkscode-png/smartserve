@@ -7,7 +7,8 @@ import InstallPWA from '../components/InstallPWA.jsx';
 import LoginPopup from '../components/LoginPopup.jsx';
 import ProfileMenu from '../components/ProfileMenu.jsx'; // 👈 Import the menu
 
-const NAV = [['/services', 'Services'], ['/blog', 'Blog'], ['/about', 'About'], ['/contact', 'Contact']];
+const NAV = [['/services', 'Services'], ['/locations', 'Locations'], ['/blog', 'Blog'], ['/about', 'About'], ['/contact', 'Contact']];
+
 
 export default function PublicLayout() {
   const { user, loading, logout } = useAuth(); // 👈 Get 'logout' here
