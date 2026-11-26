@@ -1,11 +1,14 @@
 const router = require('express').Router();
 const { protect, authorize } = require('../middleware/auth');
 const seoRoutes = require('../utils/seo.routes');
+const corporateRoutes = require('./corporateRoutes');
+const giftCardRoutes = require('./giftCardRoutes');
 
 
 router.get('/health', (req, res) =>
   res.json({ success: true, data: { status: 'ok', uptime: process.uptime() }, message: 'SmartServe API is running' })
 );
+
 
 router.use(require('./public.routes'));
 router.use('/seo', seoRoutes);
@@ -17,4 +20,7 @@ router.use('/reviews', protect, authorize('customer'), require('./review.routes'
 router.use('/admin', protect, authorize('admin'), require('./admin.routes'));
 router.use('/tech', protect, authorize('technician'), require('./technician.routes'));
 router.use('/me', protect, require('./password.routes'));
+router.use('/corporate', corporateRoutes);
+router.use('/gift-cards', giftCardRoutes);
+
 module.exports = router;

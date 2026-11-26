@@ -7,8 +7,13 @@ const { nodeEnv, isProd, trustProxyHops } = require('./config/env');
 const routes = require('./routes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const { apiLimiter, writeLimiter, rejectOperatorKeys, noStore } = require('./middleware/security');
-
+const express = require('express');
 const app = express();
+
+const express = require('express');
+
+const corporateRoutes = require('./routes/corporateRoutes');
+const giftCardRoutes = require('./routes/giftCardRoutes');
 // Behind Render/Vercel proxies, so rate limits see the real client IP
 app.set('trust proxy', trustProxyHops);
 app.disable('x-powered-by');
@@ -30,6 +35,9 @@ app.use('/api/v1/media', require('./routes/media.routes'));
 app.use('/api', noStore, apiLimiter, writeLimiter, rejectOperatorKeys);
 app.use('/api/v1', routes);
 app.use('/uploads', express.static('uploads'));
+
+app.use('/api/corporate', corporateRoutes);
+app.use('/api/gift-cards', giftCardRoutes);
 
 // These two must stay last
 app.use(notFound);
