@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useSeo from '../../hooks/useSeo.js';
+import useFetch from '../../hooks/useFetch.js'; // 👈 Import your fetch hook
+import { useAuth } from '../../context/AuthContext.jsx'; // 👈 Import auth to check if logged in
 import { 
   FaShoppingCart, 
   FaStar, 
@@ -12,63 +14,19 @@ import {
   FaSearch 
 } from 'react-icons/fa';
 
-// Mock Data - In a real app, you would fetch this from your backend API
-const PRODUCTS = [
-  {
-    id: 'ac-1',
-    name: 'Voltas 1.5 Ton 3 Star Inverter Split AC',
-    category: 'Air Conditioners',
-    price: 32990,
-    originalPrice: 45000,
-    rating: 4.5,
-    reviews: 1240,
-    image: 'https://images.unsplash.com/photo-1614632537423-1e6c2e7e0aab?auto=format&fit=crop&q=80&w=400',
-    features: ['Copper Condenser', 'Turbo Cooling', '4-in-1 Adjustable Mode'],
-    inStock: true,
-  },
-  {
-    id: 'wm-1',
-    name: 'LG 7 Kg 5 Star Fully-Automatic Front Load',
-    category: 'Washing Machines',
-    price: 26990,
-    originalPrice: 35000,
-    rating: 4.7,
-    reviews: 856,
-    image: 'https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?auto=format&fit=crop&q=80&w=400',
-    features: ['AI Direct Drive', 'Steam Wash', 'Inverter Technology'],
-    inStock: true,
-  },
-  {
-    id: 'ref-1',
-    name: 'Samsung 256L 3 Star Double Door Refrigerator',
-    category: 'Refrigerators',
-    price: 24500,
-    originalPrice: 31000,
-    rating: 4.4,
-    reviews: 2100,
-    image: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?auto=format&fit=crop&q=80&w=400',
-    features: ['Digital Inverter', 'Convertible 5-in-1', 'Stabilizer Free Operation'],
-    inStock: true,
-  },
-  {
-    id: 'ac-2',
-    name: 'Daikin 1.5 Ton 5 Star Inverter Split AC',
-    category: 'Air Conditioners',
-    price: 42990,
-    originalPrice: 55000,
-    rating: 4.8,
-    reviews: 3400,
-    image: 'https://images.unsplash.com/photo-1598892850097-85e7e3b341d5?auto=format&fit=crop&q=80&w=400',
-    features: ['PM 2.5 Filter', 'Dew Clean Technology', 'Coanda Airflow'],
-    inStock: true,
-  },
-];
-
 const CATEGORIES = ['All', 'Air Conditioners', 'Washing Machines', 'Refrigerators', 'Microwaves'];
 
 export default function Shop() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+  const { user } = useAuth(); // Check if user is logged in
+
+  // 👇 Fetch products from backend API 👇
+  const { data, loading, error } = useFetch('/shop/products');
+  
+  // Extract products safely based on your API response format
+  const products = data?.data || [];
 
   useSeo({
     title: 'Buy Home Appliances Online | AC, Fridge, Washing Machine | SmartServe',
@@ -76,11 +34,24 @@ export default function Shop() {
     path: '/shop',
   });
 
-  const filteredProducts = PRODUCTS.filter((p) => {
+  // Filter using backend data (note: using 'category' from DB)
+  const filteredProducts = products.filter((p) => {
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const handleBuyClick = (productId) => {
+    if (!user) {
+      // If not logged in, send to login page with a redirect back to shop
+      navigate('/login?redirect=/shop');
+      return;
+    }
+    // If logged in, navigate to a checkout page (You will need to build this page)
+    // For now, let's just alert
+    alert(`Proceeding to checkout for product: ${productId}`);
+    // navigate(`/checkout/${productId}`);
+  };
 
   return (
     <main className="bg-gray-50 min-h-screen pb-16">
@@ -167,67 +138,88 @@ export default function Shop() {
               <span className="text-sm text-ink-muted">{filteredProducts.length} results</span>
             </div>
 
-            {filteredProducts.length === 0 ? (
-              <div className="text-center py-20 bg-white rounded-2xl border border-line">
-                <p className="text-lg font-semibold text-gray-900 mb-2">No products found</p>
-                <p className="text-ink-muted">Try adjusting your search or category filter.</p>
+            {/* 👇 Loading State 👇 */}
+            {loading && (
+              <div className="text-center py-20">
+                <p className="text-lg font-semibold text-gray-600">Loading products...</p>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredProducts.map((product, i) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: i * 0.05 }}
-                    className="bg-white rounded-2xl border border-line overflow-hidden hover:shadow-lg transition-shadow flex flex-col"
-                  >
-                    {/* Image */}
-                    <div className="relative aspect-square bg-gray-50 p-4">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-contain mix-blend-multiply"
-                      />
-                      <span className="absolute top-3 left-3 bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-md">
-                        {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                      </span>
-                    </div>
+            )}
 
-                    {/* Details */}
-                    <div className="p-5 flex flex-col flex-1">
-                      <p className="text-xs font-semibold text-brand mb-1">{product.category}</p>
-                      <h3 className="font-bold text-gray-900 leading-snug mb-2 line-clamp-2">
-                        {product.name}
-                      </h3>
-                      
-                      <div className="flex items-center gap-1 mb-3">
-                        <FaStar className="text-[#d97706] text-sm" />
-                        <span className="text-sm font-bold">{product.rating}</span>
-                        <span className="text-xs text-ink-muted">({product.reviews})</span>
+            {/* 👇 Error State 👇 */}
+            {error && (
+              <div className="text-center py-20 bg-red-50 rounded-2xl border border-red-200">
+                <p className="text-lg font-semibold text-red-700 mb-2">Failed to load products</p>
+                <p className="text-red-500">{error}</p>
+              </div>
+            )}
+
+            {/* 👇 Product Grid 👇 */}
+            {!loading && !error && (
+              filteredProducts.length === 0 ? (
+                <div className="text-center py-20 bg-white rounded-2xl border border-line">
+                  <p className="text-lg font-semibold text-gray-900 mb-2">No products found</p>
+                  <p className="text-ink-muted">Try adjusting your search or category filter.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {filteredProducts.map((product, i) => (
+                    <motion.div
+                      key={product._id} // 👈 Use _id from MongoDB
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: i * 0.05 }}
+                      className="bg-white rounded-2xl border border-line overflow-hidden hover:shadow-lg transition-shadow flex flex-col"
+                    >
+                      {/* Image */}
+                      <div className="relative aspect-square bg-gray-50 p-4">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-contain mix-blend-multiply"
+                        />
+                        <span className="absolute top-3 left-3 bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-md">
+                          {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                        </span>
                       </div>
 
-                      <ul className="text-xs text-ink-muted space-y-1 mb-4 flex-1">
-                        {product.features.slice(0, 3).map((f, idx) => (
-                          <li key={idx} className="flex items-center gap-1.5">
-                            <span className="h-1 w-1 bg-gray-400 rounded-full"></span> {f}
-                          </li>
-                        ))}
-                      </ul>
-
-                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-line">
-                        <div>
-                          <p className="text-lg font-extrabold text-gray-900">₹{product.price.toLocaleString('en-IN')}</p>
-                          <p className="text-xs text-ink-muted line-through">₹{product.originalPrice.toLocaleString('en-IN')}</p>
+                      {/* Details */}
+                      <div className="p-5 flex flex-col flex-1">
+                        <p className="text-xs font-semibold text-brand mb-1">{product.category}</p>
+                        <h3 className="font-bold text-gray-900 leading-snug mb-2 line-clamp-2">
+                          {product.name}
+                        </h3>
+                        
+                        <div className="flex items-center gap-1 mb-3">
+                          <FaStar className="text-[#d97706] text-sm" />
+                          <span className="text-sm font-bold">{product.rating}</span>
+                          <span className="text-xs text-ink-muted">({product.numReviews || 0})</span>
                         </div>
-                        <button className="flex items-center gap-2 bg-brand-dark text-white rounded-xl px-4 py-2 text-sm font-bold hover:bg-black transition-colors">
-                          <FaShoppingCart /> Buy
-                        </button>
+
+                        <ul className="text-xs text-ink-muted space-y-1 mb-4 flex-1">
+                          {product.features?.slice(0, 3).map((f, idx) => (
+                            <li key={idx} className="flex items-center gap-1.5">
+                              <span className="h-1 w-1 bg-gray-400 rounded-full"></span> {f}
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="flex items-end justify-between mt-auto pt-4 border-t border-line">
+                          <div>
+                            <p className="text-lg font-extrabold text-gray-900">₹{product.price.toLocaleString('en-IN')}</p>
+                            <p className="text-xs text-ink-muted line-through">₹{product.originalPrice.toLocaleString('en-IN')}</p>
+                          </div>
+                          <button 
+                            onClick={() => handleBuyClick(product._id)}
+                            className="flex items-center gap-2 bg-brand-dark text-white rounded-xl px-4 py-2 text-sm font-bold hover:bg-black transition-colors"
+                          >
+                            <FaShoppingCart /> Buy
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )
             )}
           </div>
         </div>

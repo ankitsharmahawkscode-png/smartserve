@@ -4,6 +4,8 @@ const seoRoutes = require('../utils/seo.routes');
 const corporateRoutes = require('./corporateRoutes');
 const giftCardRoutes = require('./giftCardRoutes');
 
+const express = require('express');
+
 
 router.get('/health', (req, res) =>
   res.json({ success: true, data: { status: 'ok', uptime: process.uptime() }, message: 'SmartServe API is running' })
@@ -22,5 +24,6 @@ router.use('/tech', protect, authorize('technician'), require('./technician.rout
 router.use('/me', protect, require('./password.routes'));
 router.use('/corporate', corporateRoutes);
 router.use('/gift-cards', giftCardRoutes);
+router.use('/shop', require('./shopRoutes'));
 
 module.exports = router;
